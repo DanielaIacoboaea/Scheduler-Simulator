@@ -151,3 +151,10 @@ form{
 .container-fluid{
     font-size: 1.3rem;
 }
+
+.avgs{
+    width: 100%;
+    display: block;
+    margin: 0 auto;
+    padding-top: 2rem;
+}

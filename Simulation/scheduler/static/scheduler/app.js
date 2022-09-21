@@ -125,7 +125,7 @@ class RenderProgressBars extends React.Component{
                         <span class="material-symbols-outlined icon-delete" id={proc.id} onClick={this.handleDeleteClick}>delete</span>
                     </div>
                     <ProgressBar
-                        barWidth={proc.executedPercentage.toString()}
+                        barWidth={proc.executedPercentage.toFixed()}
                         ariaValuenow={proc.executed.toString()}
                         barColor={proc.color}
                     />
@@ -140,14 +140,17 @@ class RenderProgressBars extends React.Component{
                 </div>
                 )
             }
+            {this.props.avgTurnaround?
+                <div className="results avgs">
+                    <span style={{color: "#6c757d"}}><p>Avg T: {this.props.avgTurnaround} </p></span>
+                    <span style={{color: "#343a40"}}><p>Avg R: {this.props.avgResponse} </p></span>
+                </div>:
+                <div className="results avgs">
+                </div>
+            }
             </React.Fragment>
         );
     }
-}
-
-function printSomething(parent){
-    console.log("this gets executed with parameter: ", parent);
-    return {"lala": "land"};
 }
 
 
@@ -156,48 +159,49 @@ function schedulerNoTimeSlice(timer, allProcs, idx){
 
         const procs = allProcs.slice();
 
-        // update parent timer
         const proc = procs[idx];
         const executed = proc.executed;
         let procDone = false;
-        //console.log("procs: ", procs);
-       // console.log("idx: ", idx);
-       // console.log("proc: ", proc);
-       // console.log("proc.executed: ", proc.executed);
+        let noProcToRun = false;
+        if(proc.arrivalTime > timer){
+            noProcToRun = true;
+            return {
+                "updateProcs": procs,
+                "procDone": procDone,
+                "noProcToRun": noProcToRun
+            }
+        }
+        
         if(executed === 0){
             proc.startRunning = timer;
-            const percentInc = (100 / proc.executionTime).toFixed(2);
-            console.log("percentInc: ", percentInc);
-            proc.percentage = parseFloat(percentInc);
-            console.log("tyepe proc.percentage: ", typeof(proc.percentage));
+            const percentInc = 100 / proc.executionTime;
+            proc.percentage = percentInc;
             proc.executedPercentage = proc.percentage;
-            console.log("executedPercentage: ", proc.executedPercentage);
-            proc.executed = 1;
+            proc.executed += 1;
             proc.timeLeft = proc.executionTime;
             return {
                 "updateProcs": procs,
-                "procDone": procDone
+                "procDone": procDone,
+                "noProcToRun": noProcToRun
             }
-        }else{
-            if (executed < proc.executionTime){
-                proc.executedPercentage += proc.percentage;
-                console.log("executedPercentage: ", proc.executedPercentage);
-                proc.executed += 1;
-                proc.timeLeft -= 1;
-                return {
-                    "updateProcs": procs,
-                    "procDone": procDone
-                }
-            }else{
-                proc.turnaround = timer - proc.arrivalTime;
-                proc.response = proc.startRunning - proc.arrivalTime;
-                proc.executedPercentage += proc.percentage;
-                console.log("executedPercentage: ", proc.executedPercentage);
-                procDone = true;
-                return {
-                    "updateProcs": procs,
-                    "procDone": procDone
-                }
+        }else if (executed < proc.executionTime){
+            proc.executedPercentage += proc.percentage;
+            proc.executed += 1;
+            proc.timeLeft -= 1;
+            return {
+                "updateProcs": procs,
+                "procDone": procDone,
+                "noProcToRun": noProcToRun
+            }
+        }else if (executed === proc.executionTime){
+            proc.turnaround = timer - proc.arrivalTime;
+            proc.response = proc.startRunning - proc.arrivalTime;
+            procDone = true;
+            noProcToRun = false;
+            return {
+                "updateProcs": procs,
+                "procDone": procDone,
+                "noProcToRun": noProcToRun
             }
         }
     }
@@ -214,7 +218,10 @@ class FIFO extends React.Component{
             timer: 0,
             currentProcessIdx: 0,
             arrivalTime: "",
-            executionTime: ""
+            executionTime: "",
+            totalExecutionTime: 0,
+            avgTurnaround: 0,
+            avgResponse: 0
 
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -226,119 +233,120 @@ class FIFO extends React.Component{
     
     deleteProc(procId){
         if(!this.state.running){
+            let idxToDelete;
+            let execTime;
             const deleteProc = this.state.procs.slice();
-            deleteProc.splice(procId, 1);
-            this.setState(state => ({
-                procs: deleteProc
-            }));
+            for (let i = 0; i < deleteProc.length; i++){
+                if (deleteProc[i].id === procId){
+                    idxToDelete = i;
+                    execTime = deleteProc[i].executionTime;
+                }
+            }
+            deleteProc.splice(idxToDelete, 1);
+            if (this.state.totalExecutionTime !== 0){
+                this.setState(state => ({
+                    procs: deleteProc,
+                    totalExecutionTime: state.totalExecutionTime - execTime
+                }));
+            }else{
+                this.setState(state => ({
+                    procs: deleteProc
+                }));
+            }
         }
     }
 
-    runScheduler(totalExecutionTime){
-
+    runScheduler(){
         if (this.state.timer === 0){
             this.setState(state => ({
                 running: true
             }));
-        }
-
-        if(this.state.timer < totalExecutionTime){
             const scheduler = schedulerNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
             if (scheduler){
-                console.log("scheduler: ", scheduler);
-                console.log("scheduler.done: ", scheduler.procDone);
+                if (scheduler.noProcToRun){
+                    this.setState(state => ({
+                        totalExecutionTime: state.totalExecutionTime + 1
+                    }));
+                }
                 if (scheduler.procDone){
                     this.setState(state => ({
                         procs: scheduler.updateProcs,
-                        currentProcessIdx: state.currentProcessIdx + 1
+                        currentProcessIdx: state.currentProcessIdx + 1,
+                        timer: state.timer + 1
                     }));
-                }else{
+                }else if (!scheduler.procDone){
                     this.setState(state => ({
-                        procs: scheduler.updateProcs
-                    }));
-                }
-            }else{
-                if(this.state.timer === totalExecutionTime){
-                    clearInterval(this.schedulerTimerId);
-                    this.setState(state => ({
-                        running: false,
-                        timer: 0
+                        procs: scheduler.updateProcs,
+                        timer: state.timer + 1
                     }));
                 }
             }
+        }else if(this.state.timer < this.state.totalExecutionTime){
+            const scheduler = schedulerNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
+            if (scheduler){
+                if (scheduler.noProcToRun){
+                    this.setState(state => ({
+                        totalExecutionTime: state.totalExecutionTime + 1
+                    }));
+                } 
+                if (scheduler.procDone){
+                    this.setState(state => ({
+                        procs: scheduler.updateProcs,
+                        currentProcessIdx: state.currentProcessIdx + 1,
+                        timer: state.timer + 1
+                    }));
+                }else if (!scheduler.procDone){
+                    this.setState(state => ({
+                        procs: scheduler.updateProcs,
+                        timer: state.timer + 1
+                    }));
+                }
+            }
+        }else if(this.state.timer === this.state.totalExecutionTime){
+            clearInterval(this.schedulerTimerId);
+            let avgT = 0;
+            let avgR = 0;
+            for (let proc in this.state.procs){
+                avgT += this.state.procs[proc].turnaround;
+                avgR += this.state.procs[proc].response;
+            }
+            avgT = avgT/this.state.procs.length;
+            avgR = avgR/this.state.procs.length;
+            this.setState(state => ({
+                running: false,
+                timer: 0,
+                totalExecutionTime: 0,
+                avgTurnaround: avgT,
+                avgResponse: avgR
+            }));
         }
     }
 
-/*
-    runScheduler(totalTime){
-        if (this.state.schedulerTimer <= totalTime + 1){
-            this.setState(state => ({
-                schedulerTimer: state.schedulerTimer + 1
-            }));
-            const currentProcess = parseInt(this.state.currentProcessIdx);
-            const executed = parseInt(this.state.allProcesses[currentProcess].executed);
-            if (!executed){
-                const updateAllProcesses = this.state.allProcesses.slice();
-                updateAllProcesses[currentProcess].startRunning = (parseInt(this.state.schedulerTimer) - 1).toString();
-                const percentageIncrease = (100 /  updateAllProcesses[currentProcess].executionTime).toFixed(2);
-                updateAllProcesses[currentProcess].percentage= percentageIncrease.toString();
-                updateAllProcesses[currentProcess].executed = "1";
-                this.setState(state => ({
-                    allProcesses: updateAllProcesses
-                }));
-            }else{
-                if (executed < parseInt(this.state.allProcesses[currentProcess].executionTime)){
-                    const updateAllProcessesCount = this.state.allProcesses.slice();
-                    updateAllProcessesCount[currentProcess].executed = (parseInt(updateAllProcessesCount[currentProcess].executed) + 1).toString();
-                    const updatePercentage = parseFloat(updateAllProcessesCount[currentProcess].executedPercentage) + parseFloat(updateAllProcessesCount[currentProcess].percentage);
-                    updateAllProcessesCount[currentProcess].executedPercentage = updatePercentage.toString();
-                    this.setState(state => ({
-                        allProcesses: updateAllProcessesCount
-                    }));
-                }else if (executed === parseInt(this.state.allProcesses[currentProcess].executionTime)){
-                    const endCurrentProc = this.state.allProcesses.slice();
-                    const turnaroundProc = this.state.schedulerTimer - parseInt(endCurrentProc[currentProcess].arrivalTime);
-                    const responseProc = parseInt(endCurrentProc[currentProcess].startRunning) - parseInt(endCurrentProc[currentProcess].arrivalTime);
-                    endCurrentProc[currentProcess].turnaround = turnaroundProc.toString();
-                    endCurrentProc[currentProcess].response = responseProc.toString();
-                    endCurrentProc[currentProcess].executedPercentage = (parseFloat( endCurrentProc[currentProcess].executedPercentage) + parseFloat(endCurrentProc[currentProcess].percentage)).toString();
-                    this.setState(state => ({
-                        allProcesses: endCurrentProc,
-                        currentProcessIdx: (parseInt(state.currentProcessIdx) + 1).toString()
-                    }));
-                }
-            }
-        }else{
-            clearInterval(this.schedulerTimerId);
-            this.setState(state => ({
-                running: false,
-                schedulerTimer: 0
-            }));
-        }
-    }
-*/
     handleSubmit(event){
         event.preventDefault();
-        const addProc = this.state.procs.slice();
-        addProc.push(
-            {
-                id: this.state.count,
-                arrivalTime: parseInt(this.state.arrivalTime),
-                executionTime: parseInt(this.state.executionTime),
-                turnaround: "",
-                response: "",
-                color: colors[Math.floor(Math.random() * 31)],
-                executed: 0,
-                executedPercentage: 0,
-                percentage: 0,
-                startRunning: 0,
-                timeLeft: parseInt(this.state.executionTime)
-            }
-        )
-        this.setState((state) => ({
-            procs: addProc,
-            count: state.count + 1
-        }));
+        if (this.state.arrivalTime && this.state.executionTime){
+            const addProc = this.state.procs.slice();
+            addProc.push(
+                {
+                    id: this.state.count,
+                    arrivalTime: parseInt(this.state.arrivalTime),
+                    executionTime: parseInt(this.state.executionTime),
+                    turnaround: "",
+                    response: "",
+                    color: colors[Math.floor(Math.random() * 31)],
+                    executed: 0,
+                    executedPercentage: 0,
+                    percentage: 0,
+                    startRunning: 0,
+                    timeLeft: parseInt(this.state.executionTime)
+                }
+            )
+            this.setState((state) => ({
+                procs: addProc,
+                count: state.count + 1,
+                totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime) + 1
+            }));
+        }
     }
 
     handleChange(event){
@@ -348,16 +356,14 @@ class FIFO extends React.Component{
     }
 
     handleClickStart(){
-        if (!this.state.running){
-            this.setState(state => ({
-                running: true
-            }));
-            this.state.procs.sort((a, b) => a.arrivalTime - b.arrivalTime);
-            let totalExecutionTime = 0;
-            for (let i = 0; i < this.state.procs.length; i++){
-                totalExecutionTime += this.state.procs[i].executionTime;
+        if (this.state.procs.length !== 0){
+            if (!this.state.running){
+                this.setState(state => ({
+                    running: true
+                }));
+                this.state.procs.sort((a, b) => a.arrivalTime - b.arrivalTime);
+                this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000);
             }
-            this.schedulerTimerId = setInterval(() => this.runScheduler(totalExecutionTime), 1000);
         }
     }
     render(){
@@ -377,6 +383,7 @@ class FIFO extends React.Component{
                                 value={this.state.arrivalTime}
                                 min="0"
                                 max="200"
+                                required
                             />
                         </label>
                         <label>
@@ -388,6 +395,7 @@ class FIFO extends React.Component{
                                 value={this.state.executionTime}
                                 min="1"
                                 max="200"
+                                required
                             />
                         </label>
                     </form>
@@ -400,6 +408,8 @@ class FIFO extends React.Component{
                 <RenderProgressBars 
                     procs={processes.sort((a, b) => a.id - b.id)}
                     deleteBar={this.deleteProc}
+                    avgTurnaround={this.state.avgTurnaround}
+                    avgResponse={this.state.avgResponse}
                 />
             </div>
         );
