@@ -1,4 +1,4 @@
-function schedulerNoTimeSlice(timer, allProcs, idx){
+function scheduleNoTimeSlice(timer, allProcs, idx){
     if(idx < allProcs.length){
 
         const procs = allProcs.slice();
@@ -41,7 +41,7 @@ function schedulerNoTimeSlice(timer, allProcs, idx){
             proc.turnaround = timer - proc.arrivalTime;
             proc.response = proc.startRunning - proc.arrivalTime;
             procDone = true;
-            noProcToRun = false;
+            proc.timeLeft -= 1;
             return {
                 "updateProcs": procs,
                 "procDone": procDone,
@@ -52,4 +52,4 @@ function schedulerNoTimeSlice(timer, allProcs, idx){
     return null;
 }
 
-export default schedulerNoTimeSlice;
+export default scheduleNoTimeSlice;

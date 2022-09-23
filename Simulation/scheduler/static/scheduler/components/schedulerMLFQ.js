@@ -1,6 +1,6 @@
 import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
-import schedulerNoTimeSlice from "./components/schedulerNoTimeSlice";
+import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
 
 export default class MLFQ extends React.Component{
     constructor(props){

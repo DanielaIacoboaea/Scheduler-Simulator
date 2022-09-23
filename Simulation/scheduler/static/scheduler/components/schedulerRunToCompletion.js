@@ -1,8 +1,8 @@
 import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
-import schedulerNoTimeSlice from "./components/schedulerNoTimeSlice";
+import scheduleNoTimeSlice from "./components/scheduleNoTimeSlice";
 
-export default class FIFO extends React.Component{
+export default class SchedulerFIFOandSJF extends React.Component{
     constructor(props){
         super(props);
         this.state = {
@@ -31,7 +31,7 @@ export default class FIFO extends React.Component{
             let execTime;
             const deleteProc = this.state.procs.slice();
             for (let i = 0; i < deleteProc.length; i++){
-                if (deleteProc[i].id === procId){
+                if (deleteProc[i].id === parseInt(procId)){
                     idxToDelete = i;
                     execTime = deleteProc[i].executionTime;
                 }
@@ -40,7 +40,7 @@ export default class FIFO extends React.Component{
             if (this.state.totalExecutionTime !== 0){
                 this.setState(state => ({
                     procs: deleteProc,
-                    totalExecutionTime: state.totalExecutionTime - execTime
+                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime) - 1 
                 }));
             }else{
                 this.setState(state => ({
@@ -51,32 +51,8 @@ export default class FIFO extends React.Component{
     }
 
     runScheduler(){
-        if (this.state.timer === 0){
-            this.setState(state => ({
-                running: true
-            }));
-            const scheduler = schedulerNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
-            if (scheduler){
-                if (scheduler.noProcToRun){
-                    this.setState(state => ({
-                        totalExecutionTime: state.totalExecutionTime + 1
-                    }));
-                }
-                if (scheduler.procDone){
-                    this.setState(state => ({
-                        procs: scheduler.updateProcs,
-                        currentProcessIdx: state.currentProcessIdx + 1,
-                        timer: state.timer + 1
-                    }));
-                }else if (!scheduler.procDone){
-                    this.setState(state => ({
-                        procs: scheduler.updateProcs,
-                        timer: state.timer + 1
-                    }));
-                }
-            }
-        }else if(this.state.timer < this.state.totalExecutionTime){
-            const scheduler = schedulerNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
+        if(this.state.timer < this.state.totalExecutionTime){
+            const scheduler = scheduleNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
             if (scheduler){
                 if (scheduler.noProcToRun){
                     this.setState(state => ({
@@ -109,7 +85,6 @@ export default class FIFO extends React.Component{
             this.setState(state => ({
                 running: false,
                 timer: 0,
-                totalExecutionTime: 0,
                 avgTurnaround: avgT,
                 avgResponse: avgR
             }));
@@ -138,7 +113,9 @@ export default class FIFO extends React.Component{
             this.setState((state) => ({
                 procs: addProc,
                 count: state.count + 1,
-                totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime) + 1
+                totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime) + 1,
+                avgTurnaround: 0,
+                avgResponse: 0
             }));
         }
     }
@@ -155,7 +132,16 @@ export default class FIFO extends React.Component{
                 this.setState(state => ({
                     running: true
                 }));
-                this.state.procs.sort((a, b) => a.arrivalTime - b.arrivalTime);
+                if (this.props.sortBy === "FIFO"){
+                    this.state.procs.sort((a, b) => a.arrivalTime - b.arrivalTime);
+                }else if (this.props.sortBy === "SJF"){
+                    this.state.procs.sort((a, b) => {
+                        if(a.arrivalTime === b.arrivalTime){
+                            return a.executionTime - b.executionTime;
+                        }
+                        return a.arrivalTime - b.arrivalTime;
+                    });
+                }
                 this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000);
             }
         }
