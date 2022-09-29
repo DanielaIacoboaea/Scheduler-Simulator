@@ -146,7 +146,7 @@ export default class STCF extends React.Component{
             this.setState((state) => ({
                 procs: addProc,
                 count: state.count + 1,
-                totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime) + 1,
+                totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime),
                 avgTurnaround: 0,
                 avgResponse: 0
             }));

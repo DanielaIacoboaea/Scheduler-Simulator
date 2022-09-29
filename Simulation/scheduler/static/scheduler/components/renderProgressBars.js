@@ -25,7 +25,7 @@ export default class RenderProgressBars extends React.Component{
                         ariaValuenow={proc.executed.toString()}
                         barColor={proc.color}
                     />
-                    {proc.turnaround? 
+                    {proc.turnaround || proc.turnaround === 0? 
                         <div className="results">
                             <p>T: <span style={{color: proc.color}}>{proc.turnaround}</span> </p>
                             <p>R: <span style={{color: proc.color}}>{proc.response}</span> </p>
