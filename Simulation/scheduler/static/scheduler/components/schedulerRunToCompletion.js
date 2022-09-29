@@ -40,7 +40,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
             if (this.state.totalExecutionTime !== 0){
                 this.setState(state => ({
                     procs: deleteProc,
-                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime) - 1 
+                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime)
                 }));
             }else{
                 this.setState(state => ({
@@ -55,22 +55,18 @@ export default class SchedulerFIFOandSJF extends React.Component{
             const scheduler = scheduleNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
             if (scheduler){
                 if (scheduler.noProcToRun){
-                    console.log("ENTER NO PROC TO RUN");
                     this.setState(state => ({
                         totalExecutionTime: state.totalExecutionTime + 1,
                         timer: state.timer + 1
                     }));
                 }else {
                     if (scheduler.procDone){
-                        console.log("scheduler.procDone: ", scheduler);
                         this.setState(state => ({
                             procs: scheduler.updateProcs,
                             currentProcessIdx: state.currentProcessIdx + 1,
                             timer: state.timer + 1
                         }));
                     }else if (!scheduler.procDone){
-                        console.log("ENTER !scheduler.procDone and updates timer");
-                        console.log("!scheduler.procDone: ", scheduler);
                         this.setState(state => ({
                             procs: scheduler.updateProcs,
                             timer: state.timer + 1
@@ -121,7 +117,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 count: state.count + 1,
                 totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime),
                 avgTurnaround: 0,
-                avgResponse: 0
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: ""
             }));
         }
     }

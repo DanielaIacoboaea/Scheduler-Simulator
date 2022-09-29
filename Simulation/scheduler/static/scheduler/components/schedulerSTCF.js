@@ -41,7 +41,7 @@ export default class STCF extends React.Component{
             if (this.state.totalExecutionTime !== 0){
                 this.setState(state => ({
                     procs: deleteProc,
-                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime) - 1 
+                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime)
                 }));
             }else{
                 this.setState(state => ({
@@ -88,21 +88,23 @@ export default class STCF extends React.Component{
                 if(schedule){
                     if (schedule.noProcToRun){
                         this.setState(state => ({
-                            totalExecutionTime: state.totalExecutionTime + 1
-                        }));
-                    }
-                    if(schedule.procDone){
-                        this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            timer: state.timer + 1,
-                            currentProcessIdx: newProcessIdx + 1
+                            totalExecutionTime: state.totalExecutionTime + 1,
+                            timer: state.timer + 1
                         }));
                     }else{
-                        this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            timer: state.timer + 1,
-                            currentProcessIdx: newProcessIdx
-                        }));
+                        if(schedule.procDone){
+                            this.setState(state => ({
+                                procs: schedule.updateProcs,
+                                timer: state.timer + 1,
+                                currentProcessIdx: newProcessIdx + 1
+                            }));
+                        }else{
+                            this.setState(state => ({
+                                procs: schedule.updateProcs,
+                                timer: state.timer + 1,
+                                currentProcessIdx: newProcessIdx
+                            }));
+                        }
                     }
                 }
         }else if(this.state.timer === this.state.totalExecutionTime){
@@ -148,7 +150,9 @@ export default class STCF extends React.Component{
                 count: state.count + 1,
                 totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime),
                 avgTurnaround: 0,
-                avgResponse: 0
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: ""
             }));
         }
     }

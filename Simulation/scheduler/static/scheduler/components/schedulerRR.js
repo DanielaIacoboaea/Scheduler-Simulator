@@ -18,7 +18,8 @@ export default class RR extends React.Component{
             avgTurnaround: 0,
             avgResponse: 0,
             quantum: "",
-            quantumTicks: 0
+            quantumTicks: 0,
+            disabled: false
 
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -43,7 +44,7 @@ export default class RR extends React.Component{
             if (this.state.totalExecutionTime !== 0){
                 this.setState(state => ({
                     procs: deleteProc,
-                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime) - 1 
+                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime)
                 }));
             }else{
                 this.setState(state => ({
@@ -55,19 +56,14 @@ export default class RR extends React.Component{
 
     runSchedulerTimeSlice(){
         const quantumSlice = parseInt(this.state.quantum);
-        console.log("timer: ", this.state.timer);
-        console.log("quantum: ", this.state.quantum);
-        console.log("currentProcIndex: ", this.state.currentProcessIdx);
-        console.log("totalExecutionTime: ", this.state.totalExecutionTime);
-        console.log("quantumTicks: ", this.state.quantumTicks);
+       
         if(this.state.timer < this.state.totalExecutionTime){
 
             if(this.state.quantumTicks === quantumSlice){
-                console.log("REACH QUANTUM TICKS");
                 let newIdx;
 
                 for (let i = this.state.currentProcessIdx + 1; i < this.state.procs.length; i++){
-                    if(this.state.procs[i].timeLeft !== 0){
+                    if(this.state.procs[i].executed < this.state.procs[i].executionTime){
                         newIdx = i;
                         break;
                     }
@@ -75,7 +71,7 @@ export default class RR extends React.Component{
 
                 if(newIdx === undefined){
                     newIdx = 0;
-                    while(this.state.procs[newIdx].timeLeft === 0){
+                    while(this.state.procs[newIdx].executed === this.state.procs[newIdx].executionTime){
                         newIdx++;
                     }
                 }
@@ -96,35 +92,15 @@ export default class RR extends React.Component{
             if(schedule){
                 if (schedule.noProcToRun){
                     this.setState(state => ({
-                        totalExecutionTime: state.totalExecutionTime + 1
+                        totalExecutionTime: state.totalExecutionTime + 1,
+                        timer: state.timer + 1
                     }));
-                }
-                if(schedule.procDone){
-                    console.log("proc done: ");
-                    console.log("this.state.currentProcessIdx: ", this.state.currentProcessIdx);
-                    if(this.state.currentProcessIdx + 1 < this.state.procs.length){
-                        console.log("enters + 1");
+                }else {
+                    if(schedule.procDone){
                         this.setState(state => ({
                             procs: schedule.updateProcs,
                             timer: state.timer + 1,
-                            currentProcessIdx: state.currentProcessIdx + 1,
-                            quantumTicks: 0
-                        }));
-                    }else{
-                        console.log("enters reset to 0");
-                        this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            timer: state.timer + 1,
-                            currentProcessIdx: 0,
-                            quantumTicks: 0
-                        }));
-                    }
-                }else{
-                    console.log("proc NOT DONE");
-                    if(schedule.noProcToRun){
-                        this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            timer: state.timer + 1
+                            quantumTicks: quantumSlice
                         }));
                     }else{
                         this.setState(state => ({
@@ -132,12 +108,12 @@ export default class RR extends React.Component{
                             timer: state.timer + 1,
                             quantumTicks: state.quantumTicks + 1
                         }));
+                        }
                     }
                 }
-            }
 
         }else if(this.state.timer === this.state.totalExecutionTime){
-            console.log("TIMER FINISHED");
+            
             clearInterval(this.schedulerTimerId);
             let avgT = 0;
             let avgR = 0;
@@ -181,15 +157,24 @@ export default class RR extends React.Component{
                 count: state.count + 1,
                 totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime),
                 avgTurnaround: 0,
-                avgResponse: 0
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: ""
             }));
         }
     }
 
     handleChange(event){
-        this.setState((state) => ({
-            [event.target.name]: event.target.value
-        }));
+        if (event.target.name === "quantum"){
+            this.setState((state) => ({
+                [event.target.name]: event.target.value,
+                disabled: true
+            }));
+        }else{
+            this.setState((state) => ({
+                [event.target.name]: event.target.value
+            }));
+        }
     }
 
     handleClickStart(){
@@ -246,6 +231,7 @@ export default class RR extends React.Component{
                                 value={this.state.quantum}
                                 min="1"
                                 max="20"
+                                disabled={this.state.disabled}
                                 required
                             />
                         </label>
