@@ -5,6 +5,19 @@ import MLFQ from "./components/schedulerMLFQ";
 import SchedulerFIFOandSJF from "./components/schedulerRunToCompletion";
 
 
+/*
+    Render the scheduler selected by user.
+    Common parameters:
+    - Arrival Time -> when the process should start (e.g: 0)
+    - Execute Time -> how long the process should take (e.g: 10)
+    - Quantum -> the time slice that a process can run (e.g: 3), only for RR and MLFQ
+    - Boost -> time slice after which all the processes are moved to the top most queue(0) (e.g 5), only for MLFQ
+    - Queues -> number of queues inside the scheduler (e.g 4), only for MLFQ
+    - Turnaround Time -> Time Completion - Time Arrival 
+    - Response Time -> Time First Run - Time Arrival
+ */
+
+
 class App extends React.Component{
     constructor(props){
         super(props);

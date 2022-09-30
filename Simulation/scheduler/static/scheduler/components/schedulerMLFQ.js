@@ -4,7 +4,23 @@ import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
 import RenderProgressBarsMLFQ from "./renderProgressBarsMLFQ";
 
 
+/* 
+    The Multi-Level Feedback Queue Scheduler schedules each process 
+    based on it's priority. Each process starts on the top most queue(0)
+    and is moved on a lower priority queue(e.g, from 0 to 1, from 1 to 2) 
+    after it uses it's quantum.
+
+*/
+
+
 export default class MLFQ extends React.Component{
+    /* 
+    Component for Multi-Level Feedback Queue Scheduler 
+    Renders a form through which the user can set up
+    parameters for the scheduler and submit processes to run.
+    Runs the scheduler and mentains state for each running process
+    while rendering the progress bar for each process.
+    */
     constructor(props){
         super(props);
         this.state = {
@@ -37,6 +53,10 @@ export default class MLFQ extends React.Component{
         this.deleteProc = this.deleteProc.bind(this);
     }
     
+
+    /* 
+        delete a process from the scheduler
+    */
     deleteProc(procId){
         if(!this.state.running){
             let idxToDelete;
@@ -62,14 +82,29 @@ export default class MLFQ extends React.Component{
         }
     }
 
+
+    /*
+        runSchedulerTimeSlice() get's called every second by the scheduler. 
+        While the timer hasn't reached the total Execution time:
+        - check if it is time to boost all procs to queue 0
+        - check if the current running proc used it's quantum 
+        - decide which queue should run
+        - decide which process should run from the selected queue
+        - run the process and update it's progress within state 
+    */
     runSchedulerTimeSlice(){
         const quantumSlice = parseInt(this.state.quantum);
         const boost = parseInt(this.state.boost);
         const numQueues = parseInt(this.state.numQueues);
 
-
+        /* 
+            check timer 
+        */
         if(this.state.timer < this.state.totalExecutionTime){
 
+            /* 
+                if it is time to boost all procs to queue 0
+            */
             if (this.state.boostTicks === boost){
                 let get_queues = [];
                 let get_procs = this.state.procs.slice();
@@ -78,6 +113,10 @@ export default class MLFQ extends React.Component{
                     get_queues[i] = [];
                 }
 
+                /*
+                    If a process ran to completion, leave it on it's current queue
+                    Otherwise move them to the first queue(0)
+                 */
                 for (let i = 0; i < get_procs.length; i++){
                     if(get_procs[i].executed < get_procs[i].executionTime){
                         get_procs[i].queueIdx = 0;
@@ -94,6 +133,10 @@ export default class MLFQ extends React.Component{
                     });
                 }
 
+                /*
+                    Update state to reflect where each process is on the queue
+                    and reset the number of ticks for the boost time slice
+                 */
                 this.setState(state => ({
                     procs: get_procs,
                     queues: get_queues,
@@ -103,6 +146,13 @@ export default class MLFQ extends React.Component{
 
             }
 
+
+            /*
+                check if the current running proc used it's quantum 
+                if it's the case, move the process on a queue with 
+                a lower priority (e.g from 0 - 1, 1-2). If it is on the last queue,
+                it remains there until the next boost happens
+            */
             if(this.state.quantumTicks === quantumSlice){
 
                 let currentProcIdx = this.state.currentProcessIdx;
@@ -120,6 +170,9 @@ export default class MLFQ extends React.Component{
 
                         updateQueue[procOnQueue + 1].push(this.state.procs[currentProcIdx]);
                         
+                        /*
+                            update state to reflect changes in the process and for the queue
+                         */
                         this.setState(state => ({
                             procs: updateProcs,
                             queues: updateQueue
@@ -127,10 +180,18 @@ export default class MLFQ extends React.Component{
                     }
                 }
 
+                /*
+                    Decide which queue should run and which process from that queue should run
+                 */
                 let newProc;
                 let newQueue;
                 let getNewProc;
-
+                
+                /*
+                    Starting with the queue with the highest priority(0) chech 
+                    each queue to see if it has any proc available to run
+                    get the first process available to run from that queue
+                 */
                 for (let i = 0; i < this.state.queues.length; i++){
                     for (let j = 0; j < this.state.queues[i].length; j++){
                         if (this.state.queues[i][j].executed < this.state.queues[i][j].executionTime){
@@ -141,6 +202,9 @@ export default class MLFQ extends React.Component{
                     }
                 }
 
+                /*
+                    Update state to move to the new queue and start running the new process
+                 */
                 newProc = this.state.procs.indexOf(getNewProc);
                 this.setState(state => ({
                     currentProcessIdx: newProc,
@@ -149,15 +213,27 @@ export default class MLFQ extends React.Component{
                 }));
             }
 
+            /*
+                Run the selected process and update it's internal state
+             */
             const schedule = scheduleNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
             
             if(schedule){
+                /*
+                    If the timer is lower than the proc's arrival time in the system, 
+                    don't run it
+                 */
                 if (schedule.noProcToRun){
                     this.setState(state => ({
                         totalExecutionTime: state.totalExecutionTime + 1,
                         timer: state.timer + 1
                     }));
                 }else {
+                    /*
+                        Otherwise, update the process's internal state
+                        If the process is complete, signal that another process should run 
+                        by setting quantumTicks to quantumSlice
+                     */
                     if(schedule.procDone){
                         this.setState(state => ({
                             procs: schedule.updateProcs,
@@ -172,12 +248,16 @@ export default class MLFQ extends React.Component{
                             boostTicks: state.boostTicks + 1,
                             quantumTicks: state.quantumTicks + 1
                         }));
-                        }
                     }
                 }
+            }
 
         }else if(this.state.timer === this.state.totalExecutionTime){
-            
+            /* 
+                if timer reached the end (all the procs ran to completion)
+                compute the results for the session (avgTurnaround, avgResponse)
+                and reset the parameters related to timer.
+            */
             clearInterval(this.schedulerTimerId);
             let avgT = 0;
             let avgR = 0;
@@ -197,6 +277,13 @@ export default class MLFQ extends React.Component{
             }));
         }
     }
+
+
+    /*
+        Save a process to state in the array with all the processes 
+        that the scheduler should run.
+        Add the process on the starting queue(0).
+     */
 
     handleSubmit(event){
         event.preventDefault();
@@ -238,7 +325,13 @@ export default class MLFQ extends React.Component{
         }
     }
 
+
+    /* 
+        get the user input for each process and update state:
+        - arrival time, execute time, queues, boost, quantum
+     */
     handleChange(event){
+
         if (event.target.name === "numQueues"){
             let initialize_queues = [];
             for (let i = 0; i < parseInt(event.target.value); i++){
@@ -255,6 +348,15 @@ export default class MLFQ extends React.Component{
         }
     }
 
+
+    /*
+        Sort the list of processes based on when 
+        they are supposed to start running
+        Sort the first queue(0) because all the processes 
+        will start on this queue.
+        Run the scheduler every second until the timer reaches the total 
+        Execution Time for all process.
+    */
     handleClickStart(){
         if (this.state.procs.length !== 0){
             if (!this.state.running){
@@ -275,6 +377,7 @@ export default class MLFQ extends React.Component{
         const processes = this.state.procs.slice();
         return(
             <div className="container-fluid">
+                {/* Render the form through which the user will submit parameters for each process*/}
                 <div className="controlBtns">
                     <form onSubmit={this.handleSubmit}>
                     <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
@@ -349,6 +452,7 @@ export default class MLFQ extends React.Component{
                     </button>
                     </div>
                 </div>
+                 {/* Render the progress bars for each process*/}
                 <RenderProgressBarsMLFQ
                     procs={processes.sort((a, b) => a.id - b.id)}
                     queues={this.state.queues}
