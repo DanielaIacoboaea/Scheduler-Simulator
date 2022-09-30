@@ -159,22 +159,17 @@ export default class RR extends React.Component{
                 avgTurnaround: 0,
                 avgResponse: 0,
                 arrivalTime: "",
-                executionTime: ""
+                executionTime: "",
+                disabled: true
             }));
         }
     }
 
     handleChange(event){
-        if (event.target.name === "quantum"){
-            this.setState((state) => ({
-                [event.target.name]: event.target.value,
-                disabled: true
-            }));
-        }else{
-            this.setState((state) => ({
-                [event.target.name]: event.target.value
-            }));
-        }
+        
+        this.setState((state) => ({
+            [event.target.name]: event.target.value
+        }));
     }
 
     handleClickStart(){

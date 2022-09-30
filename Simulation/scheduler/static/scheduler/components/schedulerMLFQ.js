@@ -73,9 +73,6 @@ export default class MLFQ extends React.Component{
             if (this.state.boostTicks === boost){
                 let get_queues = [];
                 let get_procs = this.state.procs.slice();
-
-                //console.log("QUEUES: ", get_queues);
-                //console.log("PROCS: ", get_procs);
                 
                 for (let i = 0; i < numQueues; i++){
                     get_queues[i] = [];
@@ -100,7 +97,8 @@ export default class MLFQ extends React.Component{
                 this.setState(state => ({
                     procs: get_procs,
                     queues: get_queues,
-                    boostTicks: 0
+                    boostTicks: 0,
+                    quantumTicks: quantumSlice
                 }));
 
             }
@@ -121,8 +119,7 @@ export default class MLFQ extends React.Component{
                         updateQueue[procOnQueue].splice(idxOfProc, 1);
 
                         updateQueue[procOnQueue + 1].push(this.state.procs[currentProcIdx]);
-                        //console.log("QUANTUM procs: ", updateProcs);
-                       // console.log("QUANTUM queues: ", updateQueue);
+                        
                         this.setState(state => ({
                             procs: updateProcs,
                             queues: updateQueue
@@ -130,7 +127,6 @@ export default class MLFQ extends React.Component{
                     }
                 }
 
-                let queue = this.state.currentQueueIdx;
                 let newProc;
                 let newQueue;
                 let getNewProc;
@@ -146,7 +142,6 @@ export default class MLFQ extends React.Component{
                 }
 
                 newProc = this.state.procs.indexOf(getNewProc);
-                console.log("newProc: ", newProc);
                 this.setState(state => ({
                     currentProcessIdx: newProc,
                     currentQueueIdx: newQueue,
@@ -160,8 +155,7 @@ export default class MLFQ extends React.Component{
                 if (schedule.noProcToRun){
                     this.setState(state => ({
                         totalExecutionTime: state.totalExecutionTime + 1,
-                        timer: state.timer + 1,
-                        boostTicks: state.boostTicks + 1
+                        timer: state.timer + 1
                     }));
                 }else {
                     if(schedule.procDone){
@@ -225,12 +219,6 @@ export default class MLFQ extends React.Component{
                 queueIdx: 0
             };
 
-            //console.log("newProc: ", newProc);
-
-           // console.log("addProc: ", addProc);
-           // console.log("addToQueue: ", addToQueue);
-           // console.log(" addToQueue[0]: ",  addToQueue[0]);
-
             addProc.push(newProc);
             addToQueue[newProc.queueIdx].push(newProc);
 
@@ -242,31 +230,23 @@ export default class MLFQ extends React.Component{
                 avgTurnaround: 0,
                 avgResponse: 0,
                 arrivalTime: "",
-                executionTime: ""
+                executionTime: "",
+                quantumDisabled: true,
+                boostDisabled: true,
+                queuesDisabled: true
             }));
         }
     }
 
     handleChange(event){
-        if (event.target.name === "quantum"){
-            this.setState((state) => ({
-                [event.target.name]: event.target.value,
-                quantumDisabled: false
-            }));
-        }else if (event.target.name === "numQueues"){
+        if (event.target.name === "numQueues"){
             let initialize_queues = [];
             for (let i = 0; i < parseInt(event.target.value); i++){
                 initialize_queues[i] = [];
             }
             this.setState((state) => ({
                 [event.target.name]: event.target.value,
-                queuesDisabled: false,
                 queues: initialize_queues
-            }));
-        }else if(event.target.name === "boost"){
-            this.setState((state) => ({
-                [event.target.name]: event.target.value,
-                boostDisabled: false
             }));
         }else{
             this.setState((state) => ({
@@ -331,7 +311,7 @@ export default class MLFQ extends React.Component{
                                 onChange={this.handleChange}
                                 value={this.state.quantum}
                                 min="1"
-                                max="20"
+                                max="100"
                                 disabled={this.state.quantumDisabled}
                                 required
                             />
@@ -344,7 +324,7 @@ export default class MLFQ extends React.Component{
                                 onChange={this.handleChange}
                                 value={this.state.boost}
                                 min="1"
-                                max="20"
+                                max="100"
                                 disabled={this.state.boostDisabled}
                                 required
                             />
@@ -357,7 +337,7 @@ export default class MLFQ extends React.Component{
                                 onChange={this.handleChange}
                                 value={this.state.numQueues}
                                 min="1"
-                                max="20"
+                                max="10"
                                 disabled={this.state.queuesDisabled}
                                 required
                             />
