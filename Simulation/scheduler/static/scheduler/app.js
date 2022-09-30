@@ -30,11 +30,11 @@ class App extends React.Component{
         return(
             <React.Fragment>
            {
-            this.state.scheduler === "FIFO"? <div className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="FIFO"/></div>: 
-            this.state.scheduler === "SJF"? <div className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="SJF"/></div>:
-            this.state.scheduler === "STCF"? <div className={btnsWrapperSched}>{btnsSched}<STCF /></div>:
-            this.state.scheduler === "RR"? <div className={btnsWrapperSched}>{btnsSched}<RR /></div>: 
-            this.state.scheduler === "MLFQ"? <div className={btnsWrapperSched}>{btnsSched}<MLFQ /></div>:
+            this.state.scheduler === "FIFO"? <div className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="FIFO" alertColor="#6c757d"/></div>: 
+            this.state.scheduler === "SJF"? <div className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="SJF" alertColor="#17a2b8"/></div>:
+            this.state.scheduler === "STCF"? <div className={btnsWrapperSched}>{btnsSched}<STCF alertColor="#343a40"/></div>:
+            this.state.scheduler === "RR"? <div className={btnsWrapperSched}>{btnsSched}<RR alertColor="#28a745"/></div>: 
+            this.state.scheduler === "MLFQ"? <div className={btnsWrapperSched}>{btnsSched}<MLFQ alertColor="#dc3545"/></div>:
             <div className={btnsWrapper}>{btns}</div>
           }
           </React.Fragment>

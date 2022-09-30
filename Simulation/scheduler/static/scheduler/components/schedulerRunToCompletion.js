@@ -16,7 +16,6 @@ export default class SchedulerFIFOandSJF extends React.Component{
             totalExecutionTime: 0,
             avgTurnaround: 0,
             avgResponse: 0
-
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.runScheduler = this.runScheduler.bind(this);
@@ -194,6 +193,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                     deleteBar={this.deleteProc}
                     avgTurnaround={this.state.avgTurnaround}
                     avgResponse={this.state.avgResponse}
+                    alertColor={this.props.alertColor}
                 />
             </div>
         );

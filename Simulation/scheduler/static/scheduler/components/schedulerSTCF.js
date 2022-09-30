@@ -223,6 +223,7 @@ export default class STCF extends React.Component{
                     deleteBar={this.deleteProc}
                     avgTurnaround={this.state.avgTurnaround}
                     avgResponse={this.state.avgResponse}
+                    alertColor={this.props.alertColor}
                 />
             </div>
         );
