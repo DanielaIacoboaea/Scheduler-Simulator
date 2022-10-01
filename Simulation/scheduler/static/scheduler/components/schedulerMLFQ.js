@@ -102,6 +102,32 @@ export default class MLFQ extends React.Component{
         */
         if(this.state.timer < this.state.totalExecutionTime){
 
+            /*
+                Check if a new process from queue 0 is supposed to run now
+             */
+            let copyProcsOnQueue0 = this.state.queues[0].slice();
+
+            let newArrivalProcIdx = this.state.currentProcessIdx;
+            for (let i = 0; i < copyProcsOnQueue0.length; i++){
+                if (copyProcsOnQueue0[i].arrivalTime < this.state.timer){
+                    continue;
+                }
+                if(copyProcsOnQueue0[i].timeLeft !== 0){
+                    newArrivalProcIdx = i;
+                    break;
+                }
+            }
+
+            /*
+                Schedule the proc to run
+             */
+            if (newArrivalProcIdx !== this.state.currentProcessIdx){
+                this.setState(state => ({
+                    currentProcessIdx: newArrivalProcIdx,
+                    quantumTicks: 0
+                }));
+            }
+
             /* 
                 if it is time to boost all procs to queue 0
             */
@@ -145,7 +171,6 @@ export default class MLFQ extends React.Component{
                 }));
 
             }
-
 
             /*
                 check if the current running proc used its quantum 
