@@ -2,8 +2,17 @@ import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
 
+/*
+    Round-Robin (RR) Scheduler schedules each process to run 
+    for a time slice. Once that quantum(time slice) is up, it moves 
+    to the next process in the list. If it reaches the end of the list of procs, 
+    it returns at the beginning of the list and schedules the remaining ones.
+ */
 
 export default class RR extends React.Component{
+    /*
+        Component that renders the Round Robin Scheduler(RR)
+     */
     constructor(props){
         super(props);
         this.state = {
@@ -29,6 +38,10 @@ export default class RR extends React.Component{
         this.deleteProc = this.deleteProc.bind(this);
     }
     
+
+    /* 
+        delete a process from the scheduler
+    */
     deleteProc(procId){
         if(!this.state.running){
             let idxToDelete;
@@ -54,14 +67,28 @@ export default class RR extends React.Component{
         }
     }
 
+
+    /*
+        runScheduler() gets called every second by the scheduler. 
+        While the timer hasn't reached the total Execution time:
+        - check if the current running used its time slice 
+        - if it did, schedule the next process
+    */
     runSchedulerTimeSlice(){
         const quantumSlice = parseInt(this.state.quantum);
        
+        /* 
+            check timer 
+        */
         if(this.state.timer < this.state.totalExecutionTime){
-
+            /*
+                Check if the current running proc used its time slice
+             */
             if(this.state.quantumTicks === quantumSlice){
                 let newIdx;
-
+                /*
+                    Select the next proc from the list
+                 */
                 for (let i = this.state.currentProcessIdx + 1; i < this.state.procs.length; i++){
                     if(this.state.procs[i].executed < this.state.procs[i].executionTime){
                         newIdx = i;
@@ -69,12 +96,19 @@ export default class RR extends React.Component{
                     }
                 }
 
+                /*
+                    If no proc after the current one has time left from execution 
+                    Start searching a new proc from the beginning of the list
+                 */
                 if(newIdx === undefined){
                     newIdx = 0;
                     while(this.state.procs[newIdx].executed === this.state.procs[newIdx].executionTime){
                         newIdx++;
                     }
                 }
+                /*
+                    Switch to the new found proc
+                 */
                 if (this.state.currentProcessIdx !== newIdx){
                     this.setState(state => ({
                         currentProcessIdx: newIdx,
@@ -87,15 +121,26 @@ export default class RR extends React.Component{
                 }
             }
 
+            /*
+                Run the selected process and update its internal state
+             */
             const schedule = scheduleNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
             
             if(schedule){
+                /*
+                    If the timer is lower than the proc's arrival time in the system, 
+                    don't run it and increase the total execution Time 
+                 */
                 if (schedule.noProcToRun){
                     this.setState(state => ({
                         totalExecutionTime: state.totalExecutionTime + 1,
                         timer: state.timer + 1
                     }));
                 }else {
+                    /*
+                        Otherwise, update the process's internal state
+                        If the process is complete, select the next process from the list
+                     */
                     if(schedule.procDone){
                         this.setState(state => ({
                             procs: schedule.updateProcs,
@@ -113,7 +158,11 @@ export default class RR extends React.Component{
                 }
 
         }else if(this.state.timer === this.state.totalExecutionTime){
-            
+             /* 
+                if timer reached the end (all the procs ran to completion)
+                compute the results for the session (avgTurnaround, avgResponse)
+                and reset the parameters related to timer.
+            */
             clearInterval(this.schedulerTimerId);
             let avgT = 0;
             let avgR = 0;
@@ -133,6 +182,10 @@ export default class RR extends React.Component{
         }
     }
 
+    /*
+        Save a process to state in the array with all the processes 
+        that the scheduler should run.
+     */
     handleSubmit(event){
         event.preventDefault();
         if (this.state.arrivalTime && this.state.executionTime){
@@ -165,6 +218,10 @@ export default class RR extends React.Component{
         }
     }
 
+    /* 
+        get the user input for each process and update state:
+        - arrival time, execute time and quantum(time slice)
+     */
     handleChange(event){
         
         this.setState((state) => ({
@@ -172,6 +229,12 @@ export default class RR extends React.Component{
         }));
     }
 
+    /*
+        Sort the list of processes based on when 
+        they are supposed to start running and execution time
+        Run the scheduler every second until the timer reaches the total 
+        Execution Time for all process.
+    */
     handleClickStart(){
         if (this.state.procs.length !== 0){
             if (!this.state.running){
@@ -189,6 +252,7 @@ export default class RR extends React.Component{
         const processes = this.state.procs.slice();
         return(
             <div className="container-fluid">
+                {/* Render the form through which the user will submit parameters for each process*/}
                 <div className="controlBtns">
                     <form onSubmit={this.handleSubmit}>
                     <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
@@ -237,6 +301,7 @@ export default class RR extends React.Component{
                     </button>
                     </div>
                 </div>
+                {/* Render the progress bars for each process*/}
                 <RenderProgressBars 
                     procs={processes.sort((a, b) => a.id - b.id)}
                     deleteBar={this.deleteProc}

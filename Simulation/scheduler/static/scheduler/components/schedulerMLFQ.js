@@ -6,9 +6,9 @@ import RenderProgressBarsMLFQ from "./renderProgressBarsMLFQ";
 
 /* 
     The Multi-Level Feedback Queue Scheduler schedules each process 
-    based on it's priority. Each process starts on the top most queue(0)
+    based on its priority. Each process starts on the top most queue(0)
     and is moved on a lower priority queue(e.g, from 0 to 1, from 1 to 2) 
-    after it uses it's quantum.
+    after it uses its quantum.
 
 */
 
@@ -84,13 +84,13 @@ export default class MLFQ extends React.Component{
 
 
     /*
-        runSchedulerTimeSlice() get's called every second by the scheduler. 
+        runSchedulerTimeSlice() gets called every second by the scheduler. 
         While the timer hasn't reached the total Execution time:
         - check if it is time to boost all procs to queue 0
-        - check if the current running proc used it's quantum 
+        - check if the current running proc used its quantum 
         - decide which queue should run
         - decide which process should run from the selected queue
-        - run the process and update it's progress within state 
+        - run the process and update its progress within state 
     */
     runSchedulerTimeSlice(){
         const quantumSlice = parseInt(this.state.quantum);
@@ -114,7 +114,7 @@ export default class MLFQ extends React.Component{
                 }
 
                 /*
-                    If a process ran to completion, leave it on it's current queue
+                    If a process ran to completion, leave it on its current queue
                     Otherwise move them to the first queue(0)
                  */
                 for (let i = 0; i < get_procs.length; i++){
@@ -148,7 +148,7 @@ export default class MLFQ extends React.Component{
 
 
             /*
-                check if the current running proc used it's quantum 
+                check if the current running proc used its quantum 
                 if it's the case, move the process on a queue with 
                 a lower priority (e.g from 0 - 1, 1-2). If it is on the last queue,
                 it remains there until the next boost happens
@@ -214,7 +214,7 @@ export default class MLFQ extends React.Component{
             }
 
             /*
-                Run the selected process and update it's internal state
+                Run the selected process and update its internal state
              */
             const schedule = scheduleNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
             

@@ -1,5 +1,11 @@
 import ProgressBar from "./components/progressBar";
 
+/*
+    Render all progress bars for the FIFO, SJF, STCF and RR Schedulers.
+    Show averages running times for each process and per session, 
+    when they are available.
+ */
+
 export default class RenderProgressBars extends React.Component{
     constructor(props){
         super(props);
@@ -11,6 +17,7 @@ export default class RenderProgressBars extends React.Component{
     render(){
         return(
             <React.Fragment>
+            {/* Render progress bars and process information */}
             {this.props.procs.map((proc) =>
                 <React.Fragment>
                 <div className="results">
@@ -30,6 +37,7 @@ export default class RenderProgressBars extends React.Component{
                     />
                     {proc.turnaround || proc.turnaround === 0? 
                         <div className="results">
+                            {/* Render results if the process ran to completion */}
                             <p>T: <span style={{color: proc.color}}>{proc.turnaround}</span> </p>
                             <p>R: <span style={{color: proc.color}}>{proc.response}</span> </p>
                         </div>:
@@ -40,6 +48,7 @@ export default class RenderProgressBars extends React.Component{
                 </React.Fragment>
                 )
             }
+            {/* Render avg session results if we have them */}
             {this.props.avgTurnaround?
                 <div className="results avgs" style={{backgroundColor: this.props.alertColor}}>
                     <p>Average Turnaround Time : {this.props.avgTurnaround.toFixed(2)} </p>

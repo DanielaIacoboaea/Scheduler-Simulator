@@ -1,5 +1,11 @@
 import ProgressBar from "./components/progressBar";
 
+/*
+    Render all progress bars for the MLFQ Scheduler.
+    Difference between this component and the renderProgressBars:
+    - this component reflects how each progress bar progresses within its queue
+*/
+
 export default class RenderProgressBarsMLFQ extends React.Component{
     constructor(props){
         super(props);
@@ -11,6 +17,7 @@ export default class RenderProgressBarsMLFQ extends React.Component{
     render(){
         return(
             <React.Fragment>
+            {/* Render each progress bar inside the queue that it belongs to*/}
             {this.props.queues.map((queue, index) => {
                 return(
                     <React.Fragment>
@@ -29,6 +36,7 @@ export default class RenderProgressBarsMLFQ extends React.Component{
                     )
                 })
             }
+            {/* Render process information */}
             {this.props.procs.map((proc) =>
                 <div className="process">
                     <div>
@@ -41,6 +49,7 @@ export default class RenderProgressBarsMLFQ extends React.Component{
                     </div>
                     {proc.turnaround || proc.turnaround === 0? 
                         <div className="results">
+                            {/* Render results if the process ran to completion */}
                             <p>T: <span style={{color: proc.color}}>{proc.turnaround}</span> </p>
                             <p>R: <span style={{color: proc.color}}>{proc.response}</span> </p>
                         </div>:
@@ -50,7 +59,7 @@ export default class RenderProgressBarsMLFQ extends React.Component{
                 </div>
                 )
             }
-
+            {/* Render avg session results if we have them */}
             {this.props.avgTurnaround?
                 <div className="results avgs" style={{backgroundColor: this.props.alertColor}}>
                     <p>Average Turnaround Time : {this.props.avgTurnaround.toFixed(2)} </p>

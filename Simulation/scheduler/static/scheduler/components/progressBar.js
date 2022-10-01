@@ -1,3 +1,10 @@
+
+/*
+    Render one progress bar for each process and 
+    re-render it when the parent component changes state
+    to reflect the progress that the process has made.
+*/
+
 export default class ProgressBar extends React.Component{
     constructor(props){
         super(props);

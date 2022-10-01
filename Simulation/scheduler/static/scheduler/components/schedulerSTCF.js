@@ -3,7 +3,21 @@ import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
 
 
+/*
+    Shortest to Completion First Scheduler (STCF) checks every time 
+    when a new process enters the system all the procs that started 
+    running before the new proc (included)
+    and schedules the process that has the least time left from execution.
+ */
+
 export default class STCF extends React.Component{
+     /* 
+     Shortest to Completion First Scheduler (STCF) 
+    Renders a form through which the user can set up
+    parameters for the scheduler and submit processes to run.
+    Runs the scheduler and mentains state for each running process
+    while rendering the progress bar for each process.
+    */
     constructor(props){
         super(props);
         this.state = {
@@ -26,6 +40,9 @@ export default class STCF extends React.Component{
         this.deleteProc = this.deleteProc.bind(this);
     }
     
+     /* 
+        delete a process from the scheduler
+    */
     deleteProc(procId){
         if(!this.state.running){
             let idxToDelete;
@@ -51,9 +68,25 @@ export default class STCF extends React.Component{
         }
     }
 
+
+    /*
+        runScheduler() gets called every second by the scheduler. 
+        While the timer hasn't reached the total Execution time:
+        - decide which process should run from the sorted list of processes
+        - when a new process enters the system, sort all procs before it based on the time left from execution
+        - run the process and update its progress within state 
+        - if the process is done, select the next proc to run from the list
+    */
     runSchedulerInterrupt(){
+        /* 
+            check timer 
+        */
         if(this.state.timer < this.state.totalExecutionTime){
 
+            /*
+                Check if a new process entered the system
+                and it should run at this timer
+             */
             let copyProcs = this.state.procs.slice();
 
             let newArrivalProcIdx = this.state.currentProcessIdx;
@@ -66,48 +99,73 @@ export default class STCF extends React.Component{
                     break;
                 }
             }
+
+            /*
+                If a process different than the current proc arrived,
+                take this process as reference
+             */
             if (newArrivalProcIdx !== this.state.currentProcessIdx){
                 this.setState(state => ({
                     currentProcessIdx: newArrivalProcIdx
                 }));
             }
 
-                let sortProcsTimeLeft = copyProcs.slice(0, this.state.currentProcessIdx + 1).sort((a, b) => a.timeLeft - b.timeLeft);
-                let unsortedProcs = copyProcs.slice(this.state.currentProcessIdx + 1, copyProcs.length);
-                let newProcs = sortProcsTimeLeft.concat(unsortedProcs);
-                let newProcessIdx;
-                for (let i = 0; i < newProcs.length; i++){
-                    if(newProcs[i].timeLeft !== 0){
-                        newProcessIdx = i;
-                        break;
-                    }
+            /*
+                Check all procs with arrival time before the selected process 
+                and select the one with the smallest execution time left
+             */
+            let sortProcsTimeLeft = copyProcs.slice(0, this.state.currentProcessIdx + 1).sort((a, b) => a.timeLeft - b.timeLeft);
+            let unsortedProcs = copyProcs.slice(this.state.currentProcessIdx + 1, copyProcs.length);
+            let newProcs = sortProcsTimeLeft.concat(unsortedProcs);
+            let newProcessIdx;
+            for (let i = 0; i < newProcs.length; i++){
+                if(newProcs[i].timeLeft !== 0){
+                    newProcessIdx = i;
+                    break;
                 }
-                
-                const schedule = scheduleNoTimeSlice(this.state.timer, newProcs, newProcessIdx);
-                
-                if(schedule){
-                    if (schedule.noProcToRun){
+            }
+            
+             /*
+                Run the selected process and update its internal state
+             */
+            const schedule = scheduleNoTimeSlice(this.state.timer, newProcs, newProcessIdx);
+            
+            if(schedule){
+                /*
+                    If the timer is lower than the proc's arrival time in the system, 
+                    don't run it and increase the total execution Time 
+                 */
+                if (schedule.noProcToRun){
+                    this.setState(state => ({
+                        totalExecutionTime: state.totalExecutionTime + 1,
+                        timer: state.timer + 1
+                    }));
+                }else{
+                    /*
+                        Otherwise, update the process's internal state
+                        If the process is complete, select the next process from the list
+                     */
+                    if(schedule.procDone){
                         this.setState(state => ({
-                            totalExecutionTime: state.totalExecutionTime + 1,
-                            timer: state.timer + 1
+                            procs: schedule.updateProcs,
+                            timer: state.timer + 1,
+                            currentProcessIdx: newProcessIdx + 1
                         }));
                     }else{
-                        if(schedule.procDone){
-                            this.setState(state => ({
-                                procs: schedule.updateProcs,
-                                timer: state.timer + 1,
-                                currentProcessIdx: newProcessIdx + 1
-                            }));
-                        }else{
-                            this.setState(state => ({
-                                procs: schedule.updateProcs,
-                                timer: state.timer + 1,
-                                currentProcessIdx: newProcessIdx
-                            }));
-                        }
+                        this.setState(state => ({
+                            procs: schedule.updateProcs,
+                            timer: state.timer + 1,
+                            currentProcessIdx: newProcessIdx
+                        }));
                     }
                 }
+            }
         }else if(this.state.timer === this.state.totalExecutionTime){
+            /* 
+                if timer reached the end (all the procs ran to completion)
+                compute the results for the session (avgTurnaround, avgResponse)
+                and reset the parameters related to timer.
+            */
             clearInterval(this.schedulerTimerId);
             let avgT = 0;
             let avgR = 0;
@@ -126,6 +184,10 @@ export default class STCF extends React.Component{
         }
     }
 
+    /*
+        Save a process to state in the array with all the processes 
+        that the scheduler should run.
+     */
     handleSubmit(event){
         event.preventDefault();
         if (this.state.arrivalTime && this.state.executionTime){
@@ -157,12 +219,22 @@ export default class STCF extends React.Component{
         }
     }
 
+    /* 
+        get the user input for each process and update state:
+        - arrival time, execute time
+     */
     handleChange(event){
         this.setState((state) => ({
             [event.target.name]: event.target.value
         }));
     }
 
+     /*
+        Sort the list of processes based on when 
+        they are supposed to start running and execution time
+        Run the scheduler every second until the timer reaches the total 
+        Execution Time for all process.
+    */
     handleClickStart(){
         if (this.state.procs.length !== 0){
             if (!this.state.running){
@@ -183,6 +255,7 @@ export default class STCF extends React.Component{
         const processes = this.state.procs.slice();
         return(
             <div className="container-fluid">
+                {/* Render the form through which the user will submit parameters for each process*/}
                 <div className="controlBtns">
                     <form onSubmit={this.handleSubmit}>
                     <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
@@ -218,6 +291,7 @@ export default class STCF extends React.Component{
                     </button>
                     </div>
                 </div>
+                {/* Render the progress bars for each process*/}
                 <RenderProgressBars 
                     procs={processes.sort((a, b) => a.id - b.id)}
                     deleteBar={this.deleteProc}

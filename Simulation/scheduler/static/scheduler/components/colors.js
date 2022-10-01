@@ -1,3 +1,8 @@
+/*
+    Use to generate random colors for each process to 
+    distinguish it from other processes while running.
+*/
+
 const colors = [
     "#009374",
     "#C13470",

@@ -1,3 +1,10 @@
+
+/*
+    Buttons are used to navigate between schedulers and trigger 
+    the render of the scheduler in their parent component
+ */
+
+
 export default class Buttons extends React.Component{
     constructor(props){
         super(props);
