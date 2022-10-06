@@ -2,6 +2,7 @@ import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
 import RenderProgressBarsMLFQ from "./renderProgressBarsMLFQ";
+import deleteEntry from "./deleteProc";
 
 
 /* 
@@ -59,26 +60,18 @@ export default class MLFQ extends React.Component{
     */
     deleteProc(procId){
         if(!this.state.running){
-            let idxToDelete;
-            let execTime;
-            const deleteProc = this.state.procs.slice();
-            for (let i = 0; i < deleteProc.length; i++){
-                if (deleteProc[i].id === parseInt(procId)){
-                    idxToDelete = i;
-                    execTime = deleteProc[i].executionTime;
-                }
+            const deleted = deleteEntry(this.state.procs.slice(), procId);
+            const updateQueue0 = [];
+            const addToQueue = this.state.queues.slice();
+            for (let i = 0; i < deleted.updateProcs.length; i++){
+                updateQueue0.push(deleted.updateProcs[i]);
             }
-            deleteProc.splice(idxToDelete, 1);
-            if (this.state.totalExecutionTime !== 0){
-                this.setState(state => ({
-                    procs: deleteProc,
-                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime)
-                }));
-            }else{
-                this.setState(state => ({
-                    procs: deleteProc
-                }));
-            }
+            addToQueue[0] = updateQueue0.slice(0);
+            this.setState(state => ({
+                procs: deleted.updateProcs,
+                totalExecutionTime: deleted.updateTotalExecTime,
+                queues: addToQueue
+            }));
         }
     }
 

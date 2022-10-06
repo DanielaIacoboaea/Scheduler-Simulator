@@ -1,6 +1,7 @@
 import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
+import deleteEntry from "./deleteProc";
 
 
 /*
@@ -45,29 +46,13 @@ export default class STCF extends React.Component{
     */
     deleteProc(procId){
         if(!this.state.running){
-            let idxToDelete;
-            let execTime;
-            const deleteProc = this.state.procs.slice();
-            for (let i = 0; i < deleteProc.length; i++){
-                if (deleteProc[i].id === parseInt(procId)){
-                    idxToDelete = i;
-                    execTime = deleteProc[i].executionTime;
-                }
-            }
-            deleteProc.splice(idxToDelete, 1);
-            if (this.state.totalExecutionTime !== 0){
-                this.setState(state => ({
-                    procs: deleteProc,
-                    totalExecutionTime: state.totalExecutionTime - parseInt(execTime)
-                }));
-            }else{
-                this.setState(state => ({
-                    procs: deleteProc
-                }));
-            }
+            const deleted = deleteEntry(this.state.procs.slice(), procId);
+            this.setState(state => ({
+                procs: deleted.updateProcs,
+                totalExecutionTime: deleted.updateTotalExecTime
+            }));
         }
     }
-
 
     /*
         runScheduler() gets called every second by the scheduler. 
