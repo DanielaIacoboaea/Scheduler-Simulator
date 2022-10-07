@@ -49,10 +49,21 @@ export default class SchedulerFIFOandSJF extends React.Component{
     deleteProc(procId){
         if(!this.state.running){
             const deleted = deleteEntry(this.state.procs.slice(), procId);
-            this.setState(state => ({
-                procs: deleted.updateProcs,
-                totalExecutionTime: deleted.updateTotalExecTime
-            }));
+            /* 
+                if the list of procs is empty, reset the count to 0
+            */
+            if (deleted.updateProcs.length === 0){
+                this.setState(state => ({
+                    procs: deleted.updateProcs,
+                    totalExecutionTime: deleted.updateTotalExecTime,
+                    count: 0
+                }));
+            }else{
+                this.setState(state => ({
+                    procs: deleted.updateProcs,
+                    totalExecutionTime: deleted.updateTotalExecTime
+                }));
+            }
         }
     }
 
@@ -117,11 +128,16 @@ export default class SchedulerFIFOandSJF extends React.Component{
             }
             avgT = avgT/this.state.procs.length;
             avgR = avgR/this.state.procs.length;
+            /* 
+                reset the component's state
+            */
             this.setState(state => ({
                 running: false,
                 timer: 0,
                 avgTurnaround: avgT,
-                avgResponse: avgR
+                avgResponse: avgR,
+                currentProcessIdx: 0,
+                count: 0
             }));
         }
     }
@@ -132,11 +148,29 @@ export default class SchedulerFIFOandSJF extends React.Component{
      */
     handleSubmit(event){
         event.preventDefault();
+        /* 
+            check if a pervious session is over 
+            if it's the case, clear data for the previous session:
+             - procs
+             - totalExecutionTime
+             - count of procs
+        */
+        let addProc;
+        let count;
+        let totalExecution;
         if (this.state.arrivalTime && this.state.executionTime){
-            const addProc = this.state.procs.slice();
+            if (this.state.avgTurnaround !== 0){
+                addProc = [];
+                count = 0;
+                totalExecution = 0;
+            }else{
+                addProc = this.state.procs.slice();
+                count = this.state.count;
+                totalExecution = this.state.totalExecutionTime;
+            }
             addProc.push(
                 {
-                    id: this.state.count,
+                    id: count,
                     arrivalTime: parseInt(this.state.arrivalTime),
                     executionTime: parseInt(this.state.executionTime),
                     turnaround: "",
@@ -154,8 +188,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
              */
             this.setState((state) => ({
                 procs: addProc,
-                count: state.count + 1,
-                totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime),
+                count: count + 1,
+                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
                 avgTurnaround: 0,
                 avgResponse: 0,
                 arrivalTime: "",

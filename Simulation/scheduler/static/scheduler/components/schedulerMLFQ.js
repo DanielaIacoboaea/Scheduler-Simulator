@@ -59,6 +59,12 @@ export default class MLFQ extends React.Component{
         delete a process from the scheduler
     */
     deleteProc(procId){
+        /* 
+            if the list of procs is empty, reset 
+            - the count to 0
+            - numQueues, quantum, boost
+            - update the queues
+        */
         if(!this.state.running){
             const deleted = deleteEntry(this.state.procs.slice(), procId);
             const updateQueue0 = [];
@@ -67,11 +73,26 @@ export default class MLFQ extends React.Component{
                 updateQueue0.push(deleted.updateProcs[i]);
             }
             addToQueue[0] = updateQueue0.slice(0);
-            this.setState(state => ({
-                procs: deleted.updateProcs,
-                totalExecutionTime: deleted.updateTotalExecTime,
-                queues: addToQueue
-            }));
+            if (deleted.updateProcs.length === 0){
+                this.setState(state => ({
+                    procs: deleted.updateProcs,
+                    totalExecutionTime: deleted.updateTotalExecTime,
+                    queues: [],
+                    numQueues: "",
+                    quantum: "",
+                    boost: "",
+                    quantumDisabled: false,
+                    boostDisabled: false,
+                    queuesDisabled: false,
+                    count: 0
+                }));
+            }else{
+                this.setState(state => ({
+                    procs: deleted.updateProcs,
+                    totalExecutionTime: deleted.updateTotalExecTime,
+                    queues: addToQueue
+                }));
+            }
         }
     }
 
@@ -285,13 +306,24 @@ export default class MLFQ extends React.Component{
             }
             avgT = avgT/this.state.procs.length;
             avgR = avgR/this.state.procs.length;
+            /* 
+                reset the component's state
+            */
             this.setState(state => ({
                 running: false,
                 timer: 0,
                 avgTurnaround: avgT,
                 avgResponse: avgR,
                 quantumTicks: 0,
-                boostTicks: 0
+                boostTicks: 0,
+                numQueues: "",
+                quantum: "",
+                boost: "",
+                quantumDisabled: false,
+                boostDisabled: false,
+                queuesDisabled: false,
+                count: 0,
+                currentProcessIdx: 0
             }));
         }
     }
@@ -305,12 +337,29 @@ export default class MLFQ extends React.Component{
 
     handleSubmit(event){
         event.preventDefault();
+        let addProc;
+        let count;
+        let totalExecution;
+        let addToQueue;
         if (this.state.arrivalTime && this.state.executionTime){
-            const addProc = this.state.procs.slice();
-            const addToQueue = this.state.queues.slice();
+            if (this.state.avgTurnaround !== 0){
+                addProc = [];
+                count = 0;
+                totalExecution = 0;
+                addToQueue = [];
+                for (let i = 0; i < parseInt(this.state.numQueues); i++){
+                    addToQueue[i] = [];
+                }
+
+            }else{
+                addProc = this.state.procs.slice();
+                count = this.state.count;
+                totalExecution = this.state.totalExecutionTime;
+                addToQueue = this.state.queues.slice();
+            }
 
             const newProc =  {
-                id: this.state.count,
+                id: count,
                 arrivalTime: parseInt(this.state.arrivalTime),
                 executionTime: parseInt(this.state.executionTime),
                 turnaround: "",
@@ -326,12 +375,12 @@ export default class MLFQ extends React.Component{
 
             addProc.push(newProc);
             addToQueue[newProc.queueIdx].push(newProc);
-
+            
             this.setState((state) => ({
                 procs: addProc,
+                count: count + 1,
                 queues: addToQueue,
-                count: state.count + 1,
-                totalExecutionTime: state.totalExecutionTime + parseInt(this.state.executionTime),
+                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
                 avgTurnaround: 0,
                 avgResponse: 0,
                 arrivalTime: "",

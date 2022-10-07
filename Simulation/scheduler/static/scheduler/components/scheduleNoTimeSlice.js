@@ -9,7 +9,7 @@ function scheduleNoTimeSlice(timer, allProcs, idx){
     const procs = allProcs.slice();
     const proc = procs[idx];
     const executed = proc.executed;
-
+   
     let procDone = false;
     let noProcToRun = false;
 
