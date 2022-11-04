@@ -228,23 +228,22 @@ form{
     border-width: 1.7px;
 }
 
-#FIFODefaultGood,
-#FIFODefaultBad,
-#SJFDefaultGood,
-#SJFDefaultBad,
-#STCFDefaultGood,
-#STCFDefaultBad,
-#RRDefaultGood,
-#RRDefaultBad,
-#MLFQDefaultGood,
-#MLFQDefaultBad{
+#FIFOGood,
+#FIFOBad,
+#SJFGood,
+#SJFBad,
+#STCFGood,
+#STCFBad,
+#RRGood,
+#RRBad,
+#MLFQGood,
+#MLFQBad{
     cursor: pointer;
     padding: .75rem 1.5rem;
-    font-size: 1rem;
 }
 
 .btns-default > *{
-    width: 75%;
+    width: 70%;
 }
 
 .best-color{

@@ -24,8 +24,7 @@ class App extends React.Component{
         super(props);
         this.state = {
             scheduler: "",
-            prefilled: "",
-            prefilledSettings: ""
+            prefilled: ""
         };
         this.renderScheduler = this.renderScheduler.bind(this);
         this.renderDefaultScheduler = this.renderDefaultScheduler.bind(this);
@@ -38,15 +37,31 @@ class App extends React.Component{
     }
 
     renderDefaultScheduler(name){
+        const regSchedulers = ["FIFO", "SJF", "STCF", "RR", "MLFQ"];
+        let prefillScheduler;
+        let prefillType;
+
+        for (let i = 0; i < regSchedulers.length; i++){
+            if (name.match(regSchedulers[i])){
+                prefillScheduler = name.match(regSchedulers[i]);
+                if (name.match("Good")){
+                    prefillType = 1;
+                }else if(name.match("Bad")){
+                    prefillType = 0;
+                }
+                break;
+            }
+        }
         
         this.setState((state) => ({
-            prefilled: name
+            scheduler: prefillScheduler[0],
+            prefilled: ""
         }));
     }
 
     render(){
        
-       const btnsSched = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns"/>;
+       const btnsSched = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns" schedulerId={this.state.scheduler}/>;
        const btns = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns-single"/>;
        const btnsWrapperSched = "wrapper";
        const btnsWrapper = "wrapper btns-single";
@@ -57,11 +72,11 @@ class App extends React.Component{
                 <h1>Scheduler Simulator</h1>
             </div>
            {
-            this.state.scheduler === "FIFO"? <section className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="FIFO" alertColor="#6c757d" prefilledSettings={this.state.prefilledSettings}/></section>: 
-            this.state.scheduler === "SJF"? <section className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="SJF" alertColor="#17a2b8" prefilledSettings={this.state.prefilledSettings}/></section>:
-            this.state.scheduler === "STCF"? <section className={btnsWrapperSched}>{btnsSched}<STCF alertColor="#343a40" prefilledSettings={this.state.prefilledSettings}/></section>:
-            this.state.scheduler === "RR"? <section className={btnsWrapperSched}>{btnsSched}<RR alertColor="#28a745" prefilledSettings={this.state.prefilledSettings}/></section>: 
-            this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>{btnsSched}<MLFQ alertColor="#dc3545" prefilledSettings={this.state.prefilledSettings}/></section>:
+            this.state.scheduler === "FIFO"? <section className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="FIFO" alertColor="#6c757d" prefilled={this.state.prefilled} /></section>: 
+            this.state.scheduler === "SJF"? <section className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="SJF" alertColor="#17a2b8" prefilled={this.state.prefilled} /></section>:
+            this.state.scheduler === "STCF"? <section className={btnsWrapperSched}>{btnsSched}<STCF alertColor="#343a40" prefilled={this.state.prefilled} /></section>:
+            this.state.scheduler === "RR"? <section className={btnsWrapperSched}>{btnsSched}<RR alertColor="#28a745" prefilled={this.state.prefilled} /></section>: 
+            this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>{btnsSched}<MLFQ alertColor="#dc3545" prefilled={this.state.prefilled} /></section>:
             <section className={btnsWrapper}>
                 <h4 className="run-header">Learn how each scheduler works by getting the <span className="best-color">best</span> and <span className="worst-color">worst</span> case scenarios with <span className="prefilled-color">pre-filled</span> settings :</h4>
                 <ButtonsDefault handleDefaultClick={this.renderDefaultScheduler}/>

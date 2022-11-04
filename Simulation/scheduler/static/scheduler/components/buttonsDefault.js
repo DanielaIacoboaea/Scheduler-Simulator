@@ -19,24 +19,24 @@ export default class ButtonsDefault extends React.Component{
         return(
             <div className="wrapper-btns-default">
                 <div className="btns-default">
-                    <button type="button" className="btn btn-secondary" id="FIFODefaultGood" onClick={this.startDefaultScheduler}>Best FIFO</button>
-                    <button type="button" className="btn btn-secondary" id="FIFODefaultBad" onClick={this.startDefaultScheduler}>Worst FIFO</button>
+                    <button type="button" className="btn btn-secondary" id="FIFOGood" onClick={this.startDefaultScheduler}>Best FIFO</button>
+                    <button type="button" className="btn btn-secondary" id="FIFOBad" onClick={this.startDefaultScheduler}>Worst FIFO</button>
                 </div>
                 <div className="btns-default">
-                    <button type="button" className="btn btn-info" id="SJFDefaultGood" onClick={this.startDefaultScheduler}>Best SJF</button>
-                    <button type="button" className="btn btn-info" id="SJFDefaultBad" onClick={this.startDefaultScheduler}>Worst SJF</button>
+                    <button type="button" className="btn btn-info" id="SJFGood" onClick={this.startDefaultScheduler}>Best SJF</button>
+                    <button type="button" className="btn btn-info" id="SJFBad" onClick={this.startDefaultScheduler}>Worst SJF</button>
                 </div>
                 <div className="btns-default">
-                    <button type="button" className="btn btn-dark" id="STCFDefaultGood" onClick={this.startDefaultScheduler}>Best STCF</button>
-                    <button type="button" className="btn btn-dark" id="STCFDefaultBad" onClick={this.startDefaultScheduler}>Worst STCF</button>
+                    <button type="button" className="btn btn-dark" id="STCFGood" onClick={this.startDefaultScheduler}>Best STCF</button>
+                    <button type="button" className="btn btn-dark" id="STCFBad" onClick={this.startDefaultScheduler}>Worst STCF</button>
                 </div>
                 <div className="btns-default">
-                    <button type="button" className="btn btn-success" id="RRDefaultGood" onClick={this.startDefaultScheduler}>Best RR</button>
-                    <button type="button" className="btn btn-success" id="RRDefaultBad" onClick={this.startDefaultScheduler}>Worst RR</button>
+                    <button type="button" className="btn btn-success" id="RRGood" onClick={this.startDefaultScheduler}>Best RR</button>
+                    <button type="button" className="btn btn-success" id="RRBad" onClick={this.startDefaultScheduler}>Worst RR</button>
                 </div>
                 <div className="btns-default">
-                    <button type="button" className="btn btn-danger" id="MLFQDefaultGood" onClick={this.startDefaultScheduler}>Best MLFQ</button>
-                    <button type="button" className="btn btn-danger" id="MLFQDefaultBad" onClick={this.startDefaultScheduler}>Worst MLFQ</button>
+                    <button type="button" className="btn btn-danger" id="MLFQGood" onClick={this.startDefaultScheduler}>Best MLFQ</button>
+                    <button type="button" className="btn btn-danger" id="MLFQBad" onClick={this.startDefaultScheduler}>Worst MLFQ</button>
                 </div>
             </div>
         );
