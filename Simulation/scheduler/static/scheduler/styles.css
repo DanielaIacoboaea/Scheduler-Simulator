@@ -55,6 +55,13 @@ h1{
     color: #17a2b8;
 }
 
+.icon-back{
+    color: #343a40;
+    font-size: 2.4rem !important;
+    width: 100%;
+    text-align: center;
+}
+
 .process{
     display: flex;
     justify-content: space-around;
@@ -87,39 +94,59 @@ h1{
 
 #FIFO{
     grid-row: 1 / span 2;
+    cursor: default;
 }
 
 #SJF{
     grid-column: 2 / span 3;
+    cursor: default;
 }
 
 #STCF{
    grid-column: 2 / span 3;
+   cursor: default;
 }
 
 #RR{
     grid-column: 3 / span 2;
     grid-row: 3 / span 1;
+    cursor: default;
 }
 
 #MLFQ{
     grid-column: 1 / span 2;
     grid-row: 3 / span 1;
+    cursor: default;
+}
+
+#FIFO,
+#SJF,
+#STCF,
+#RR,
+#MLFQ{
+    cursor: pointer;
+}
+
+[type=button]:not(:disabled), 
+[type=reset]:not(:disabled), 
+[type=submit]:not(:disabled), 
+button:not(:disabled){
+    cursor: default;
 }
 
 .btns-single{
     display: block;
     margin: 0 auto;
-    width: 60%;
+    width: 90%;
 }
 
 .wrapper-btns-single{
     width: 100%;
-    height: 70vh;
+    height: 75vh;
     padding: 2rem;
     display: grid;
     grid-template-columns: auto auto auto auto;
-    margin-top: 5rem;
+    margin-top: 0.2rem;
 }
 input[type="number"]{
     text-align: center;
@@ -183,4 +210,51 @@ form{
     width: 100%;
     height: 2.4rem;
     background-color: #e9ecef;
+}
+
+.run-header{
+    text-align: center;
+    color: #6c757d;
+}
+
+.wrapper-btns-default{
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 0.3rem;
+    border-style: outset;
+    border-width: 1.7px;
+}
+
+#FIFODefaultGood,
+#FIFODefaultBad,
+#SJFDefaultGood,
+#SJFDefaultBad,
+#STCFDefaultGood,
+#STCFDefaultBad,
+#RRDefaultGood,
+#RRDefaultBad,
+#MLFQDefaultGood,
+#MLFQDefaultBad{
+    cursor: pointer;
+    padding: .75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.btns-default > *{
+    width: 75%;
+}
+
+.best-color{
+    color: #28a745;
+}
+
+.worst-color{
+    color: #dc3545;
+}
+
+.prefilled-color{
+    color: #17a2b8;
 }
