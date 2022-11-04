@@ -61,7 +61,7 @@ class App extends React.Component{
 
     render(){
        
-       const btnsSched = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns" schedulerId={this.state.scheduler}/>;
+       const btnsSched = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns" schedulerId={this.state.scheduler} />;
        const btns = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns-single"/>;
        const btnsWrapperSched = "wrapper";
        const btnsWrapper = "wrapper btns-single";

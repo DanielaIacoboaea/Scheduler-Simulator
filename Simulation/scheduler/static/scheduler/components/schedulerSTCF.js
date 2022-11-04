@@ -31,7 +31,8 @@ export default class STCF extends React.Component{
             executionTime: "",
             totalExecutionTime: 0,
             avgTurnaround: 0,
-            avgResponse: 0
+            avgResponse: 0,
+            textarea: ""
 
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -39,6 +40,8 @@ export default class STCF extends React.Component{
         this.handleChange = this.handleChange.bind(this);
         this.handleClickStart = this.handleClickStart.bind(this);
         this.deleteProc = this.deleteProc.bind(this);
+        this.copyCurrentConf = this.copyCurrentConf.bind(this);
+
     }
     
      /* 
@@ -270,9 +273,27 @@ export default class STCF extends React.Component{
             }
         }
     }
+
+    copyCurrentConf(){
+        if(this.state.procs.length >= 1){
+            let procsJSON = `{\nProcs: `;
+            for (let proc in this.state.procs){
+                let procID = this.state.procs[proc].id;
+                let procArrivalTime = this.state.procs[proc].arrivalTime;
+                let procExecutionTime = this.state.procs[proc].executionTime;
+                procsJSON = `${procsJSON} \n{id: ${procID}, Arrival Time: ${procArrivalTime}, Execute Time: ${procExecutionTime}}`
+            }
+            procsJSON = `${procsJSON}\n}`
+            this.setState(state => ({
+                textarea: procsJSON
+            }));
+        }
+    }
+
     render(){
         const processes = this.state.procs.slice();
         return(
+            <React.Fragment>
             <div className="container-fluid">
                 {/* Render the form through which the user will submit parameters for each process*/}
                 <div className="controlBtns">
@@ -319,6 +340,16 @@ export default class STCF extends React.Component{
                     alertColor={this.props.alertColor}
                 />
             </div>
+            <div>
+                <div className="wrapper-copy">
+                    <button type="button" className="btn btn-light btn-lg" id="copy" onClick={this.copyCurrentConf}>Copy Setup</button>
+                </div>
+                <div>
+                    <textarea id="paste-textarea" value={this.state.textarea}>
+                    </textarea>
+                </div>
+            </div>
+        </React.Fragment>
         );
     }
 }

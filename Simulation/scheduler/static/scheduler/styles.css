@@ -73,7 +73,7 @@ h1{
     align-items: center;
 }
 .wrapper-btns{
-    padding: 1rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
 }
@@ -123,9 +123,17 @@ h1{
 #SJF,
 #STCF,
 #RR,
-#MLFQ{
+#MLFQ,
+#copy{
     cursor: pointer;
 }
+
+#copy{
+    font-size: 0.9rem;
+    width: 80%;
+}
+
+
 
 [type=button]:not(:disabled), 
 [type=reset]:not(:disabled), 
@@ -256,4 +264,15 @@ form{
 
 .prefilled-color{
     color: #17a2b8;
+}
+
+#paste-textarea{
+    overflow-y: scroll;
+    height: 40vh;
+    outline: none;
+    resize: none;
+    border: none;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border: 0.3rem;
 }
