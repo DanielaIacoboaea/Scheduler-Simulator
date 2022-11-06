@@ -340,8 +340,8 @@ export default class STCF extends React.Component{
                     alertColor={this.props.alertColor}
                 />
             </div>
-            <div>
-                <div className="wrapper-copy">
+            <div className="wrapper-copy">
+                <div>
                     <button type="button" className="btn btn-light btn-lg" id="copy" onClick={this.copyCurrentConf}>Copy Setup</button>
                 </div>
                 <div>

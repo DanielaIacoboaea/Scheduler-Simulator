@@ -81,6 +81,9 @@ h1{
     display: flex;
     width: 100%;
 }
+.wrapper-copy{
+    margin-right: 1.5rem;
+}
 
 .progress{
     height: 2.3rem;
