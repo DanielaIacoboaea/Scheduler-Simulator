@@ -90,12 +90,17 @@ export default class STCF extends React.Component{
 
             let newArrivalProcIdx = this.state.currentProcessIdx;
             for (let i = 0; i < copyProcs.length; i++){
-                if (copyProcs[i].arrivalTime < this.state.timer){
-                    continue;
-                }
-                if(copyProcs[i].timeLeft !== 0){
-                    newArrivalProcIdx = i;
-                    break;
+                if (i+1 < copyProcs.length){
+
+                    if (copyProcs[i].arrivalTime === this.state.timer && copyProcs[i+1].arrivalTime !== this.state.timer){
+                        newArrivalProcIdx = i;
+                        break;
+                    }
+                }else{
+                    if (copyProcs[i].arrivalTime === this.state.timer){
+                        newArrivalProcIdx = i;
+                        break;
+                    }
                 }
             }
 
@@ -123,7 +128,7 @@ export default class STCF extends React.Component{
                     break;
                 }
             }
-            
+
              /*
                 Run the selected process and update its internal state
              */
