@@ -52,7 +52,17 @@ class App extends React.Component{
                 break;
             }
         }
-        
+
+        fetch(`prefilled/${prefillScheduler[0]}/${prefillType}`)
+        .then(res => res.json())
+        .then(
+          (result) => {
+           console.log("result.settings: ", result.default);
+          },
+          (error) => {
+            console.log("error: ", error);
+          }
+        )
         this.setState((state) => ({
             scheduler: prefillScheduler[0],
             prefilled: ""

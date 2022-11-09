@@ -125,11 +125,12 @@ export default class MLFQ extends React.Component{
 
             let newArrivalProcIdx = this.state.currentProcessIdx;
             for (let i = 0; i < copyProcsOnQueue0.length; i++){
-                if (copyProcsOnQueue0[i].arrivalTime < this.state.timer){
+            
+                if (copyProcsOnQueue0[i].arrivalTime < this.state.timer && copyProcsOnQueue0[i].executed !== 0){
                     continue;
                 }
                 if(copyProcsOnQueue0[i].timeLeft !== 0){
-                    newArrivalProcIdx = i;
+                    newArrivalProcIdx = copyProcsOnQueue0[i].id;
                     break;
                 }
             }
@@ -140,6 +141,7 @@ export default class MLFQ extends React.Component{
             if (newArrivalProcIdx !== this.state.currentProcessIdx){
                 this.setState(state => ({
                     currentProcessIdx: newArrivalProcIdx,
+                    currentQueueIdx: 0,
                     quantumTicks: 0
                 }));
             }
@@ -194,22 +196,29 @@ export default class MLFQ extends React.Component{
                 a lower priority (e.g from 0 - 1, 1-2). If it is on the last queue,
                 it remains there until the next boost happens
             */
+            
             if(this.state.quantumTicks === quantumSlice){
 
                 let currentProcIdx = this.state.currentProcessIdx;
-                let currentProc = this.state.procs[currentProcIdx];
+                let findProc;
+                for (let i = 0; i < this.state.procs.length; i++){
+                    if(this.state.procs[i].id === currentProcIdx){
+                        findProc = i;
+                    }
+                }
+                let currentProc = this.state.procs[findProc];
 
-                if (this.state.procs[currentProcIdx].executed < this.state.procs[currentProcIdx].executionTime){
-                    if (this.state.procs[currentProcIdx].queueIdx + 1 < numQueues){
-                        const procOnQueue = this.state.procs[currentProcIdx].queueIdx;
+                if (currentProc.executed < currentProc.executionTime){
+                    if (currentProc.queueIdx + 1 < numQueues){
+                        const procOnQueue = currentProc.queueIdx;
                         const updateProcs = this.state.procs.slice();
-                        updateProcs[currentProcIdx].queueIdx += 1;
+                        updateProcs[findProc].queueIdx += 1;
 
                         const updateQueue = this.state.queues.slice();
-                        let idxOfProc = updateQueue[procOnQueue].indexOf(this.state.procs[currentProcIdx]);
+                        let idxOfProc = updateQueue[procOnQueue].indexOf(currentProc);
                         updateQueue[procOnQueue].splice(idxOfProc, 1);
 
-                        updateQueue[procOnQueue + 1].push(this.state.procs[currentProcIdx]);
+                        updateQueue[procOnQueue + 1].push(currentProc);
                         
                         /*
                             update state to reflect changes in the process and for the queue
@@ -233,6 +242,7 @@ export default class MLFQ extends React.Component{
                     each queue to see if it has any proc available to run
                     get the first process available to run from that queue
                  */
+                
                 for (let i = 0; i < this.state.queues.length; i++){
                     for (let j = 0; j < this.state.queues[i].length; j++){
                         if (this.state.queues[i][j].executed < this.state.queues[i][j].executionTime){
@@ -247,8 +257,9 @@ export default class MLFQ extends React.Component{
                     Update state to move to the new queue and start running the new process
                  */
                 newProc = this.state.procs.indexOf(getNewProc);
+                let newProcId = this.state.procs[newProc].id;
                 this.setState(state => ({
-                    currentProcessIdx: newProc,
+                    currentProcessIdx: newProcId,
                     currentQueueIdx: newQueue,
                     quantumTicks: 0
                 }));
@@ -257,7 +268,14 @@ export default class MLFQ extends React.Component{
             /*
                 Run the selected process and update its internal state
              */
-            const schedule = scheduleNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
+            let newProcIdForScheduler;
+            for (let i = 0; i < this.state.procs.length; i++){
+                if (this.state.procs[i].id === this.state.currentProcessIdx){
+                    newProcIdForScheduler = i;
+                }
+            }
+
+            const schedule = scheduleNoTimeSlice(this.state.timer, this.state.procs, newProcIdForScheduler);
             
             if(schedule){
                 /*
