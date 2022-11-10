@@ -32,7 +32,8 @@ class App extends React.Component{
 
     renderScheduler(name){
         this.setState((state) => ({
-            scheduler: name
+            scheduler: name,
+            prefilled: ""
         }));
     }
 
@@ -58,15 +59,15 @@ class App extends React.Component{
         .then(
           (result) => {
            console.log("result.settings: ", result.default);
+           this.setState((state) => ({
+            scheduler: prefillScheduler[0],
+            prefilled: result.default
+            }));
           },
           (error) => {
             console.log("error: ", error);
           }
         )
-        this.setState((state) => ({
-            scheduler: prefillScheduler[0],
-            prefilled: ""
-        }));
     }
 
     render(){

@@ -44,6 +44,78 @@ export default class SchedulerFIFOandSJF extends React.Component{
         this.copyCurrentConf = this.copyCurrentConf.bind(this);
     }
     
+    componentDidMount(){
+        if(this.props.prefilled){
+            let procs_list = this.props.prefilled;
+            let addProc = [];
+            let count = 0;
+            let totalExecution = 0;
+
+            for (let i = 0; i < procs_list.length; i++){
+                addProc.push(
+                    {
+                        id: count,
+                        arrivalTime: parseInt(procs_list[i].arrivalTime),
+                        executionTime: parseInt(procs_list[i].executeTime),
+                        turnaround: "",
+                        response: "",
+                        color: colors[Math.floor(Math.random() * 31)],
+                        executed: 0,
+                        executedPercentage: 0,
+                        percentage: 0,
+                        startRunning: 0,
+                        timeLeft: parseInt(procs_list[i].executeTime)
+                    }
+                );
+                count++;
+                totalExecution += parseInt(procs_list[i].executeTime);
+
+                /*
+                    Initialize the scheduler's state
+                */
+            }
+
+            if (this.props.sortBy === "FIFO"){
+                addProc.sort((a, b) => a.arrivalTime - b.arrivalTime);
+            }else if (this.props.sortBy === "SJF"){
+                addProc.sort((a, b) => {
+                    if(a.arrivalTime === b.arrivalTime){
+                        return a.executionTime - b.executionTime;
+                    }
+                    return a.arrivalTime - b.arrivalTime;
+                });
+            }
+
+            this.setState((state) => ({
+                procs: addProc,
+                count: count,
+                totalExecutionTime: totalExecution,
+                avgTurnaround: 0,
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: "",
+                running: true
+            }), () => this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000));
+
+        }
+    }
+
+    componentWillUnmount(){
+        this.setState(state => ({
+            procs: [],
+            count: 0,
+            running: false,
+            timer: 0,
+            currentProcessIdx: 0,
+            arrivalTime: "",
+            executionTime: "",
+            totalExecutionTime: 0,
+            avgTurnaround: 0,
+            avgResponse: 0,
+            textarea: ""
+        }));
+        clearInterval(this.state.schedulerTimerId);
+    }
 
     /* 
         delete a process from the scheduler
@@ -149,7 +221,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
         that the scheduler should run.
      */
     handleSubmit(event){
+       
         event.preventDefault();
+     
         /* 
             check if a pervious session is over 
             if it's the case, clear data for the previous session:
@@ -160,6 +234,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         let addProc;
         let count;
         let totalExecution;
+        
         if (this.state.arrivalTime && this.state.executionTime){
             if (this.state.avgTurnaround !== 0){
                 addProc = [];
@@ -273,7 +348,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                             <input
                                 type="number"
                                 name="arrivalTime"
-                                id={this.state.count}
+                                id="inputArrivalTime"
                                 onChange={this.handleChange}
                                 value={this.state.arrivalTime}
                                 min="0"
@@ -286,6 +361,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                             <input
                                 type="number"
                                 name="executionTime"
+                                id="inputExecutionTime"
                                 onChange={this.handleChange}
                                 value={this.state.executionTime}
                                 min="1"
@@ -294,7 +370,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                             />
                         </label>
                     </form>
-                    <span class="material-symbols-outlined icon-play" onClick={this.handleClickStart}>play_circle</span>
+                    <span class="material-symbols-outlined icon-play" id="play" ref={(input) => (this.clickPlay = input)} onClick={this.handleClickStart}>play_circle</span>
                     <div className="results-desc">
                     <button type="button" className="btn btn-secondary" dataToggle="tooltip" dataPlacement="top" title="Turnaround and Response Time">Time
                     </button>
