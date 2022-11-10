@@ -278,4 +278,6 @@ form{
     padding: 1rem;
     background-color: #f8f9fa;
     border: 0.3rem;
+    letter-spacing: 0.1rem;
+    line-height: 150%;
 }

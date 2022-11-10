@@ -30,13 +30,19 @@ class App extends React.Component{
         this.renderDefaultScheduler = this.renderDefaultScheduler.bind(this);
     }
 
+    /*
+        Render scheduler with custom settings
+    */
     renderScheduler(name){
         this.setState((state) => ({
             scheduler: name,
             prefilled: ""
         }));
     }
-
+    
+    /*
+        Render scheduler with default settings
+    */
     renderDefaultScheduler(name){
         const regSchedulers = ["FIFO", "SJF", "STCF", "RR", "MLFQ"];
         let prefillScheduler;
@@ -58,7 +64,6 @@ class App extends React.Component{
         .then(res => res.json())
         .then(
           (result) => {
-           console.log("result.settings: ", result.default);
            this.setState((state) => ({
             scheduler: prefillScheduler[0],
             prefilled: result.default

@@ -3,6 +3,7 @@ import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
 import deleteEntry from "./deleteProc";
 import addProcess from "./addDefaultProc";
+import copyConfiguration from "./copyConfiguration";
 
 
 /*
@@ -356,21 +357,18 @@ export default class RR extends React.Component{
         }
     }
 
+    /*
+        Copy current settings for the scheduler 
+        and update the textarea in JSON format.
+    */
     copyCurrentConf(){
-        if(this.state.procs.length >= 1){
-            
-            let procsJSON = `{\nProcs: `;
-            for (let proc in this.state.procs){
-                let procID = this.state.procs[proc].id;
-                let procArrivalTime = this.state.procs[proc].arrivalTime;
-                let procExecutionTime = this.state.procs[proc].executionTime;
-                procsJSON = `${procsJSON} \n{id: ${procID}, Arrival Time: ${procArrivalTime}, Execute Time: ${procExecutionTime}}`
-            }
-            procsJSON = `${procsJSON}, \nTime Slice: ${this.state.quantum}\n}`
-            this.setState(state => ({
-                textarea: procsJSON
-            }));
-        }
+
+        const general_settings = {"Slice": this.state.quantum};
+        const configuration = copyConfiguration(this.state.procs, general_settings)
+
+        this.setState(state => ({
+            textarea: configuration
+        }));
     }
 
     render(){
