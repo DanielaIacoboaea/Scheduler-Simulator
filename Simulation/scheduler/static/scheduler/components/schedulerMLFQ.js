@@ -3,6 +3,7 @@ import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
 import RenderProgressBarsMLFQ from "./renderProgressBarsMLFQ";
 import deleteEntry from "./deleteProc";
+import addProcess from "./addDefaultProc";
 
 
 /* 
@@ -56,6 +57,117 @@ export default class MLFQ extends React.Component{
         this.copyCurrentConf = this.copyCurrentConf.bind(this);
     }
     
+
+    /* 
+        When the component is mounted, check if we have prefilled settings to 
+        display and start running a session.
+        Prefilled settings means: 
+        - processes with arrival and execution time 
+        - slice time - if available 
+        - boost time - if available 
+        - queues - if available
+    */
+
+    componentDidMount(){
+        /*
+            Check if we received default processes and settings 
+        */
+        if(this.props.prefilled){
+            let procs_list = this.props.prefilled;
+
+            /*
+                Create an array that will hold all procs 
+                */
+            let addProc = [];
+            let count = 0;
+            let totalExecution = 0;
+            let addToQueue = [];
+
+            for (let i = 0; i < parseInt(procs_list[0].queues); i++){
+                addToQueue[i] = [];
+            }
+
+            /*
+                Add each default proc to the array of procs
+                */
+            for (let i = 0; i < procs_list.length; i++){
+                let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
+                addProc.length = 0;
+                addProc.push(...newAddproc);
+                count++;
+                totalExecution += parseInt(procs_list[i].executeTime);
+            }
+
+            for (let i = 0; i < addProc.length; i++){
+                addProc[i]["queueIdx"] = 0;
+                addToQueue[0].push(addProc[i]);
+            }
+
+            /*
+                Sort the array of procs based on the type of scheduler
+                */
+            addProc.sort((a, b) => {
+                return a.arrivalTime - b.arrivalTime;
+            });
+            addToQueue[0].sort((a, b) => {
+                return a.arrivalTime - b.arrivalTime;
+            });
+
+            /* 
+                Update state with all default settings 
+                and start sunning the scheduler with these settings
+            */
+            this.setState((state) => ({
+                procs: addProc,
+                count: count,
+                queues: addToQueue,
+                totalExecutionTime: totalExecution,
+                avgTurnaround: 0,
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: "",
+                numQueues: parseInt(procs_list[0].queues),
+                quantum: parseInt(procs_list[0].quantum),
+                boost: parseInt(procs_list[0].boost),
+                quantumDisabled: true,
+                boostDisabled: true,
+                queuesDisabled: true,
+                running: true
+            }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000));
+
+        }
+    }
+
+    /*
+        Clear state and timer when the component unmounts 
+    */
+    componentWillUnmount(){
+        this.setState(state => ({
+            procs: [],
+            numQueues: "",
+            queues: [],
+            count: 0,
+            running: false,
+            timer: 0,
+            currentProcessIdx: 0,
+            currentQueueIdx: 0,
+            arrivalTime: "",
+            executionTime: "",
+            totalExecutionTime: 0,
+            avgTurnaround: 0,
+            avgResponse: 0,
+            quantum: "",
+            quantumTicks: 0,
+            boost: "",
+            boostTicks: 0,
+            quantumDisabled: false,
+            boostDisabled: false,
+            queuesDisabled: false,
+            textarea: ""
+        }));
+        clearInterval(this.state.schedulerTimerId);
+    }
+
 
     /* 
         delete a process from the scheduler
@@ -378,23 +490,14 @@ export default class MLFQ extends React.Component{
                 addToQueue = this.state.queues.slice();
             }
 
-            const newProc =  {
-                id: count,
-                arrivalTime: parseInt(this.state.arrivalTime),
-                executionTime: parseInt(this.state.executionTime),
-                turnaround: "",
-                response: "",
-                color: colors[Math.floor(Math.random() * 31)],
-                executed: 0,
-                executedPercentage: 0,
-                percentage: 0,
-                startRunning: 0,
-                timeLeft: parseInt(this.state.executionTime),
-                queueIdx: 0
-            };
+            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
+            addProc.length = 0;
+            addProc.push(...newAddproc);
 
-            addProc.push(newProc);
-            addToQueue[newProc.queueIdx].push(newProc);
+            for (let i = 0; i < addProc.length; i++){
+                addProc[i]["queueIdx"] = 0;
+                addToQueue[0].push(addProc[i]);
+            }
             
             this.setState((state) => ({
                 procs: addProc,

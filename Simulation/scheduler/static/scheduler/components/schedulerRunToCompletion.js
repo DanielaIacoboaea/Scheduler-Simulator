@@ -46,13 +46,34 @@ export default class SchedulerFIFOandSJF extends React.Component{
         this.copyCurrentConf = this.copyCurrentConf.bind(this);
     }
     
+
+    /* 
+        When the component is mounted, check if we have prefilled settings to 
+        display and start running a session.
+        Prefilled settings means: 
+        - processes with arrival and execution time 
+        - slice time - if available 
+        - boost time - if available 
+        - queues - if available
+    */
+
     componentDidMount(){
+        /*
+            Check if we received default processes and settings 
+         */
         if(this.props.prefilled){
             let procs_list = this.props.prefilled;
+
+            /*
+                Create an array that will hold all procs 
+             */
             let addProc = [];
             let count = 0;
             let totalExecution = 0;
 
+            /*
+                Add each default proc to the array of procs
+             */
             for (let i = 0; i < procs_list.length; i++){
                 let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
                 addProc.length = 0;
@@ -61,6 +82,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 totalExecution += parseInt(procs_list[i].executeTime);
             }
 
+            /*
+                Sort the array of procs based on the type of scheduler
+             */
             if (this.props.sortBy === "FIFO"){
                 addProc.sort((a, b) => a.arrivalTime - b.arrivalTime);
             }else if (this.props.sortBy === "SJF"){
@@ -72,6 +96,10 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 });
             }
 
+            /* 
+                Update state with all default settings 
+                and start sunning the scheduler with these settings
+            */
             this.setState((state) => ({
                 procs: addProc,
                 count: count,
@@ -86,6 +114,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
         }
     }
 
+    /*
+        Clear state and timer when the component unmounts 
+    */
     componentWillUnmount(){
         this.setState(state => ({
             procs: [],
