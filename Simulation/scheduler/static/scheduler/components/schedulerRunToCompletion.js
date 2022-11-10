@@ -2,6 +2,8 @@ import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./components/scheduleNoTimeSlice";
 import deleteEntry from "./deleteProc";
+import addProcess from "./addDefaultProc";
+
 
 /*
     The First-In First-Out (FIFO) and Shortest Job First (SJF) Schedulers
@@ -52,27 +54,11 @@ export default class SchedulerFIFOandSJF extends React.Component{
             let totalExecution = 0;
 
             for (let i = 0; i < procs_list.length; i++){
-                addProc.push(
-                    {
-                        id: count,
-                        arrivalTime: parseInt(procs_list[i].arrivalTime),
-                        executionTime: parseInt(procs_list[i].executeTime),
-                        turnaround: "",
-                        response: "",
-                        color: colors[Math.floor(Math.random() * 31)],
-                        executed: 0,
-                        executedPercentage: 0,
-                        percentage: 0,
-                        startRunning: 0,
-                        timeLeft: parseInt(procs_list[i].executeTime)
-                    }
-                );
+                let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
+                addProc.length = 0;
+                addProc.push(...newAddproc);
                 count++;
                 totalExecution += parseInt(procs_list[i].executeTime);
-
-                /*
-                    Initialize the scheduler's state
-                */
             }
 
             if (this.props.sortBy === "FIFO"){
@@ -245,21 +231,11 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 count = this.state.count;
                 totalExecution = this.state.totalExecutionTime;
             }
-            addProc.push(
-                {
-                    id: count,
-                    arrivalTime: parseInt(this.state.arrivalTime),
-                    executionTime: parseInt(this.state.executionTime),
-                    turnaround: "",
-                    response: "",
-                    color: colors[Math.floor(Math.random() * 31)],
-                    executed: 0,
-                    executedPercentage: 0,
-                    percentage: 0,
-                    startRunning: 0,
-                    timeLeft: parseInt(this.state.executionTime)
-                }
-            )
+
+            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
+            addProc.length = 0;
+            addProc.push(...newAddproc);
+            
             /*
                 Initialize the scheduler's state
              */
@@ -348,7 +324,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                             <input
                                 type="number"
                                 name="arrivalTime"
-                                id="inputArrivalTime"
+                                id={this.state.count}
                                 onChange={this.handleChange}
                                 value={this.state.arrivalTime}
                                 min="0"
@@ -370,7 +346,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                             />
                         </label>
                     </form>
-                    <span class="material-symbols-outlined icon-play" id="play" ref={(input) => (this.clickPlay = input)} onClick={this.handleClickStart}>play_circle</span>
+                    <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_circle</span>
                     <div className="results-desc">
                     <button type="button" className="btn btn-secondary" dataToggle="tooltip" dataPlacement="top" title="Turnaround and Response Time">Time
                     </button>
