@@ -1,17 +1,16 @@
-import colors from "./components/colors";
-import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
 import RenderProgressBarsMLFQ from "./renderProgressBarsMLFQ";
 import deleteEntry from "./deleteProc";
-import addProcess from "./addDefaultProc";
 import copyConfiguration from "./copyConfiguration";
+import colors from "./colors";
 
 
 /* 
     The Multi-Level Feedback Queue Scheduler schedules each process 
     based on its priority. Each process starts on the top most queue(0)
     and is moved on a lower priority queue(e.g, from 0 to 1, from 1 to 2) 
-    after it uses its quantum.
+    after it uses its quantum. 
+    At boost time, all remaining processes are moved back to queue 0.
 
 */
 
@@ -82,30 +81,42 @@ export default class MLFQ extends React.Component{
             let count = 0;
             let totalExecution = 0;
             let addToQueue = [];
+            let numQueuesDefault = parseInt(procs_list[0].queues);
+            let timeSliceDefault = parseInt(procs_list[0].quantum);
+            let boostDefault = parseInt(procs_list[0].boost);
 
-            for (let i = 0; i < parseInt(procs_list[0].queues); i++){
+            for (let i = 0; i < numQueuesDefault; i++){
                 addToQueue[i] = [];
             }
 
             /*
                 Add each default proc to the array of procs
-                */
+            */
             for (let i = 0; i < procs_list.length; i++){
-                let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
-                addProc.length = 0;
-                addProc.push(...newAddproc);
+
+                let newAddproc = {
+                    id: count,
+                    arrivalTime: parseInt(procs_list[i].arrivalTime),
+                    executionTime: parseInt(procs_list[i].executeTime),
+                    turnaround: "",
+                    response: "",
+                    color: colors[Math.floor(Math.random() * 31)],
+                    executed: 0,
+                    executedPercentage: 0,
+                    percentage: 0,
+                    startRunning: 0,
+                    timeLeft: parseInt(procs_list[i].executeTime),
+                    queueIdx: 0
+                }
+                addProc.push(newAddproc);
+                addToQueue[0].push(newAddproc);
                 count++;
                 totalExecution += parseInt(procs_list[i].executeTime);
             }
 
-            for (let i = 0; i < addProc.length; i++){
-                addProc[i]["queueIdx"] = 0;
-                addToQueue[0].push(addProc[i]);
-            }
-
             /*
                 Sort the array of procs based on the type of scheduler
-                */
+            */
             addProc.sort((a, b) => {
                 return a.arrivalTime - b.arrivalTime;
             });
@@ -126,9 +137,9 @@ export default class MLFQ extends React.Component{
                 avgResponse: 0,
                 arrivalTime: "",
                 executionTime: "",
-                numQueues: parseInt(procs_list[0].queues),
-                quantum: parseInt(procs_list[0].quantum),
-                boost: parseInt(procs_list[0].boost),
+                numQueues: numQueuesDefault,
+                quantum: timeSliceDefault,
+                boost: boostDefault,
                 quantumDisabled: true,
                 boostDisabled: true,
                 queuesDisabled: true,
@@ -196,11 +207,14 @@ export default class MLFQ extends React.Component{
         Add the process on the starting queue(0).
     */
     handleSubmit(event){
+
         event.preventDefault();
+
         let addProc;
         let count;
         let totalExecution;
         let addToQueue;
+
         if (this.state.arrivalTime && this.state.executionTime){
             if (this.state.avgTurnaround !== 0){
                 addProc = [];
@@ -218,15 +232,25 @@ export default class MLFQ extends React.Component{
                 addToQueue = this.state.queues.slice();
             }
 
-            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
-            addProc.length = 0;
-            addProc.push(...newAddproc);
-
-            for (let i = 0; i < addProc.length; i++){
-                addProc[i]["queueIdx"] = 0;
-                addToQueue[0].push(addProc[i]);
+            const createProc = {
+                id: this.state.count,
+                arrivalTime: parseInt(this.state.arrivalTime),
+                executionTime: parseInt(this.state.executionTime),
+                turnaround: "",
+                response: "",
+                color: colors[Math.floor(Math.random() * 31)],
+                executed: 0,
+                executedPercentage: 0,
+                percentage: 0,
+                startRunning: 0,
+                timeLeft: parseInt(this.state.executionTime),
+                queueIdx: 0
             }
-            
+
+            addProc.push(createProc);
+
+            addToQueue[0].push(createProc);
+
             this.setState((state) => ({
                 procs: addProc,
                 count: count + 1,
@@ -340,6 +364,11 @@ export default class MLFQ extends React.Component{
                 if (copyProcsOnQueue0[i].arrivalTime < this.state.timer && copyProcsOnQueue0[i].executed !== 0){
                     continue;
                 }
+
+                if(copyProcsOnQueue0[i].arrivalTime > this.state.timer){
+                    continue;
+                }
+
                 if(copyProcsOnQueue0[i].timeLeft !== 0){
                     newArrivalProcIdx = copyProcsOnQueue0[i].id;
                     break;
@@ -361,31 +390,41 @@ export default class MLFQ extends React.Component{
                 if it is time to boost all procs to queue 0
             */
             if (this.state.boostTicks === boost){
-                let get_queues = [];
+
                 let get_procs = this.state.procs.slice();
                 
-                for (let i = 0; i < numQueues; i++){
-                    get_queues[i] = [];
+                /*
+                    If a process still has time left, update it's queueIdx to 
+                    queue 1.
+                 */
+                for (let i = 0; i < get_procs.length; i++){
+                    if(get_procs[i].executed < get_procs[i].executionTime){
+                        get_procs[i].queueIdx = 0;
+                    }
                 }
 
                 /*
                     If a process ran to completion, leave it on its current queue
                     Otherwise move them to the first queue(0)
-                 */
-                for (let i = 0; i < get_procs.length; i++){
-                    if(get_procs[i].executed < get_procs[i].executionTime){
-                        get_procs[i].queueIdx = 0;
-                        get_queues[0].push(get_procs[i]);
-                    }else{
-                        let currentQueue = get_procs[i].queueIdx;
-                        get_queues[currentQueue].push(get_procs[i]);
-                    }
+                */
+                let build_queues = [];
+                for (let i = 0; i < numQueues; i++){
+                    build_queues[i] = [];
                 }
 
-                for (let i = 0; i < numQueues; i++){
-                    get_queues[i].sort((a, b) => {
-                        return a.queueIdx - b.queueIdx;
-                    });
+                let currentQueues = this.state.queues.slice();
+
+                for(let i = 0; i < currentQueues.length; i++){
+
+                    for(let j = 0; j < currentQueues[i].length; j++){
+
+                        if(currentQueues[i][j].executed < currentQueues[i][j].executionTime){
+                            build_queues[0].push(currentQueues[i][j]);
+                        }else{
+                            let remainIdx = currentQueues[i][j].queueIdx;
+                            build_queues[remainIdx].push(currentQueues[i][j]);
+                        }
+                    }
                 }
 
                 /*
@@ -394,9 +433,10 @@ export default class MLFQ extends React.Component{
                  */
                 this.setState(state => ({
                     procs: get_procs,
-                    queues: get_queues,
+                    queues: build_queues,
                     boostTicks: 0,
-                    quantumTicks: quantumSlice
+                    quantumTicks: 0,
+                    currentQueueIdx: 0
                 }));
 
             }
@@ -412,15 +452,19 @@ export default class MLFQ extends React.Component{
 
                 let currentProcIdx = this.state.currentProcessIdx;
                 let findProc;
+
                 for (let i = 0; i < this.state.procs.length; i++){
                     if(this.state.procs[i].id === currentProcIdx){
                         findProc = i;
                     }
                 }
+
                 let currentProc = this.state.procs[findProc];
 
                 if (currentProc.executed < currentProc.executionTime){
+
                     if (currentProc.queueIdx + 1 < numQueues){
+
                         const procOnQueue = currentProc.queueIdx;
                         const updateProcs = this.state.procs.slice();
                         updateProcs[findProc].queueIdx += 1;
@@ -436,41 +480,47 @@ export default class MLFQ extends React.Component{
                          */
                         this.setState(state => ({
                             procs: updateProcs,
-                            queues: updateQueue
+                            queues: updateQueue,
+                            currentQueueIdx: 0
                         }));
                     }
                 }
-
-                /*
-                    Decide which queue should run and which process from that queue should run
-                 */
-                let newProc;
-                let newQueue;
-                let getNewProc;
                 
                 /*
                     Starting with the queue with the highest priority(0) chech 
                     each queue to see if it has any proc available to run
                     get the first process available to run from that queue
                  */
-                
-                for (let i = 0; i < this.state.queues.length; i++){
-                    for (let j = 0; j < this.state.queues[i].length; j++){
-                        if (this.state.queues[i][j].executed < this.state.queues[i][j].executionTime){
-                            newQueue = i;
-                            getNewProc = this.state.queues[i][j];
-                            break;
-                        }
+
+                this.state.procs.sort((a, b) => {
+                    if(a.queueIdx === b.queueIdx){
+                        return a.arrivalTime - b.arrivalTime;
                     }
+                    return a.queueIdx - b.queueIdx;
+                });
+
+                let chooseProcId;
+                let chooseProcIdx;
+                let newQueue;
+
+                for(let i = 0; i < this.state.procs.length; i++){
+                    if(this.state.procs[i].executed === this.state.procs[i].executionTime){
+                        continue;
+                    }
+                    if(this.state.procs[i].arrivalTime > this.state.timer){
+                        continue;
+                    }
+                    chooseProcId = this.state.procs[i].id;
+                    chooseProcIdx = i;
+                    newQueue = this.state.procs[i].queueIdx;
+                    break;
                 }
 
                 /*
                     Update state to move to the new queue and start running the new process
-                 */
-                newProc = this.state.procs.indexOf(getNewProc);
-                let newProcId = this.state.procs[newProc].id;
+                */
                 this.setState(state => ({
-                    currentProcessIdx: newProcId,
+                    currentProcessIdx: chooseProcId,
                     currentQueueIdx: newQueue,
                     quantumTicks: 0
                 }));
@@ -478,13 +528,15 @@ export default class MLFQ extends React.Component{
 
             /*
                 Run the selected process and update its internal state
-             */
+            */
+            
             let newProcIdForScheduler;
             for (let i = 0; i < this.state.procs.length; i++){
                 if (this.state.procs[i].id === this.state.currentProcessIdx){
                     newProcIdForScheduler = i;
                 }
             }
+            
 
             const schedule = scheduleNoTimeSlice(this.state.timer, this.state.procs, newProcIdForScheduler);
             
@@ -504,9 +556,15 @@ export default class MLFQ extends React.Component{
                         If the process is complete, signal that another process should run 
                         by setting quantumTicks to quantumSlice
                      */
+
+                    let updateProcInQueue = this.state.queues.slice();
+                    let queueIdxProc = this.state.procs[newProcIdForScheduler].queueIdx;
+                    updateProcInQueue[queueIdxProc].executed += 1;
+
                     if(schedule.procDone){
                         this.setState(state => ({
                             procs: schedule.updateProcs,
+                            queues: updateProcInQueue,
                             timer: state.timer + 1,
                             boostTicks: state.boostTicks + 1,
                             quantumTicks: quantumSlice
@@ -514,6 +572,7 @@ export default class MLFQ extends React.Component{
                     }else{
                         this.setState(state => ({
                             procs: schedule.updateProcs,
+                            queues: updateProcInQueue,
                             timer: state.timer + 1,
                             boostTicks: state.boostTicks + 1,
                             quantumTicks: state.quantumTicks + 1
