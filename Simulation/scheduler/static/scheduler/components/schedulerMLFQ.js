@@ -716,10 +716,6 @@ export default class MLFQ extends React.Component{
                             />
                         </label>
                     </form>
-                    <div className="results-desc">
-                    <button type="button" className="btn btn-secondary" dataToggle="tooltip" dataPlacement="top" title="Turnaround and Response Time">Time
-                    </button>
-                    </div>
                 </div>
                  {/* Render the progress bars for each process*/}
                 <RenderProgressBarsMLFQ

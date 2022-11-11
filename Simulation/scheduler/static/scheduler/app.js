@@ -29,6 +29,7 @@ class App extends React.Component{
         };
         this.renderScheduler = this.renderScheduler.bind(this);
         this.renderDefaultScheduler = this.renderDefaultScheduler.bind(this);
+        this.returnToMainPage = this.returnToMainPage.bind(this);
     }
 
     /*
@@ -76,9 +77,16 @@ class App extends React.Component{
         )
     }
 
+    returnToMainPage(){
+        this.setState((state) => ({
+            scheduler: "",
+            prefilled: ""
+        }));
+    }
+
     render(){
        
-       const btnsSched = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns" schedulerId={this.state.scheduler} />;
+       const btnsSched = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns" schedulerId={this.state.scheduler} returnToMainPage={this.returnToMainPage}/>;
        const btns = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns-single"/>;
        const btnsWrapperSched = "wrapper";
        const btnsWrapper = "wrapper btns-single";
@@ -96,10 +104,10 @@ class App extends React.Component{
             this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>{btnsSched}<MLFQ alertColor="#dc3545" prefilled={this.state.prefilled} /></section>:
             <section className={btnsWrapper}>
                 <h4 className="run-header">Learn how each scheduler works by <a href="#description">reading</a> about it. <br />
-                If you want to discover yourself, get the <span className="prefilled-color">pre-filled</span> settings for <span className="best-color">best</span> and <span className="worst-color">worst</span> case scenarios : </h4>
+                If you want to discover yourself, get the <span className="prefilled-color">pre-filled</span> settings for <span className="best-color">best</span> and <span className="worst-color">worst</span> case scenarios: </h4>
                 <ButtonsDefault handleDefaultClick={this.renderDefaultScheduler}/>
-                <h4 className="run-header">Run any scheduler with your own custom settings :</h4>{btns}
-                <h4 className="run-header">Looking for a deep dive into each scheduler? Look no more : </h4>
+                <h4 className="run-header">Run any scheduler with your own custom settings:</h4>{btns}
+                <h4 className="run-header">Looking for a deep dive into each scheduler? Look no more: </h4>
                 <ButtonsInfo />
             </section>
           }

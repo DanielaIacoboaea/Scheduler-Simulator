@@ -52,7 +52,7 @@ export default class Buttons extends React.Component{
         return(
             <nav className={this.props.wrapperBtnsClass}>
                 {this.props.wrapperBtnsClass === "wrapper-btns" &&
-                    <a href="" role="button"><span class="material-symbols-outlined icon-back">arrow_back_ios</span></a>
+                    <a role="button" onClick={this.props.returnToMainPage}><span class="material-symbols-outlined icon-back">arrow_back_ios</span></a>
                 }
                 {btnsClass.map((btnClass) => 
                     <button type="button" className={btnClass.class} id={btnClass.name} onClick={this.startScheduler}>{btnClass.name}</button>
