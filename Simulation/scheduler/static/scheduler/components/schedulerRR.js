@@ -378,6 +378,7 @@ export default class RR extends React.Component{
             <div className="container-fluid">
                 {/* Render the form through which the user will submit parameters for each process*/}
                 <div className="controlBtns">
+                    <span class="material-symbols-outlined icon-play" onClick={this.handleClickStart}>play_circle</span>
                     <form onSubmit={this.handleSubmit}>
                     <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
                         <label>
@@ -419,7 +420,6 @@ export default class RR extends React.Component{
                             />
                         </label>
                     </form>
-                    <span class="material-symbols-outlined icon-play" onClick={this.handleClickStart}>play_circle</span>
                     <div className="results-desc">
                     <button type="button" className="btn btn-secondary" dataToggle="tooltip" dataPlacement="top" title="Turnaround and Response Time">Time
                     </button>
