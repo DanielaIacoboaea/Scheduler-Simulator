@@ -53,7 +53,6 @@ export default class SchedulerFIFOandSJF extends React.Component{
         Prefilled settings means: 
         - processes with arrival and execution time
     */
-
     componentDidMount(){
         /*
             Check if we received default processes and settings 
@@ -129,6 +128,25 @@ export default class SchedulerFIFOandSJF extends React.Component{
             textarea: ""
         }));
         clearInterval(this.state.schedulerTimerId);
+    }
+
+    componentDidUpdate(prevProps){
+        if(prevProps.sortBy !== this.props.sortBy){
+            this.setState(state => ({
+                procs: [],
+                count: 0,
+                running: false,
+                timer: 0,
+                currentProcessIdx: 0,
+                arrivalTime: "",
+                executionTime: "",
+                totalExecutionTime: 0,
+                avgTurnaround: 0,
+                avgResponse: 0,
+                textarea: ""
+            }));
+            clearInterval(this.state.schedulerTimerId);
+        }
     }
 
     /* 
