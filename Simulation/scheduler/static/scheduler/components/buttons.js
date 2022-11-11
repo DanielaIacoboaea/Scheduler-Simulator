@@ -16,16 +16,37 @@ export default class Buttons extends React.Component{
     }
 
     render(){
-        let btnsClass = {
-            "FIFO": "btn btn-outline-secondary btn-lg", 
-            "SJF": "btn btn-outline-info btn-lg",
-            "STCF": "btn btn-outline-dark btn-lg",
-            "RR": "btn btn-outline-success btn-lg",
-            "MLFQ": "btn btn-outline-danger btn-lg"
-        }
+        const btnsClass = [
+            {
+                "name": "FIFO",
+                "class": "btn btn-outline-secondary btn-lg"
+            },
+            {
+                "name": "SJF",
+                "class": "btn btn-outline-info btn-lg"
+            },
+            {
+                "name": "STCF",
+                "class": "btn btn-outline-dark btn-lg"
+            },
+            {
+                "name": "RR",
+                "class": "btn btn-outline-success btn-lg"
+            },
+            {
+                "name": "MLFQ",
+                "class": "btn btn-outline-danger btn-lg"
+            }
+        ];
+
         if (this.props.wrapperBtnsClass === "wrapper-btns"){
             let activeScheduler = this.props.schedulerId;
-            btnsClass[activeScheduler] = btnsClass[activeScheduler].replace("-outline", "");
+
+            for(let i = 0; i < btnsClass.length; i++){
+                if(btnsClass[i].name === activeScheduler){
+                    btnsClass[i].class = btnsClass[i].class.replace("-outline", "");
+                }
+            }
         }
 
         return(
@@ -33,11 +54,10 @@ export default class Buttons extends React.Component{
                 {this.props.wrapperBtnsClass === "wrapper-btns" &&
                     <a href="" role="button"><span class="material-symbols-outlined icon-back">arrow_back_ios</span></a>
                 }
-                <button type="button" className={btnsClass["FIFO"]} id="FIFO" onClick={this.startScheduler}>FIFO</button>
-                <button type="button" className={btnsClass["SJF"]} id="SJF" onClick={this.startScheduler}>SJF</button>
-                <button type="button" className={btnsClass["STCF"]} id="STCF" onClick={this.startScheduler}>STCF</button>
-                <button type="button" className={btnsClass["RR"]} id="RR" onClick={this.startScheduler}>RR</button>
-                <button type="button" className={btnsClass["MLFQ"]} id="MLFQ" onClick={this.startScheduler}>MLFQ</button>
+                {btnsClass.map((btnClass) => 
+                    <button type="button" className={btnClass.class} id={btnClass.name} onClick={this.startScheduler}>{btnClass.name}</button>
+
+                )}
             </nav>
         );
     }

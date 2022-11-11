@@ -7,7 +7,7 @@
 }
 body{
     font-family: 'Permanent Marker', cursive;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 h1{
@@ -127,7 +127,13 @@ h1{
 #STCF,
 #RR,
 #MLFQ,
-#copy{
+#copy,
+#FIFOInfo,
+#SJFInfo,
+#STCFInfo,
+#RRInfo,
+#MLFQInfo,
+#TermsInfo{
     cursor: pointer;
 }
 
@@ -280,4 +286,37 @@ form{
     border: 0.3rem;
     letter-spacing: 0.1rem;
     line-height: 150%;
+}
+
+#infoGroup{
+    width: 100%;
+    padding: 3rem;
+    min-height: max-content;
+    margin-bottom: 5rem;
+    border-style: inset;
+    border-width: 1.7px;
+    border-radius: 0.3rem;
+}
+
+#description{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.card{
+    background-color: #FFF8EA;
+}
+
+.scheduler-info{
+    white-space: pre-line;
+}
+
+#credits{
+    text-align: center;
+}
+
+#credits > *{
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    color: #6c757d;
 }

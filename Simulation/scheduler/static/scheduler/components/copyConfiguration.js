@@ -24,6 +24,8 @@ function copyConfiguration(procs, general_settings){
                 conf[setting] = general_settings[setting];
             }
         }
+    }else{
+        return JSON.stringify({"Oops": "No processes available to copy. Start by adding at least one."})
     }
     
     return JSON.stringify(conf);

@@ -4,6 +4,7 @@ import RR from "./components/schedulerRR";
 import MLFQ from "./components/schedulerMLFQ";
 import SchedulerFIFOandSJF from "./components/schedulerRunToCompletion";
 import ButtonsDefault from "./components/buttonsDefault";
+import ButtonsInfo from "./components/buttonsInfo";
 
 
 /*
@@ -94,9 +95,12 @@ class App extends React.Component{
             this.state.scheduler === "RR"? <section className={btnsWrapperSched}>{btnsSched}<RR alertColor="#28a745" prefilled={this.state.prefilled} /></section>: 
             this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>{btnsSched}<MLFQ alertColor="#dc3545" prefilled={this.state.prefilled} /></section>:
             <section className={btnsWrapper}>
-                <h4 className="run-header">Learn how each scheduler works by getting the <span className="best-color">best</span> and <span className="worst-color">worst</span> case scenarios with <span className="prefilled-color">pre-filled</span> settings :</h4>
+                <h4 className="run-header">Learn how each scheduler works by <a href="#description">reading</a> about it. <br />
+                If you want to discover yourself, get the <span className="prefilled-color">pre-filled</span> settings for <span className="best-color">best</span> and <span className="worst-color">worst</span> case scenarios : </h4>
                 <ButtonsDefault handleDefaultClick={this.renderDefaultScheduler}/>
-                <h4 className="run-header">Run any scheduler with your own settings :</h4>{btns}
+                <h4 className="run-header">Run any scheduler with your own custom settings :</h4>{btns}
+                <h4 className="run-header">Looking for a deep dive into each scheduler? Look no more : </h4>
+                <ButtonsInfo />
             </section>
           }
           </React.Fragment>
