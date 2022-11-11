@@ -23,6 +23,9 @@ h1{
     margin: 1rem;
 }
 
+/* 
+    Style add, play, delete and back icons
+*/
 .material-symbols-outlined {
     cursor: pointer;
     transition: color 200ms ease-in, scale 200ms ease-in;
@@ -62,6 +65,10 @@ h1{
     text-align: center;
 }
 
+/*
+    Style controls buttons for adding processes, 
+    progress bars and copy/paste to textarea.
+*/
 .process{
     display: flex;
     justify-content: space-around;
@@ -85,6 +92,24 @@ h1{
     margin-right: 1.5rem;
 }
 
+#copy{
+    font-size: 0.9rem;
+    width: 80%;
+}
+
+#paste-textarea{
+    overflow-y: scroll;
+    height: 40vh;
+    outline: none;
+    resize: none;
+    border: none;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border: 0.3rem;
+    letter-spacing: 0.1rem;
+    line-height: 150%;
+}
+
 .progress{
     height: 2.3rem;
     font-size: 1rem;
@@ -95,88 +120,12 @@ h1{
     padding-left: 0;
 }
 
-#FIFO{
-    grid-row: 1 / span 2;
-    cursor: default;
-}
-
-#SJF{
-    grid-column: 2 / span 3;
-    cursor: default;
-}
-
-#STCF{
-   grid-column: 2 / span 3;
-   cursor: default;
-}
-
-#RR{
-    grid-column: 3 / span 2;
-    grid-row: 3 / span 1;
-    cursor: default;
-}
-
-#MLFQ{
-    grid-column: 1 / span 2;
-    grid-row: 3 / span 1;
-    cursor: default;
-}
-
-#FIFO,
-#SJF,
-#STCF,
-#RR,
-#MLFQ,
-#copy,
-#FIFOInfo,
-#SJFInfo,
-#STCFInfo,
-#RRInfo,
-#MLFQInfo,
-#TermsInfo{
-    cursor: pointer;
-}
-
-#copy{
-    font-size: 0.9rem;
-    width: 80%;
-}
-
-
-
-[type=button]:not(:disabled), 
-[type=reset]:not(:disabled), 
-[type=submit]:not(:disabled), 
-button:not(:disabled){
-    cursor: default;
-}
-
-.btns-single{
-    display: block;
-    margin: 0 auto;
-    width: 90%;
-}
-
-.wrapper-btns-single{
-    width: 100%;
-    height: 75vh;
-    padding: 2rem;
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    margin-top: 0.2rem;
-}
-input[type="number"]{
-    text-align: center;
-    margin-right: 0.5rem;
-    border: none;
-    border-bottom: 1px solid #343a40;
-    outline: none;
-}
 #submit-btn{
     background-color: transparent;
     border: none;
     outline: none;
 }
+
 .results{
     font-size: 1.15rem;
     width: 10rem;
@@ -229,11 +178,94 @@ form{
     background-color: #e9ecef;
 }
 
+
+/*
+    Define layout for all buttons in the home page
+    that lead to schedulers. 
+*/
+
+#FIFO{
+    grid-row: 1 / span 2;
+    cursor: default;
+}
+
+#SJF{
+    grid-column: 2 / span 3;
+    cursor: default;
+}
+
+#STCF{
+   grid-column: 2 / span 3;
+   cursor: default;
+}
+
+#RR{
+    grid-column: 3 / span 2;
+    grid-row: 3 / span 1;
+    cursor: default;
+}
+
+#MLFQ{
+    grid-column: 1 / span 2;
+    grid-row: 3 / span 1;
+    cursor: default;
+}
+
+.btns-single{
+    display: block;
+    margin: 0 auto;
+    width: 90%;
+}
+
+.wrapper-btns-single{
+    width: 100%;
+    height: 75vh;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    margin-top: 0.2rem;
+}
+
+#FIFO,
+#SJF,
+#STCF,
+#RR,
+#MLFQ,
+#copy,
+#FIFOInfo,
+#SJFInfo,
+#STCFInfo,
+#RRInfo,
+#MLFQInfo,
+#TermsInfo{
+    cursor: pointer;
+}
+
+
+[type=button]:not(:disabled), 
+[type=reset]:not(:disabled), 
+[type=submit]:not(:disabled), 
+button:not(:disabled){
+    cursor: default;
+}
+
+input[type="number"]{
+    text-align: center;
+    margin-right: 0.5rem;
+    border: none;
+    border-bottom: 1px solid #343a40;
+    outline: none;
+}
+
 .run-header{
     text-align: center;
     color: #6c757d;
 }
 
+/*
+    Style buttons that render default settings for
+    any scheduler.
+*/
 .wrapper-btns-default{
     width: 100%;
     display: flex;
@@ -275,19 +307,6 @@ form{
     color: #17a2b8;
 }
 
-#paste-textarea{
-    overflow-y: scroll;
-    height: 40vh;
-    outline: none;
-    resize: none;
-    border: none;
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border: 0.3rem;
-    letter-spacing: 0.1rem;
-    line-height: 150%;
-}
-
 #infoGroup{
     width: 100%;
     padding: 3rem;
@@ -311,6 +330,9 @@ form{
     white-space: pre-line;
 }
 
+/*
+    Footer with credits
+*/
 #credits{
     text-align: center;
 }
@@ -320,3 +342,157 @@ form{
     font-size: 0.9rem;
     color: #6c757d;
 }
+
+/*
+    media queries for responsive design
+*/
+
+@media(max-width: 750px){
+    h1{
+        font-size: 4rem;
+        margin-bottom: 1.7rem;
+    }
+    .wrapper-btns-default{
+        flex-direction: column;
+        justify-content: space-evenly;
+        padding: 1rem;
+    }
+
+    .btns-default{
+        display: flex;
+    }
+
+    .wrapper-btns-single{
+       padding: 0.5rem;
+    }
+
+    #FIFO{
+        grid-row: 1 / span 1;
+        grid-column: 1 /span 2;
+    }
+    
+    #SJF{
+        grid-row: 1 / span 1;
+        grid-column: 3 /span 2;
+    }
+    
+    #STCF{
+       grid-row: 2 / span 1;
+       grid-column: 1 /span 2;
+    }
+    
+    #RR{
+        grid-row: 2 / span 1;
+        grid-column: 3 /span 2;
+    }
+    
+    #MLFQ{
+        grid-row: 3 / span 1;
+        grid-column: 1 /span 4;
+    }
+    #infoGroup{
+        margin-bottom: 4rem;
+        padding: 1rem;
+    }
+
+    #description{
+        flex-direction: column;
+    }
+}
+
+@media(max-width: 450px){
+    .run-header{
+        font-size: 1.3rem;
+    }
+}
+
+
+@media(max-width: 850px){
+    .wrapper{
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .wrapper-btns{
+        flex-direction: row;
+    }
+    .wrapper-btns:first-child{
+        display: block;
+        margin: 0 auto;
+    }
+
+    .controlBtns{
+        flex-direction: column;
+    }
+
+    .results-desc{
+        display: none;
+    }
+
+    .wrapper-copy{
+        margin: 0;
+        padding: 2rem;
+    }
+
+    #copy{
+        width: 100%;
+        margin: 0rem;
+        margin-bottom: 1rem;
+    }
+
+    #paste-textarea{
+        width: 100%;
+    }
+
+    .process{
+        width: 90%;
+        margin: 0 auto;
+    }
+    .container-fluid p{
+        margin-left: 0.2rem;
+    }
+    form label{
+        font-size: 1.1rem;
+    }
+    h1{
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    .results p{
+        width: 7rem;
+    }
+    .avgs{
+        width: 90%;
+        height: max-content;
+        padding: 1rem;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+    .avgs p{
+        width: auto;
+    }
+    .run-header{
+        font-size: 1.4rem;
+    }
+}
+
+@media(max-width: 600px){
+    .wrapper-btns{
+        flex-direction: column;
+    }
+
+    .wrapper-btns > *{
+        width: 90%;
+    }
+
+    form {
+        margin-bottom: 1rem;
+    }
+
+    form label{
+        font-size: 0.9rem;
+    }
+}
+

@@ -13,7 +13,7 @@ def index(request):
     Render the home page. From here the user can run schedulers with custom settings 
     or request prefilled settings for each scheduler.
     """
-    return render(request, "scheduler/layout.html")
+    return render(request, "scheduler/index.html")
 
 
 def prefilled_scheduler(request, name, type):
