@@ -64,11 +64,10 @@ export default class MLFQ extends React.Component{
         display and start running a session.
         Prefilled settings means: 
         - processes with arrival and execution time 
-        - slice time - if available 
-        - boost time - if available 
-        - queues - if available
+        - slice time
+        - boost time
+        - queues
     */
-
     componentDidMount(){
         /*
             Check if we received default processes and settings 
@@ -169,6 +168,80 @@ export default class MLFQ extends React.Component{
         clearInterval(this.state.schedulerTimerId);
     }
 
+    /* 
+        get the user input for each process and update state:
+        - arrival time, execute time, queues, boost, quantum
+     */
+    handleChange(event){
+
+        if (event.target.name === "numQueues"){
+            let initialize_queues = [];
+            for (let i = 0; i < parseInt(event.target.value); i++){
+                initialize_queues[i] = [];
+            }
+            this.setState((state) => ({
+                [event.target.name]: event.target.value,
+                queues: initialize_queues
+            }));
+        }else{
+            this.setState((state) => ({
+                [event.target.name]: event.target.value
+            }));
+        }
+    }
+
+    /*
+        Save a process to state in the array with all the processes 
+        that the scheduler should run.
+        Add the process on the starting queue(0).
+    */
+    handleSubmit(event){
+        event.preventDefault();
+        let addProc;
+        let count;
+        let totalExecution;
+        let addToQueue;
+        if (this.state.arrivalTime && this.state.executionTime){
+            if (this.state.avgTurnaround !== 0){
+                addProc = [];
+                count = 0;
+                totalExecution = 0;
+                addToQueue = [];
+                for (let i = 0; i < parseInt(this.state.numQueues); i++){
+                    addToQueue[i] = [];
+                }
+
+            }else{
+                addProc = this.state.procs.slice();
+                count = this.state.count;
+                totalExecution = this.state.totalExecutionTime;
+                addToQueue = this.state.queues.slice();
+            }
+
+            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
+            addProc.length = 0;
+            addProc.push(...newAddproc);
+
+            for (let i = 0; i < addProc.length; i++){
+                addProc[i]["queueIdx"] = 0;
+                addToQueue[0].push(addProc[i]);
+            }
+            
+            this.setState((state) => ({
+                procs: addProc,
+                count: count + 1,
+                queues: addToQueue,
+                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
+                avgTurnaround: 0,
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: "",
+                quantumDisabled: true,
+                boostDisabled: true,
+                queuesDisabled: true
+            }));
+        }
+    }
 
     /* 
         delete a process from the scheduler
@@ -207,6 +280,31 @@ export default class MLFQ extends React.Component{
                     totalExecutionTime: deleted.updateTotalExecTime,
                     queues: addToQueue
                 }));
+            }
+        }
+    }
+
+    /*
+        Sort the list of processes based on when 
+        they are supposed to start running
+        Sort the first queue(0) because all the processes 
+        will start on this queue.
+        Run the scheduler every second until the timer reaches the total 
+        Execution Time for all process.
+    */
+    handleClickStart(){
+        if (this.state.procs.length !== 0){
+            if (!this.state.running){
+                this.setState(state => ({
+                    running: true
+                }));
+                this.state.procs.sort((a, b) => {
+                    return a.arrivalTime - b.arrivalTime;
+                });
+                this.state.queues[0].sort((a, b) => {
+                    return a.arrivalTime - b.arrivalTime;
+                });
+                this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
             }
         }
     }
@@ -461,110 +559,6 @@ export default class MLFQ extends React.Component{
         }
     }
 
-
-    /*
-        Save a process to state in the array with all the processes 
-        that the scheduler should run.
-        Add the process on the starting queue(0).
-     */
-
-    handleSubmit(event){
-        event.preventDefault();
-        let addProc;
-        let count;
-        let totalExecution;
-        let addToQueue;
-        if (this.state.arrivalTime && this.state.executionTime){
-            if (this.state.avgTurnaround !== 0){
-                addProc = [];
-                count = 0;
-                totalExecution = 0;
-                addToQueue = [];
-                for (let i = 0; i < parseInt(this.state.numQueues); i++){
-                    addToQueue[i] = [];
-                }
-
-            }else{
-                addProc = this.state.procs.slice();
-                count = this.state.count;
-                totalExecution = this.state.totalExecutionTime;
-                addToQueue = this.state.queues.slice();
-            }
-
-            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
-            addProc.length = 0;
-            addProc.push(...newAddproc);
-
-            for (let i = 0; i < addProc.length; i++){
-                addProc[i]["queueIdx"] = 0;
-                addToQueue[0].push(addProc[i]);
-            }
-            
-            this.setState((state) => ({
-                procs: addProc,
-                count: count + 1,
-                queues: addToQueue,
-                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
-                avgTurnaround: 0,
-                avgResponse: 0,
-                arrivalTime: "",
-                executionTime: "",
-                quantumDisabled: true,
-                boostDisabled: true,
-                queuesDisabled: true
-            }));
-        }
-    }
-
-
-    /* 
-        get the user input for each process and update state:
-        - arrival time, execute time, queues, boost, quantum
-     */
-    handleChange(event){
-
-        if (event.target.name === "numQueues"){
-            let initialize_queues = [];
-            for (let i = 0; i < parseInt(event.target.value); i++){
-                initialize_queues[i] = [];
-            }
-            this.setState((state) => ({
-                [event.target.name]: event.target.value,
-                queues: initialize_queues
-            }));
-        }else{
-            this.setState((state) => ({
-                [event.target.name]: event.target.value
-            }));
-        }
-    }
-
-
-    /*
-        Sort the list of processes based on when 
-        they are supposed to start running
-        Sort the first queue(0) because all the processes 
-        will start on this queue.
-        Run the scheduler every second until the timer reaches the total 
-        Execution Time for all process.
-    */
-    handleClickStart(){
-        if (this.state.procs.length !== 0){
-            if (!this.state.running){
-                this.setState(state => ({
-                    running: true
-                }));
-                this.state.procs.sort((a, b) => {
-                    return a.arrivalTime - b.arrivalTime;
-                });
-                this.state.queues[0].sort((a, b) => {
-                    return a.arrivalTime - b.arrivalTime;
-                });
-                this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
-            }
-        }
-    }
-
     /*
         Copy current settings for the scheduler 
         and update the textarea in JSON format.
@@ -603,6 +597,7 @@ export default class MLFQ extends React.Component{
                                 value={this.state.arrivalTime}
                                 min="0"
                                 max="200"
+                                autocomplete="off"
                                 required
                             />
                         </label>
@@ -615,6 +610,7 @@ export default class MLFQ extends React.Component{
                                 value={this.state.executionTime}
                                 min="1"
                                 max="200"
+                                autocomplete="off"
                                 required
                             />
                         </label>
@@ -628,6 +624,7 @@ export default class MLFQ extends React.Component{
                                 min="1"
                                 max="100"
                                 disabled={this.state.quantumDisabled}
+                                autocomplete="off"
                                 required
                             />
                         </label>
@@ -641,6 +638,7 @@ export default class MLFQ extends React.Component{
                                 min="1"
                                 max="100"
                                 disabled={this.state.boostDisabled}
+                                autocomplete="off"
                                 required
                             />
                         </label>
@@ -654,6 +652,7 @@ export default class MLFQ extends React.Component{
                                 min="1"
                                 max="10"
                                 disabled={this.state.queuesDisabled}
+                                autocomplete="off"
                                 required
                             />
                         </label>

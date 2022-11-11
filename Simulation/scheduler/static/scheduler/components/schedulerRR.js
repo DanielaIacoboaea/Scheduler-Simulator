@@ -50,11 +50,8 @@ export default class RR extends React.Component{
         display and start running a session.
         Prefilled settings means: 
         - processes with arrival and execution time 
-        - slice time - if available 
-        - boost time - if available 
-        - queues - if available
+        - slice time
     */
-
     componentDidMount(){
         /*
             Check if we received default processes and settings 
@@ -131,6 +128,61 @@ export default class RR extends React.Component{
     }
 
     /* 
+        get the user input for each process and update state:
+        - arrival time, execute time and quantum(time slice)
+     */
+    handleChange(event){
+    
+        this.setState((state) => ({
+            [event.target.name]: event.target.value
+        }));
+    }
+
+    /*
+        Save a process to state in the array with all the processes 
+        that the scheduler should run.
+    */
+    handleSubmit(event){
+        event.preventDefault();
+        /* 
+            check if a pervious session is over 
+            if it's the case, clear data for the previous session:
+                - procs
+                - totalExecutionTime
+                - count of procs
+        */
+        let addProc;
+        let count;
+        let totalExecution;
+        if (this.state.arrivalTime && this.state.executionTime){
+            if (this.state.avgTurnaround !== 0){
+                addProc = [];
+                count = 0;
+                totalExecution = 0;
+            }else{
+                addProc = this.state.procs.slice();
+                count = this.state.count;
+                totalExecution = this.state.totalExecutionTime;
+            }
+
+            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
+            addProc.length = 0;
+            addProc.push(...newAddproc);
+
+            this.setState((state) => ({
+                procs: addProc,
+                count: count + 1,
+                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
+                avgTurnaround: 0,
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: "",
+                disabled: true
+            }));
+        }
+    }
+
+    /* 
         delete a process from the scheduler
     */
     deleteProc(procId){
@@ -156,6 +208,27 @@ export default class RR extends React.Component{
                     procs: deleted.updateProcs,
                     totalExecutionTime: deleted.updateTotalExecTime
                 }));
+            }
+        }
+    }
+
+
+    /*
+        Sort the list of processes based on when 
+        they are supposed to start running and execution time
+        Run the scheduler every second until the timer reaches the total 
+        Execution Time for all process.
+    */
+    handleClickStart(){
+        if (this.state.procs.length !== 0){
+            if (!this.state.running){
+                this.setState(state => ({
+                    running: true
+                }));
+                this.state.procs.sort((a, b) => {
+                    return a.arrivalTime - b.arrivalTime;
+                });
+                this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
             }
         }
     }
@@ -283,81 +356,6 @@ export default class RR extends React.Component{
     }
 
     /*
-        Save a process to state in the array with all the processes 
-        that the scheduler should run.
-     */
-    handleSubmit(event){
-        event.preventDefault();
-        /* 
-            check if a pervious session is over 
-            if it's the case, clear data for the previous session:
-             - procs
-             - totalExecutionTime
-             - count of procs
-        */
-        let addProc;
-        let count;
-        let totalExecution;
-        if (this.state.arrivalTime && this.state.executionTime){
-            if (this.state.avgTurnaround !== 0){
-                addProc = [];
-                count = 0;
-                totalExecution = 0;
-            }else{
-                addProc = this.state.procs.slice();
-                count = this.state.count;
-                totalExecution = this.state.totalExecutionTime;
-            }
-
-            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
-            addProc.length = 0;
-            addProc.push(...newAddproc);
-
-            this.setState((state) => ({
-                procs: addProc,
-                count: count + 1,
-                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
-                avgTurnaround: 0,
-                avgResponse: 0,
-                arrivalTime: "",
-                executionTime: "",
-                disabled: true
-            }));
-        }
-    }
-
-    /* 
-        get the user input for each process and update state:
-        - arrival time, execute time and quantum(time slice)
-     */
-    handleChange(event){
-        
-        this.setState((state) => ({
-            [event.target.name]: event.target.value
-        }));
-    }
-
-    /*
-        Sort the list of processes based on when 
-        they are supposed to start running and execution time
-        Run the scheduler every second until the timer reaches the total 
-        Execution Time for all process.
-    */
-    handleClickStart(){
-        if (this.state.procs.length !== 0){
-            if (!this.state.running){
-                this.setState(state => ({
-                    running: true
-                }));
-                this.state.procs.sort((a, b) => {
-                    return a.arrivalTime - b.arrivalTime;
-                });
-                this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
-            }
-        }
-    }
-
-    /*
         Copy current settings for the scheduler 
         and update the textarea in JSON format.
     */
@@ -391,6 +389,7 @@ export default class RR extends React.Component{
                                 value={this.state.arrivalTime}
                                 min="0"
                                 max="200"
+                                autocomplete="off"
                                 required
                             />
                         </label>
@@ -403,6 +402,7 @@ export default class RR extends React.Component{
                                 value={this.state.executionTime}
                                 min="1"
                                 max="200"
+                                autocomplete="off"
                                 required
                             />
                         </label>
@@ -416,6 +416,7 @@ export default class RR extends React.Component{
                                 min="1"
                                 max="20"
                                 disabled={this.state.disabled}
+                                autocomplete="off"
                                 required
                             />
                         </label>

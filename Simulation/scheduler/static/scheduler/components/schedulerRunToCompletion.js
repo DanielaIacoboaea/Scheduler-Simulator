@@ -1,4 +1,3 @@
-import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
 import scheduleNoTimeSlice from "./components/scheduleNoTimeSlice";
 import deleteEntry from "./deleteProc";
@@ -52,10 +51,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         When the component is mounted, check if we have prefilled settings to 
         display and start running a session.
         Prefilled settings means: 
-        - processes with arrival and execution time 
-        - slice time - if available 
-        - boost time - if available 
-        - queues - if available
+        - processes with arrival and execution time
     */
 
     componentDidMount(){
@@ -136,6 +132,66 @@ export default class SchedulerFIFOandSJF extends React.Component{
     }
 
     /* 
+        get the user input for each process and update state:
+        - arrival time, execute time
+     */
+    handleChange(event){
+        this.setState((state) => ({
+            [event.target.name]: event.target.value
+        }));
+    }
+
+
+    /*
+        Save a process to state in the array with all the processes 
+        that the scheduler should run.
+    */
+    handleSubmit(event){
+    
+        event.preventDefault();
+        
+        /* 
+            check if a pervious session is over 
+            if it's the case, clear data for the previous session:
+                - procs
+                - totalExecutionTime
+                - count of procs
+        */
+        let addProc;
+        let count;
+        let totalExecution;
+        
+        if (this.state.arrivalTime && this.state.executionTime){
+            if (this.state.avgTurnaround !== 0){
+                addProc = [];
+                count = 0;
+                totalExecution = 0;
+            }else{
+                addProc = this.state.procs.slice();
+                count = this.state.count;
+                totalExecution = this.state.totalExecutionTime;
+            }
+
+            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
+            addProc.length = 0;
+            addProc.push(...newAddproc);
+            
+            /*
+                Initialize the scheduler's state
+            */
+            this.setState((state) => ({
+                procs: addProc,
+                count: count + 1,
+                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
+                avgTurnaround: 0,
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: ""
+            }));
+        }
+    }
+
+    /* 
         delete a process from the scheduler
     */
     deleteProc(procId){
@@ -159,8 +215,38 @@ export default class SchedulerFIFOandSJF extends React.Component{
         }
     }
 
+    /*
+        Sort the list of processes based on when 
+        they are supposed to start running
+        FIFO:
+            - sort the procs by arrival time 
+        SJF:
+            - sort the procs by arrival time and execution time
+        Run the scheduler every second until the timer reaches the total 
+        Execution Time for all process.
+    */
+    handleClickStart(){
+        if (this.state.procs.length !== 0){
+            if (!this.state.running){
+                this.setState(state => ({
+                    running: true
+                }));
+                if (this.props.sortBy === "FIFO"){
+                    this.state.procs.sort((a, b) => a.arrivalTime - b.arrivalTime);
+                }else if (this.props.sortBy === "SJF"){
+                    this.state.procs.sort((a, b) => {
+                        if(a.arrivalTime === b.arrivalTime){
+                            return a.executionTime - b.executionTime;
+                        }
+                        return a.arrivalTime - b.arrivalTime;
+                    });
+                }
+                this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000);
+            }
+        }
+    }
 
-     /*
+    /*
         runScheduler() gets called every second by the scheduler. 
         While the timer hasn't reached the total Execution time:
         - decide which process should run from the sorted list of processes
@@ -234,101 +320,10 @@ export default class SchedulerFIFOandSJF extends React.Component{
         }
     }
 
-     /*
-        Save a process to state in the array with all the processes 
-        that the scheduler should run.
-     */
-    handleSubmit(event){
-       
-        event.preventDefault();
-     
-        /* 
-            check if a pervious session is over 
-            if it's the case, clear data for the previous session:
-             - procs
-             - totalExecutionTime
-             - count of procs
-        */
-        let addProc;
-        let count;
-        let totalExecution;
-        
-        if (this.state.arrivalTime && this.state.executionTime){
-            if (this.state.avgTurnaround !== 0){
-                addProc = [];
-                count = 0;
-                totalExecution = 0;
-            }else{
-                addProc = this.state.procs.slice();
-                count = this.state.count;
-                totalExecution = this.state.totalExecutionTime;
-            }
-
-            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
-            addProc.length = 0;
-            addProc.push(...newAddproc);
-            
-            /*
-                Initialize the scheduler's state
-             */
-            this.setState((state) => ({
-                procs: addProc,
-                count: count + 1,
-                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
-                avgTurnaround: 0,
-                avgResponse: 0,
-                arrivalTime: "",
-                executionTime: ""
-            }));
-        }
-    }
-
-    /* 
-        get the user input for each process and update state:
-        - arrival time, execute time
-     */
-    handleChange(event){
-        this.setState((state) => ({
-            [event.target.name]: event.target.value
-        }));
-    }
-
-
-     /*
-        Sort the list of processes based on when 
-        they are supposed to start running
-        FIFO:
-            - sort the procs by arrival time 
-        SJF:
-            - sort the procs by arrival time and execution time
-        Run the scheduler every second until the timer reaches the total 
-        Execution Time for all process.
-    */
-    handleClickStart(){
-        if (this.state.procs.length !== 0){
-            if (!this.state.running){
-                this.setState(state => ({
-                    running: true
-                }));
-                if (this.props.sortBy === "FIFO"){
-                    this.state.procs.sort((a, b) => a.arrivalTime - b.arrivalTime);
-                }else if (this.props.sortBy === "SJF"){
-                    this.state.procs.sort((a, b) => {
-                        if(a.arrivalTime === b.arrivalTime){
-                            return a.executionTime - b.executionTime;
-                        }
-                        return a.arrivalTime - b.arrivalTime;
-                    });
-                }
-                this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000);
-            }
-        }
-    }
-
     /*
         Copy current settings for the scheduler 
         and update the textarea in JSON format.
-     */
+    */
     copyCurrentConf(){
         const configuration = copyConfiguration(this.state.procs, {})
 
@@ -358,6 +353,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                                 value={this.state.arrivalTime}
                                 min="0"
                                 max="200"
+                                autocomplete="off"
                                 required
                             />
                         </label>
@@ -369,6 +365,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                                 id="inputExecutionTime"
                                 onChange={this.handleChange}
                                 value={this.state.executionTime}
+                                autocomplete="off"
                                 min="1"
                                 max="200"
                                 required
