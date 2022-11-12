@@ -2,7 +2,7 @@
 /*
     Buttons are used to navigate between schedulers and trigger 
     the render of the scheduler in their parent component
- */
+*/
 
 
 export default class Buttons extends React.Component{
@@ -39,6 +39,9 @@ export default class Buttons extends React.Component{
             }
         ];
 
+        /*
+            Change button style to reflect the active scheduler
+        */
         if (this.props.wrapperBtnsClass === "wrapper-btns"){
             let activeScheduler = this.props.schedulerId;
 
@@ -52,11 +55,18 @@ export default class Buttons extends React.Component{
         return(
             <nav className={this.props.wrapperBtnsClass}>
                 {this.props.wrapperBtnsClass === "wrapper-btns" &&
-                    <a role="button" onClick={this.props.returnToMainPage}><span class="material-symbols-outlined icon-back">arrow_back_ios</span></a>
+                    <a role="button" onClick={this.props.returnToMainPage}>
+                        <span class="material-symbols-outlined icon-back">arrow_back_ios</span>
+                    </a>
                 }
                 {btnsClass.map((btnClass) => 
-                    <button type="button" className={btnClass.class} id={btnClass.name} onClick={this.startScheduler}>{btnClass.name}</button>
-
+                    <button 
+                        type="button" 
+                        className={btnClass.class} 
+                        id={btnClass.name} 
+                        onClick={this.startScheduler}>
+                        {btnClass.name}
+                    </button>
                 )}
             </nav>
         );

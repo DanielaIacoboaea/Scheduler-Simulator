@@ -1,5 +1,5 @@
 import RenderProgressBars from "./components/renderProgressBars";
-import scheduleNoTimeSlice from "./components/scheduleNoTimeSlice";
+import runProcess from "./components/runProcess";
 import deleteEntry from "./deleteProc";
 import addProcess from "./addDefaultProc";
 import copyConfiguration from "./copyConfiguration";
@@ -8,7 +8,7 @@ import copyConfiguration from "./copyConfiguration";
 /*
     The First-In First-Out (FIFO) and Shortest Job First (SJF) Schedulers
     schedule a process to be run to completion. 
-    FIFO runs every process based on arrival time.
+    FIFO schedules a process to run based on arrival time.
     SJF compares the processes that arrive at the same time and schedules the shortest 
     process first (Execute Time). 
  */
@@ -19,7 +19,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
         Component for First-In First-Out (FIFO) and Shortest Job First (SJF) Schedulers.
     Renders a form through which the user can set up
     parameters for the scheduler and submit processes to run.
-    Runs the scheduler and mentains state for each running process
+    After it schedules a process, calls runProcess function to run it.
+    Mentains state for each running process
     while rendering the progress bar for each process.
     The list of processes to run is sorted different based on scheduler.
      */
@@ -50,7 +51,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
     /* 
         When the component is mounted, check if we have prefilled settings to 
         display and start running a session.
-        Prefilled settings means: 
+        Prefilled settings: 
         - processes with arrival and execution time
     */
     componentDidMount(){
@@ -69,6 +70,13 @@ export default class SchedulerFIFOandSJF extends React.Component{
 
             /*
                 Add each default proc to the array of procs
+                Can't use a for loop to update state in React at each iteration 
+                because react updates state asynchronous and uses batch updating. 
+                As a consequence, for a for loop, only the last iteration 
+                is in fact reflected in the state.
+                This is why we can't just call handleSubmit and  handleClickStart 
+                to push all the processes at once and run the scheduler.
+                So we reuse parts of handleSubmit and handleClickStart to achieve this.
              */
             for (let i = 0; i < procs_list.length; i++){
                 let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
@@ -94,7 +102,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
 
             /* 
                 Update state with all default settings 
-                and start sunning the scheduler with these settings
+                and start running the scheduler with these settings
             */
             this.setState((state) => ({
                 procs: addProc,
@@ -130,6 +138,13 @@ export default class SchedulerFIFOandSJF extends React.Component{
         clearInterval(this.state.schedulerTimerId);
     }
 
+    /*
+        Because this component is shared between 2 schedulers (FIFO and SJF),
+        the only difference is in how we sort the procs, the state is maintained 
+        between the button clicks (change from one scheduler to another).
+        So if the Scheduler name changes(e.g from FIFO to SJF) we need to clear the 
+        state first.
+    */
     componentDidUpdate(prevProps){
         if(prevProps.sortBy !== this.props.sortBy){
             this.setState(state => ({
@@ -162,7 +177,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
 
     /*
         Save a process to state in the array with all the processes 
-        that the scheduler should run.
+        that the scheduler should schedule to run.
     */
     handleSubmit(event){
     
@@ -216,13 +231,15 @@ export default class SchedulerFIFOandSJF extends React.Component{
         if(!this.state.running){
             const deleted = deleteEntry(this.state.procs.slice(), procId);
             /* 
-                if the list of procs is empty, reset the count to 0
+                if the list of procs is empty, reset the count and statistics 
             */
             if (deleted.updateProcs.length === 0){
                 this.setState(state => ({
                     procs: deleted.updateProcs,
                     totalExecutionTime: deleted.updateTotalExecTime,
-                    count: 0
+                    count: 0,
+                    avgTurnaround: 0,
+                    avgResponse: 0
                 }));
             }else{
                 this.setState(state => ({
@@ -240,15 +257,18 @@ export default class SchedulerFIFOandSJF extends React.Component{
             - sort the procs by arrival time 
         SJF:
             - sort the procs by arrival time and execution time
-        Run the scheduler every second until the timer reaches the total 
-        Execution Time for all process.
+        Schedule a process to run every second until the timer reaches the total 
+        Execution Time for all processes.
     */
     handleClickStart(){
+
         if (this.state.procs.length !== 0){
+
             if (!this.state.running){
                 this.setState(state => ({
                     running: true
                 }));
+                
                 if (this.props.sortBy === "FIFO"){
                     this.state.procs.sort((a, b) => a.arrivalTime - b.arrivalTime);
                 }else if (this.props.sortBy === "SJF"){
@@ -279,7 +299,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
             /*
                 Run the selected process and update its internal state
              */
-            const scheduler = scheduleNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
+            const scheduler = runProcess(this.state.timer, this.state.procs, this.state.currentProcessIdx);
             if (scheduler){
                 /*
                     If the timer is lower than the proc's arrival time in the system, 

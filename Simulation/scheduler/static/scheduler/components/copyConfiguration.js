@@ -1,6 +1,7 @@
 /*
     Add current configuration for the scheduler:
     - processes
+    General settings include differences between schedulers:
     - Time Slice - if available
     - Queues - if available 
     - Boost - if available

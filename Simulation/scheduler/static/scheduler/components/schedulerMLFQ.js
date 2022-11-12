@@ -1,4 +1,4 @@
-import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
+import runProcess from "./runProcess";
 import RenderProgressBarsMLFQ from "./renderProgressBarsMLFQ";
 import deleteEntry from "./deleteProc";
 import copyConfiguration from "./copyConfiguration";
@@ -18,10 +18,6 @@ import colors from "./colors";
 export default class MLFQ extends React.Component{
     /* 
     Component for Multi-Level Feedback Queue Scheduler 
-    Renders a form through which the user can set up
-    parameters for the scheduler and submit processes to run.
-    Runs the scheduler and mentains state for each running process
-    while rendering the progress bar for each process.
     */
     constructor(props){
         super(props);
@@ -90,7 +86,14 @@ export default class MLFQ extends React.Component{
             }
 
             /*
-                Add each default proc to the array of procs
+                 Add each default proc to the array of procs
+                Can't use a for loop to update state in React at each iteration 
+                because react updates state asynchronous and uses batch updating. 
+                As a consequence, for a for loop, only the last iteration 
+                is in fact reflected in the state.
+                This is why we can't just call handleSubmit and  handleClickStart 
+                to push all the processes at once and run the scheduler.
+                So we reuse parts of handleSubmit and handleClickStart to achieve this.
             */
             for (let i = 0; i < procs_list.length; i++){
 
@@ -120,6 +123,10 @@ export default class MLFQ extends React.Component{
             addProc.sort((a, b) => {
                 return a.arrivalTime - b.arrivalTime;
             });
+            /*
+                At time T=0 all procs will be on the first queue (0),
+                so we need to sort it as well
+            */
             addToQueue[0].sort((a, b) => {
                 return a.arrivalTime - b.arrivalTime;
             });
@@ -221,6 +228,9 @@ export default class MLFQ extends React.Component{
                 count = 0;
                 totalExecution = 0;
                 addToQueue = [];
+                /*
+                    initalize all queues with an empty array
+                 */
                 for (let i = 0; i < parseInt(this.state.numQueues); i++){
                     addToQueue[i] = [];
                 }
@@ -247,8 +257,14 @@ export default class MLFQ extends React.Component{
                 queueIdx: 0
             }
 
+            /*
+                add the process to the list of procs
+            */
             addProc.push(createProc);
 
+            /*
+                Add a new arrived process to the queue with the highest priority (0)
+            */
             addToQueue[0].push(createProc);
 
             this.setState((state) => ({
@@ -284,7 +300,12 @@ export default class MLFQ extends React.Component{
             for (let i = 0; i < deleted.updateProcs.length; i++){
                 updateQueue0.push(deleted.updateProcs[i]);
             }
+
             addToQueue[0] = updateQueue0.slice(0);
+            /*
+                If we're deleting the last process from the list,
+                clear the state as well
+             */
             if (deleted.updateProcs.length === 0){
                 this.setState(state => ({
                     procs: deleted.updateProcs,
@@ -296,7 +317,9 @@ export default class MLFQ extends React.Component{
                     quantumDisabled: false,
                     boostDisabled: false,
                     queuesDisabled: false,
-                    count: 0
+                    count: 0,
+                    avgTurnaround: 0,
+                    avgResponse: 0
                 }));
             }else{
                 this.setState(state => ({
@@ -341,7 +364,7 @@ export default class MLFQ extends React.Component{
         - check if the current running proc used its quantum 
         - decide which queue should run
         - decide which process should run from the selected queue
-        - run the process and update its progress within state 
+        - call runProcess function to run the process and update its progress within state 
     */
     runSchedulerTimeSlice(){
         const quantumSlice = parseInt(this.state.quantum);
@@ -359,16 +382,27 @@ export default class MLFQ extends React.Component{
             let copyProcsOnQueue0 = this.state.queues[0].slice();
 
             let newArrivalProcIdx = this.state.currentProcessIdx;
+
             for (let i = 0; i < copyProcsOnQueue0.length; i++){
-            
+                
+                /*
+                    if the process already ran, skip it
+                 */
                 if (copyProcsOnQueue0[i].arrivalTime < this.state.timer && copyProcsOnQueue0[i].executed !== 0){
                     continue;
                 }
 
+                /*
+                    if the process comes later than the current value of the timer,
+                    skip it
+                 */
                 if(copyProcsOnQueue0[i].arrivalTime > this.state.timer){
                     continue;
                 }
 
+                /*
+                    found a process to run
+                 */
                 if(copyProcsOnQueue0[i].timeLeft !== 0){
                     newArrivalProcIdx = copyProcsOnQueue0[i].id;
                     break;
@@ -395,7 +429,7 @@ export default class MLFQ extends React.Component{
                 
                 /*
                     If a process still has time left, update it's queueIdx to 
-                    queue 1.
+                    queue 0.
                  */
                 for (let i = 0; i < get_procs.length; i++){
                     if(get_procs[i].executed < get_procs[i].executionTime){
@@ -453,6 +487,9 @@ export default class MLFQ extends React.Component{
                 let currentProcIdx = this.state.currentProcessIdx;
                 let findProc;
 
+                /*
+                    Find the current running process
+                 */
                 for (let i = 0; i < this.state.procs.length; i++){
                     if(this.state.procs[i].id === currentProcIdx){
                         findProc = i;
@@ -461,6 +498,10 @@ export default class MLFQ extends React.Component{
 
                 let currentProc = this.state.procs[findProc];
 
+                /*
+                    If the proc is not complete, move it down one queue
+                    Otherwise leave it on it's current queue
+                 */
                 if (currentProc.executed < currentProc.executionTime){
 
                     if (currentProc.queueIdx + 1 < numQueues){
@@ -538,7 +579,7 @@ export default class MLFQ extends React.Component{
             }
             
 
-            const schedule = scheduleNoTimeSlice(this.state.timer, this.state.procs, newProcIdForScheduler);
+            const schedule = runProcess(this.state.timer, this.state.procs, newProcIdForScheduler);
             
             if(schedule){
                 /*
@@ -562,6 +603,7 @@ export default class MLFQ extends React.Component{
                     updateProcInQueue[queueIdxProc].executed += 1;
 
                     if(schedule.procDone){
+
                         this.setState(state => ({
                             procs: schedule.updateProcs,
                             queues: updateProcInQueue,
@@ -570,6 +612,7 @@ export default class MLFQ extends React.Component{
                             quantumTicks: quantumSlice
                         }));
                     }else{
+
                         this.setState(state => ({
                             procs: schedule.updateProcs,
                             queues: updateProcInQueue,

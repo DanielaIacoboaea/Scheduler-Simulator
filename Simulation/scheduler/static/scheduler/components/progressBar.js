@@ -46,7 +46,12 @@ export default class ProgressBar extends React.Component{
     render(){
         return (
             <div className="progress w-100">
-                <div className="progress-bar" role="progressbar" style={this.state.style}>P{this.props.procId} : {this.state.style.width}</div>
+                <div 
+                    className="progress-bar" 
+                    role="progressbar" 
+                    style={this.state.style}>
+                        P{this.props.procId} : {this.state.style.width}
+                </div>
             </div>
         );
     };

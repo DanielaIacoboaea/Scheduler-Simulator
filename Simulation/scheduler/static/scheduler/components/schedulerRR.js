@@ -1,6 +1,5 @@
-import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
-import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
+import runProcess from "./runProcess";
 import deleteEntry from "./deleteProc";
 import addProcess from "./addDefaultProc";
 import copyConfiguration from "./copyConfiguration";
@@ -68,7 +67,14 @@ export default class RR extends React.Component{
 
             /*
                 Add each default proc to the array of procs
-                */
+                Can't use a for loop to update state in React at each iteration 
+                because react updates state asynchronous and uses batch updating. 
+                As a consequence, for a for loop, only the last iteration 
+                is in fact reflected in the state.
+                This is why we can't just call handleSubmit and  handleClickStart 
+                to push all the processes at once and run the scheduler.
+                So we reuse parts of handleSubmit and handleClickStart to achieve this.
+            */
             for (let i = 0; i < procs_list.length; i++){
                 let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
                 addProc.length = 0;
@@ -201,7 +207,9 @@ export default class RR extends React.Component{
                     totalExecutionTime: deleted.updateTotalExecTime,
                     quantum: "",
                     disabled: false,
-                    count: 0
+                    count: 0,
+                    avgTurnaround: 0,
+                    avgResponse: 0
                 }));
             }else{
                 this.setState(state => ({
@@ -221,10 +229,12 @@ export default class RR extends React.Component{
     */
     handleClickStart(){
         if (this.state.procs.length !== 0){
+
             if (!this.state.running){
                 this.setState(state => ({
                     running: true
                 }));
+
                 this.state.procs.sort((a, b) => {
                     return a.arrivalTime - b.arrivalTime;
                 });
@@ -241,6 +251,7 @@ export default class RR extends React.Component{
         - if it did, schedule the next process
     */
     runSchedulerTimeSlice(){
+        
         const quantumSlice = parseInt(this.state.quantum);
        
         /* 
@@ -290,7 +301,7 @@ export default class RR extends React.Component{
             /*
                 Run the selected process and update its internal state
              */
-            const schedule = scheduleNoTimeSlice(this.state.timer, this.state.procs, this.state.currentProcessIdx);
+            const schedule = runProcess(this.state.timer, this.state.procs, this.state.currentProcessIdx);
             
             if(schedule){
                 /*

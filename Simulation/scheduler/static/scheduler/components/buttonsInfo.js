@@ -1,4 +1,8 @@
 
+/*
+    Each button triggers the display of additional information
+    for each scheduler.
+ */
 export default class ButtonsInfo extends React.Component{
     constructor(props){
         super(props);
@@ -82,8 +86,14 @@ export default class ButtonsInfo extends React.Component{
             <section id="infoGroup">
                 <div id="description">
                     {descriptions.map((description) =>
-                        <button className={description.class} id={`${description.name}Info`} type="button" data-toggle="collapse" data-target={`#info${description.name}card`} aria-expanded="false" aria-controls={`info${description.name}card`}>
-                            Info {description.name}
+                        <button 
+                            className={description.class} 
+                            id={`${description.name}Info`} 
+                            type="button" data-toggle="collapse" 
+                            data-target={`#info${description.name}card`} 
+                            aria-expanded="false" 
+                            aria-controls={`info${description.name}card`}>
+                                Info {description.name}
                         </button>
                     )}
                 </div>

@@ -1,6 +1,5 @@
-import colors from "./components/colors";
 import RenderProgressBars from "./components/renderProgressBars";
-import scheduleNoTimeSlice from "./scheduleNoTimeSlice";
+import runProcess from "./runProcess";
 import deleteEntry from "./deleteProc";
 import addProcess from "./addDefaultProc";
 import copyConfiguration from "./copyConfiguration";
@@ -18,7 +17,8 @@ export default class STCF extends React.Component{
      Shortest to Completion First Scheduler (STCF) 
     Renders a form through which the user can set up
     parameters for the scheduler and submit processes to run.
-    Runs the scheduler and mentains state for each running process
+    After it schedules a process, calls runProcess function to run it.
+    Mentains state for each running process
     while rendering the progress bar for each process.
     */
     constructor(props){
@@ -49,7 +49,7 @@ export default class STCF extends React.Component{
     /* 
         When the component is mounted, check if we have prefilled settings to 
         display and start running a session.
-        Prefilled settings means: 
+        Prefilled settings:
         - processes with arrival and execution time
     */
     componentDidMount(){
@@ -68,7 +68,14 @@ export default class STCF extends React.Component{
 
             /*
                 Add each default proc to the array of procs
-                */
+                Can't use a for loop to update state in React at each iteration 
+                because react updates state asynchronous and uses batch updating. 
+                As a consequence, for a for loop, only the last iteration 
+                is in fact reflected in the state.
+                This is why we can't just call handleSubmit and  handleClickStart 
+                to push all the processes at once and run the scheduler.
+                So we reuse parts of handleSubmit and handleClickStart to achieve this.
+            */
             for (let i = 0; i < procs_list.length; i++){
                 let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
                 addProc.length = 0;
@@ -79,7 +86,7 @@ export default class STCF extends React.Component{
 
             /*
                 Sort the array of procs based on the type of scheduler
-                */
+            */
             addProc.sort((a, b) => {
             if(a.arrivalTime === b.arrivalTime){
                 return a.executionTime - b.executionTime;
@@ -148,11 +155,13 @@ export default class STCF extends React.Component{
                 - procs
                 - totalExecutionTime
                 - count of procs
+                - statistics
         */
         let addProc;
         let count;
         let totalExecution;
         if (this.state.arrivalTime && this.state.executionTime){
+
             if (this.state.avgTurnaround !== 0){
                 addProc = [];
                 count = 0;
@@ -184,6 +193,7 @@ export default class STCF extends React.Component{
     deleteProc(procId){
         /* 
             if the list of procs is empty, reset the count to 0
+            reset statistics to 0 as well
         */
         if(!this.state.running){
             const deleted = deleteEntry(this.state.procs.slice(), procId);
@@ -191,7 +201,9 @@ export default class STCF extends React.Component{
                 this.setState(state => ({
                     procs: deleted.updateProcs,
                     totalExecutionTime: deleted.updateTotalExecTime,
-                    count: 0
+                    count: 0,
+                    avgTurnaround: 0,
+                    avgResponse: 0
                 }));
             }else{
                 this.setState(state => ({
@@ -205,15 +217,17 @@ export default class STCF extends React.Component{
     /*
         Sort the list of processes based on when 
         they are supposed to start running and execution time
-        Run the scheduler every second until the timer reaches the total 
+        Schedule a process to run every every second until the timer reaches the total 
         Execution Time for all process.
     */
     handleClickStart(){
         if (this.state.procs.length !== 0){
+
             if (!this.state.running){
                 this.setState(state => ({
                     running: true
                 }));
+
                 this.state.procs.sort((a, b) => {
                         if(a.arrivalTime === b.arrivalTime){
                         return a.executionTime - b.executionTime;
@@ -231,7 +245,7 @@ export default class STCF extends React.Component{
         While the timer hasn't reached the total Execution time:
         - decide which process should run from the sorted list of processes
         - when a new process enters the system, sort all procs before it based on the time left from execution
-        - run the process and update its progress within state 
+        - call runProcess function and update its progress within state 
         - if the process is done, select the next proc to run from the list
     */
     runSchedulerInterrupt(){
@@ -247,7 +261,12 @@ export default class STCF extends React.Component{
             let copyProcs = this.state.procs.slice();
 
             let newArrivalProcIdx = this.state.currentProcessIdx;
+
             for (let i = 0; i < copyProcs.length; i++){
+
+                /*
+                    Make sure that procs that arrive at the same time get a chance to run 
+                 */
                 if (i+1 < copyProcs.length){
 
                     if (copyProcs[i].arrivalTime === this.state.timer && copyProcs[i+1].arrivalTime !== this.state.timer){
@@ -280,6 +299,7 @@ export default class STCF extends React.Component{
             let unsortedProcs = copyProcs.slice(this.state.currentProcessIdx + 1, copyProcs.length);
             let newProcs = sortProcsTimeLeft.concat(unsortedProcs);
             let newProcessIdx;
+            
             for (let i = 0; i < newProcs.length; i++){
                 if(newProcs[i].timeLeft !== 0){
                     newProcessIdx = i;
@@ -290,7 +310,7 @@ export default class STCF extends React.Component{
              /*
                 Run the selected process and update its internal state
              */
-            const schedule = scheduleNoTimeSlice(this.state.timer, newProcs, newProcessIdx);
+            const schedule = runProcess(this.state.timer, newProcs, newProcessIdx);
             
             if(schedule){
                 /*

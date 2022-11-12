@@ -4,7 +4,7 @@
  */
 
 
-function scheduleNoTimeSlice(timer, allProcs, idx){
+function runProcess(timer, allProcs, idx){
 
     const procs = allProcs.slice();
     const proc = procs[idx];
@@ -81,4 +81,4 @@ function scheduleNoTimeSlice(timer, allProcs, idx){
     }
 }
 
-export default scheduleNoTimeSlice;
+export default runProcess;

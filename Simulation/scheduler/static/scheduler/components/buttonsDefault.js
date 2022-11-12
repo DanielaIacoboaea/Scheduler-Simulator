@@ -1,7 +1,6 @@
 
 /*
-    Buttons are used to navigate between schedulers and trigger 
-    the render of the scheduler in their parent component
+    Buttons are used to navigate to scheduler with pre-filled settings
  */
 
 
@@ -44,8 +43,20 @@ export default class ButtonsDefault extends React.Component{
             <section className="wrapper-btns-default">
                 {btnsDefaultClass.map((btnDefault) => 
                     <div className="btns-default">
-                        <button type="button" className={btnDefault.class} id={`${btnDefault.name}Good`} onClick={this.startDefaultScheduler}>Best {btnDefault.name}</button>
-                        <button type="button" className={btnDefault.class} id={`${btnDefault.name}Bad`} onClick={this.startDefaultScheduler}>Worst {btnDefault.name}</button>
+                        <button 
+                            type="button" 
+                            className={btnDefault.class} 
+                            id={`${btnDefault.name}Good`} 
+                            onClick={this.startDefaultScheduler}>
+                                Best {btnDefault.name}
+                        </button>
+                        <button 
+                            type="button" 
+                            className={btnDefault.class} 
+                            id={`${btnDefault.name}Bad`} 
+                            onClick={this.startDefaultScheduler}>
+                                Worst {btnDefault.name}
+                        </button>
                     </div>
                 )}
             </section>

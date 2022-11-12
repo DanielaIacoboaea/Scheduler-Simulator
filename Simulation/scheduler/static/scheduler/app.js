@@ -67,8 +67,8 @@ class App extends React.Component{
         .then(
           (result) => {
            this.setState((state) => ({
-            scheduler: prefillScheduler[0],
-            prefilled: result.default
+                scheduler: prefillScheduler[0],
+                prefilled: result.default
             }));
           },
           (error) => {
@@ -77,6 +77,9 @@ class App extends React.Component{
         )
     }
 
+    /*
+        Clear state and render the home page
+     */
     returnToMainPage(){
         this.setState((state) => ({
             scheduler: "",
@@ -85,32 +88,88 @@ class App extends React.Component{
     }
 
     render(){
-       
-       const btnsSched = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns" schedulerId={this.state.scheduler} returnToMainPage={this.returnToMainPage}/>;
-       const btns = <Buttons handleRenderClick={this.renderScheduler} wrapperBtnsClass="wrapper-btns-single"/>;
+
+       /*
+            Render buttons with different style:
+            - buttons for each scheduler for home page 
+            - butons for each scheduler, after 1 scheduler is rendered
+        */
+       const btnsSched = <Buttons 
+                            handleRenderClick={this.renderScheduler} 
+                            wrapperBtnsClass="wrapper-btns" 
+                            schedulerId={this.state.scheduler} 
+                            returnToMainPage={this.returnToMainPage}
+                        />;
+
+       const btns = <Buttons 
+                        handleRenderClick={this.renderScheduler} 
+                        wrapperBtnsClass="wrapper-btns-single"
+                    />;
+
        const btnsWrapperSched = "wrapper";
        const btnsWrapper = "wrapper btns-single";
 
         return(
             <React.Fragment>
-            <div>
-                <h1>Scheduler Simulator</h1>
-            </div>
-           {
-            this.state.scheduler === "FIFO"? <section className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="FIFO" alertColor="#6c757d" prefilled={this.state.prefilled} /></section>: 
-            this.state.scheduler === "SJF"? <section className={btnsWrapperSched}>{btnsSched}<SchedulerFIFOandSJF sortBy="SJF" alertColor="#17a2b8" prefilled={this.state.prefilled} /></section>:
-            this.state.scheduler === "STCF"? <section className={btnsWrapperSched}>{btnsSched}<STCF alertColor="#343a40" prefilled={this.state.prefilled} /></section>:
-            this.state.scheduler === "RR"? <section className={btnsWrapperSched}>{btnsSched}<RR alertColor="#28a745" prefilled={this.state.prefilled} /></section>: 
-            this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>{btnsSched}<MLFQ alertColor="#dc3545" prefilled={this.state.prefilled} /></section>:
-            <section className={btnsWrapper}>
-                <h4 className="run-header">Learn how each scheduler works by <a href="#description">reading</a> about it. <br />
-                If you want to discover yourself, get the <span className="prefilled-color">pre-filled</span> settings for <span className="best-color">best</span> and <span className="worst-color">worst</span> case scenarios: </h4>
-                <ButtonsDefault handleDefaultClick={this.renderDefaultScheduler}/>
-                <h4 className="run-header">Run any scheduler with your own custom settings:</h4>{btns}
-                <h4 className="run-header">Looking for a deep dive into each scheduler? Look no more: </h4>
-                <ButtonsInfo />
-            </section>
-          }
+                <header>
+                    <h1>Scheduler Simulator</h1>
+                </header>
+                {
+                    this.state.scheduler === "FIFO"? <section className={btnsWrapperSched}>
+                                                        {btnsSched}
+                                                        <SchedulerFIFOandSJF 
+                                                        sortBy="FIFO" 
+                                                        alertColor="#6c757d" 
+                                                        prefilled={this.state.prefilled} 
+                                                        />
+                                                    </section>:
+                    this.state.scheduler === "SJF"? <section className={btnsWrapperSched}>
+                                                        {btnsSched}
+                                                        <SchedulerFIFOandSJF 
+                                                        sortBy="SJF" 
+                                                        alertColor="#17a2b8" 
+                                                        prefilled={this.state.prefilled} 
+                                                        />
+                                                    </section>:
+                    this.state.scheduler === "STCF"? <section className={btnsWrapperSched}>
+                                                        {btnsSched}
+                                                        <STCF 
+                                                            alertColor="#343a40" 
+                                                            prefilled={this.state.prefilled} 
+                                                        />
+                                                    </section>:
+                    this.state.scheduler === "RR"? <section className={btnsWrapperSched}>
+                                                        {btnsSched}
+                                                        <RR 
+                                                            alertColor="#28a745" 
+                                                            prefilled={this.state.prefilled} 
+                                                        />
+                                                    </section>: 
+                    this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>
+                                                        {btnsSched}
+                                                        <MLFQ 
+                                                            alertColor="#dc3545" 
+                                                            prefilled={this.state.prefilled} 
+                                                        />
+                                                    </section>:
+                    <section className={btnsWrapper}>
+                        <h4 className="guide-header">
+                            Learn how each scheduler works by <a href="#description">reading</a> about it. <br />
+                            Also, get practice exemples with <span className="prefilled-color">pre-filled</span> settings for
+                            <span className="best-color"> best</span> and
+                            <span className="worst-color"> worst</span> case scenarios to see them in action: 
+                        </h4>
+                        <ButtonsDefault handleDefaultClick={this.renderDefaultScheduler}/>
+                        <h4 className="guide-header">
+                            Now that you've got the hang of it, go ahead and run any scheduler with your own custom settings:
+                        </h4>
+                        {btns}
+                        <h4 className="guide-header">
+                            Looking for a deep dive into each scheduler? Look no more: 
+                        </h4>
+                        <ButtonsInfo />
+                    </section>
+                }
           </React.Fragment>
         );
     }
