@@ -3,6 +3,8 @@ import runProcess from "./runProcess";
 import deleteEntry from "./deleteProc";
 import addProcess from "./addDefaultProc";
 import copyConfiguration from "./copyConfiguration";
+import getAverage from "./computeAverage";
+import sortProcs from "./sortListOfProcs";
 
 
 /*
@@ -77,18 +79,18 @@ export default class RR extends React.Component{
             */
             for (let i = 0; i < procs_list.length; i++){
                 let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
-                addProc.length = 0;
-                addProc.push(...newAddproc);
+                addProc.splice(0, addProc.length, ...newAddproc);
+
                 count++;
                 totalExecution += parseInt(procs_list[i].executeTime);
             }
 
             /*
                 Sort the array of procs based on the type of scheduler
-                */
-            addProc.sort((a, b) => {
-                return a.arrivalTime - b.arrivalTime;
-            });
+            */
+
+            let sortAddProc = sortProcs(addProc, 1, {"1": "arrivalTime"});
+            addProc.splice(0, addProc.length, ...sortAddProc);
 
             /* 
                 Update state with all default settings 
@@ -172,8 +174,7 @@ export default class RR extends React.Component{
             }
 
             let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
-            addProc.length = 0;
-            addProc.push(...newAddproc);
+            addProc.splice(0, addProc.length, ...newAddproc);
 
             this.setState((state) => ({
                 procs: addProc,
@@ -202,6 +203,7 @@ export default class RR extends React.Component{
             */
             const deleted = deleteEntry(this.state.procs.slice(), procId);
             if (deleted.updateProcs.length === 0){
+
                 this.setState(state => ({
                     procs: deleted.updateProcs,
                     totalExecutionTime: deleted.updateTotalExecTime,
@@ -235,9 +237,9 @@ export default class RR extends React.Component{
                     running: true
                 }));
 
-                this.state.procs.sort((a, b) => {
-                    return a.arrivalTime - b.arrivalTime;
-                });
+                let sortProcList = sortProcs(this.state.procs, 1, {"1": "arrivalTime"});
+                this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
+
                 this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
             }
         }
@@ -341,14 +343,10 @@ export default class RR extends React.Component{
                 and reset the parameters related to timer.
             */
             clearInterval(this.schedulerTimerId);
-            let avgT = 0;
-            let avgR = 0;
-            for (let proc in this.state.procs){
-                avgT += this.state.procs[proc].turnaround;
-                avgR += this.state.procs[proc].response;
-            }
-            avgT = avgT/this.state.procs.length;
-            avgR = avgR/this.state.procs.length;
+
+            let avgT = getAverage(this.state.procs, "turnaround");
+            let avgR = getAverage(this.state.procs, "response");
+
             /*
                 Initialize the scheduler's state
              */

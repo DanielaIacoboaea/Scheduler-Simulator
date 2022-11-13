@@ -3,6 +3,8 @@ import RenderProgressBarsMLFQ from "./renderProgressBarsMLFQ";
 import deleteEntry from "./deleteProc";
 import copyConfiguration from "./copyConfiguration";
 import colors from "./colors";
+import getAverage from "./computeAverage";
+import sortProcs from "./sortListOfProcs";
 
 
 /* 
@@ -77,6 +79,7 @@ export default class MLFQ extends React.Component{
             let count = 0;
             let totalExecution = 0;
             let addToQueue = [];
+
             let numQueuesDefault = parseInt(procs_list[0].queues);
             let timeSliceDefault = parseInt(procs_list[0].quantum);
             let boostDefault = parseInt(procs_list[0].boost);
@@ -120,16 +123,16 @@ export default class MLFQ extends React.Component{
             /*
                 Sort the array of procs based on the type of scheduler
             */
-            addProc.sort((a, b) => {
-                return a.arrivalTime - b.arrivalTime;
-            });
+
+            let sortAddProc = sortProcs(addProc, 1, {"1": "arrivalTime"});
+            addProc.splice(0, addProc.length, ...sortAddProc);
+
             /*
                 At time T=0 all procs will be on the first queue (0),
                 so we need to sort it as well
             */
-            addToQueue[0].sort((a, b) => {
-                return a.arrivalTime - b.arrivalTime;
-            });
+            let sortQueue = sortProcs(addToQueue[0], 1, {"1": "arrivalTime"});
+            addToQueue[0].splice(0, addToQueue[0].length, ...sortQueue);
 
             /* 
                 Update state with all default settings 
@@ -345,12 +348,13 @@ export default class MLFQ extends React.Component{
                 this.setState(state => ({
                     running: true
                 }));
-                this.state.procs.sort((a, b) => {
-                    return a.arrivalTime - b.arrivalTime;
-                });
-                this.state.queues[0].sort((a, b) => {
-                    return a.arrivalTime - b.arrivalTime;
-                });
+
+                let sortProcList = sortProcs(this.state.procs, 1, {"1": "arrivalTime"});
+                this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
+
+                let sortQueue0 = sortProcs(this.state.queues[0], 1, {"1": "arrivalTime"});
+                this.state.queues[0].splice(0, this.state.queues[0].length, ...sortQueue0);
+
                 this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
             }
         }
@@ -531,17 +535,12 @@ export default class MLFQ extends React.Component{
                     Starting with the queue with the highest priority(0) chech 
                     each queue to see if it has any proc available to run
                     get the first process available to run from that queue
-                 */
+                */
 
-                this.state.procs.sort((a, b) => {
-                    if(a.queueIdx === b.queueIdx){
-                        return a.arrivalTime - b.arrivalTime;
-                    }
-                    return a.queueIdx - b.queueIdx;
-                });
+                let sortProcList = sortProcs(this.state.procs, 2, {"1": "queueIdx", "2": "arrivalTime"});
+                this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
 
                 let chooseProcId;
-                let chooseProcIdx;
                 let newQueue;
 
                 for(let i = 0; i < this.state.procs.length; i++){
@@ -552,7 +551,6 @@ export default class MLFQ extends React.Component{
                         continue;
                     }
                     chooseProcId = this.state.procs[i].id;
-                    chooseProcIdx = i;
                     newQueue = this.state.procs[i].queueIdx;
                     break;
                 }
@@ -631,14 +629,10 @@ export default class MLFQ extends React.Component{
                 and reset the parameters related to timer.
             */
             clearInterval(this.schedulerTimerId);
-            let avgT = 0;
-            let avgR = 0;
-            for (let proc in this.state.procs){
-                avgT += this.state.procs[proc].turnaround;
-                avgR += this.state.procs[proc].response;
-            }
-            avgT = avgT/this.state.procs.length;
-            avgR = avgR/this.state.procs.length;
+
+            let avgT = getAverage(this.state.procs, "turnaround");
+            let avgR = getAverage(this.state.procs, "response");
+
             /* 
                 reset the component's state
             */

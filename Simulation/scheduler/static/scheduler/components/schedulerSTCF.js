@@ -3,6 +3,8 @@ import runProcess from "./runProcess";
 import deleteEntry from "./deleteProc";
 import addProcess from "./addDefaultProc";
 import copyConfiguration from "./copyConfiguration";
+import getAverage from "./computeAverage";
+import sortProcs from "./sortListOfProcs";
 
 
 /*
@@ -78,8 +80,8 @@ export default class STCF extends React.Component{
             */
             for (let i = 0; i < procs_list.length; i++){
                 let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
-                addProc.length = 0;
-                addProc.push(...newAddproc);
+                addProc.splice(0, addProc.length, ...newAddproc);
+
                 count++;
                 totalExecution += parseInt(procs_list[i].executeTime);
             }
@@ -87,12 +89,9 @@ export default class STCF extends React.Component{
             /*
                 Sort the array of procs based on the type of scheduler
             */
-            addProc.sort((a, b) => {
-            if(a.arrivalTime === b.arrivalTime){
-                return a.executionTime - b.executionTime;
-            }
-            return a.arrivalTime - b.arrivalTime;
-            });
+
+            let sortAddProc = sortProcs(addProc, 2, {"1": "arrivalTime", "2": "executionTime"});
+            addProc.splice(0, addProc.length, ...sortAddProc);
 
             /* 
                 Update state with all default settings 
@@ -171,9 +170,9 @@ export default class STCF extends React.Component{
                 count = this.state.count;
                 totalExecution = this.state.totalExecutionTime;
             }
+
             let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
-            addProc.length = 0;
-            addProc.push(...newAddproc);
+            addProc.splice(0, addProc.length, ...newAddproc);
 
             this.setState((state) => ({
                 procs: addProc,
@@ -228,12 +227,9 @@ export default class STCF extends React.Component{
                     running: true
                 }));
 
-                this.state.procs.sort((a, b) => {
-                        if(a.arrivalTime === b.arrivalTime){
-                        return a.executionTime - b.executionTime;
-                    }
-                    return a.arrivalTime - b.arrivalTime;
-                });
+                let sortProcList = sortProcs(this.state.procs, 2, {"1": "arrivalTime", "2": "executionTime"});
+                this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
+
                 this.schedulerTimerId = setInterval(() => this.runSchedulerInterrupt(), 1000);
             }
         }
@@ -349,14 +345,10 @@ export default class STCF extends React.Component{
                 and reset the parameters related to timer.
             */
             clearInterval(this.schedulerTimerId);
-            let avgT = 0;
-            let avgR = 0;
-            for (let proc in this.state.procs){
-                avgT += this.state.procs[proc].turnaround;
-                avgR += this.state.procs[proc].response;
-            }
-            avgT = avgT/this.state.procs.length;
-            avgR = avgR/this.state.procs.length;
+
+            let avgT = getAverage(this.state.procs, "turnaround");
+            let avgR = getAverage(this.state.procs, "response");
+
             /* 
                 reset the component's state
             */
