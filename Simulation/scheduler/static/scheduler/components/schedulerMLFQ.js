@@ -186,7 +186,7 @@ export default class MLFQ extends React.Component{
             queuesDisabled: false,
             textarea: ""
         }));
-        clearInterval(this.state.schedulerTimerId);
+        clearInterval(this.schedulerTimerId);
     }
 
     /* 

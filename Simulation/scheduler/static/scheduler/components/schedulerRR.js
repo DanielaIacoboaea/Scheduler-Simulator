@@ -132,7 +132,7 @@ export default class RR extends React.Component{
             disabled: false,
             textarea: ""
         }));
-        clearInterval(this.state.schedulerTimerId);
+        clearInterval(this.schedulerTimerId);
     }
 
     /* 

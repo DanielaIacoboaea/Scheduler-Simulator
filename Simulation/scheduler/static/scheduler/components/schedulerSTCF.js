@@ -128,7 +128,7 @@ export default class STCF extends React.Component{
             avgResponse: 0,
             textarea: ""
         }));
-        clearInterval(this.state.schedulerTimerId);
+        clearInterval(this.schedulerTimerId);
     }
     
     /* 
