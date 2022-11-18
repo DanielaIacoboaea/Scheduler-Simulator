@@ -166,6 +166,7 @@ export default class STCF extends React.Component{
         let count;
         let totalExecution;
         if (this.state.arrivalTime && this.state.executionTime){
+            this.props.updateSubtitle();
 
             if (this.state.avgTurnaround !== 0){
                 addProc = [];
@@ -201,7 +202,10 @@ export default class STCF extends React.Component{
             reset statistics to 0 as well
         */
         if(!this.state.running){
+            this.props.updateSubtitle();
+
             const deleted = deleteEntry(this.state.procs.slice(), procId);
+            
             if (deleted.updateProcs.length === 0){
                 this.setState(state => ({
                     procs: deleted.updateProcs,

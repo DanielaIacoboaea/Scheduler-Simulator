@@ -25,11 +25,13 @@ class App extends React.Component{
         super(props);
         this.state = {
             scheduler: "",
-            prefilled: ""
+            prefilled: "",
+            subtitle: ""
         };
         this.renderScheduler = this.renderScheduler.bind(this);
         this.renderDefaultScheduler = this.renderDefaultScheduler.bind(this);
         this.returnToMainPage = this.returnToMainPage.bind(this);
+        this.updateSubtitle = this.updateSubtitle.bind(this);
     }
 
     /*
@@ -38,7 +40,8 @@ class App extends React.Component{
     renderScheduler(name){
         this.setState((state) => ({
             scheduler: name,
-            prefilled: ""
+            prefilled: "",
+            subtitle: `Custom settings ${name}`
         }));
     }
     
@@ -66,10 +69,19 @@ class App extends React.Component{
         .then(res => res.json())
         .then(
           (result) => {
-           this.setState((state) => ({
-                scheduler: prefillScheduler[0],
-                prefilled: result.default
-            }));
+            if(prefillType === 1){
+                this.setState((state) => ({
+                    scheduler: prefillScheduler[0],
+                    prefilled: result.default,
+                    subtitle: `Best ${prefillScheduler[0]}`
+                }));
+            }else{
+                this.setState((state) => ({
+                    scheduler: prefillScheduler[0],
+                    prefilled: result.default,
+                    subtitle: `Worst ${prefillScheduler[0]}`
+                }));
+            }
           },
           (error) => {
             console.log("error: ", error);
@@ -83,7 +95,14 @@ class App extends React.Component{
     returnToMainPage(){
         this.setState((state) => ({
             scheduler: "",
-            prefilled: ""
+            prefilled: "",
+            subtitle: ""
+        }));
+    }
+
+    updateSubtitle(){
+        this.setState((state) => ({
+            subtitle: `Custom settings ${state.scheduler}`
         }));
     }
 
@@ -108,48 +127,61 @@ class App extends React.Component{
 
        const btnsWrapperSched = "wrapper";
        const btnsWrapper = "wrapper btns-single";
+       const subtitleColors = {
+            "FIFO": "#6c757d",
+            "SJF": "#17a2b8",
+            "STCF": "#343a40",
+            "RR": "#28a745",
+            "MLFQ": "#dc3545"
+       }
 
         return(
             <React.Fragment>
                 <header>
-                    <h1>Scheduler Simulator</h1>
+                    <h1 id="page-title">Scheduler Simulator</h1>
+                    <h4 id="page-subtitle" style={{color: subtitleColors[this.state.scheduler]}} >{this.state.subtitle}</h4>
                 </header>
                 {
                     this.state.scheduler === "FIFO"? <section className={btnsWrapperSched}>
                                                         {btnsSched}
                                                         <SchedulerFIFOandSJF 
                                                         sortBy="FIFO" 
-                                                        alertColor="#6c757d" 
+                                                        alertColor={subtitleColors[this.state.scheduler]}
                                                         prefilled={this.state.prefilled} 
+                                                        updateSubtitle={this.updateSubtitle}
                                                         />
                                                     </section>:
                     this.state.scheduler === "SJF"? <section className={btnsWrapperSched}>
                                                         {btnsSched}
                                                         <SchedulerFIFOandSJF 
                                                         sortBy="SJF" 
-                                                        alertColor="#17a2b8" 
+                                                        alertColor={subtitleColors[this.state.scheduler]}
                                                         prefilled={this.state.prefilled} 
+                                                        updateSubtitle={this.updateSubtitle}
                                                         />
                                                     </section>:
                     this.state.scheduler === "STCF"? <section className={btnsWrapperSched}>
                                                         {btnsSched}
                                                         <STCF 
-                                                            alertColor="#343a40" 
+                                                            alertColor={subtitleColors[this.state.scheduler]}
                                                             prefilled={this.state.prefilled} 
+                                                            updateSubtitle={this.updateSubtitle}
                                                         />
                                                     </section>:
                     this.state.scheduler === "RR"? <section className={btnsWrapperSched}>
                                                         {btnsSched}
                                                         <RR 
-                                                            alertColor="#28a745" 
-                                                            prefilled={this.state.prefilled} 
+                                                            alertColor={subtitleColors[this.state.scheduler]}
+                                                            prefilled={this.state.prefilled}
+                                                            updateSubtitle={this.updateSubtitle} 
                                                         />
                                                     </section>: 
                     this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>
                                                         {btnsSched}
                                                         <MLFQ 
-                                                            alertColor="#dc3545" 
+                                                            alertColor={subtitleColors[this.state.scheduler]}
                                                             prefilled={this.state.prefilled} 
+                                                            updateSubtitle={this.updateSubtitle}
                                                         />
                                                     </section>:
                     <section className={btnsWrapper}>

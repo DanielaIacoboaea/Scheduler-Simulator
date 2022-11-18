@@ -207,6 +207,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         let totalExecution;
         
         if (this.state.arrivalTime && this.state.executionTime){
+            this.props.updateSubtitle();
             if (this.state.avgTurnaround !== 0){
                 addProc = [];
                 count = 0;
@@ -240,6 +241,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
     */
     deleteProc(procId){
         if(!this.state.running){
+            this.props.updateSubtitle();
+            
             const deleted = deleteEntry(this.state.procs.slice(), procId);
             /* 
                 if the list of procs is empty, reset the count and statistics 

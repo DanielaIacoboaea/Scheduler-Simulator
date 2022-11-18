@@ -169,6 +169,8 @@ export default class RR extends React.Component{
         let count;
         let totalExecution;
         if (this.state.arrivalTime && this.state.executionTime){
+            this.props.updateSubtitle();
+
             if (this.state.avgTurnaround !== 0){
                 addProc = [];
                 count = 0;
@@ -207,6 +209,8 @@ export default class RR extends React.Component{
                  - make input editable
 
             */
+            this.props.updateSubtitle();
+
             const deleted = deleteEntry(this.state.procs.slice(), procId);
             if (deleted.updateProcs.length === 0){
 

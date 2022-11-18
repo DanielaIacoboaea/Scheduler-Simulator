@@ -12,13 +12,20 @@ body{
     user-select: none;
 }
 
-h1{
+#page-title{
     text-align: center;
     font-size: 5rem;
     color: #6c757d;
     padding: 2rem;
     cursor: default;
-    margin-bottom: 2rem;
+    margin-bottom: 1.7rem;
+}
+
+#page-subtitle{
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 3rem;
+    color: #212529;
 }
 
 .btn{
@@ -342,7 +349,7 @@ input[type="number"]{
 */
 
 @media(max-width: 750px){
-    h1{
+    #page-title{
         font-size: 4rem;
         margin-bottom: 1.7rem;
     }
@@ -448,7 +455,7 @@ input[type="number"]{
     form label{
         font-size: 1.1rem;
     }
-    h1{
+    #page-title{
         font-size: 3.5rem;
         margin-bottom: 1rem;
         padding: 1rem;

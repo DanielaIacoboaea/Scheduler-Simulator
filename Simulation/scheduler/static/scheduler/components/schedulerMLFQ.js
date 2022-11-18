@@ -232,6 +232,8 @@ export default class MLFQ extends React.Component{
         let addToQueue;
 
         if (this.state.arrivalTime && this.state.executionTime){
+            this.props.updateSubtitle();
+
             if (this.state.avgTurnaround !== 0){
                 addProc = [];
                 count = 0;
@@ -303,6 +305,8 @@ export default class MLFQ extends React.Component{
             - update the queues
         */
         if(!this.state.running){
+            this.props.updateSubtitle();
+
             const deleted = deleteEntry(this.state.procs.slice(), procId);
             const updateQueue0 = [];
             const addToQueue = this.state.queues.slice();
