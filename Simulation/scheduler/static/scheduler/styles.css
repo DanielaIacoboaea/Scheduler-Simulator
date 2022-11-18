@@ -9,6 +9,7 @@
 body{
     font-family: 'Permanent Marker', cursive;
     min-height: 100vh;
+    user-select: none;
 }
 
 h1{
