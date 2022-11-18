@@ -154,20 +154,19 @@ class App extends React.Component{
                                                     </section>:
                     <section className={btnsWrapper}>
                         <h4 className="guide-header">
-                            Learn how each scheduler works by <a href="#description">reading</a> about it. <br />
-                            Also, get practice exemples with <span className="prefilled-color">pre-filled</span> settings for
-                            <span className="best-color"> best</span> and
-                            <span className="worst-color"> worst</span> case scenarios to see them in action: 
+                            Learn how each scheduler works. <br /> 
+                            Practice exemples with pre-filled settings for best and worst case scenarios to see them in action: 
                         </h4>
                         <ButtonsDefault handleDefaultClick={this.renderDefaultScheduler}/>
                         <h4 className="guide-header">
                             Now that you've got the hang of it, go ahead and run any scheduler with your own custom settings:
                         </h4>
                         {btns}
-                        <h4 className="guide-header">
-                            Looking for a deep dive into each scheduler? Look no more: 
-                        </h4>
-                        <ButtonsInfo />
+                        <p id="credits">
+                            <p>Information based on the book: Operating Systems, Three easy pieces. </p>
+                            <p>Author: Remzi Arpaci Dusseau.</p>
+                            <p>If you want to learn more, check it out for further reference.</p>
+                        </p>
                     </section>
                 }
           </React.Fragment>

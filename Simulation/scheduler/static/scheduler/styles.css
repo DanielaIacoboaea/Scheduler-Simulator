@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
 
 *{
     box-sizing: border-box;
@@ -65,6 +66,11 @@ h1{
     text-align: center;
 }
 
+#icon-question{
+    color: inherit;
+    font-size: 1.8rem !important;
+}
+
 /*
     Style controls buttons for adding processes, 
     progress bars and copy/paste to textarea.
@@ -108,6 +114,7 @@ h1{
     border: 0.3rem;
     letter-spacing: 0.1rem;
     line-height: 150%;
+    font-family: 'Poppins', sans-serif;
 }
 
 .progress{
@@ -288,33 +295,17 @@ input[type="number"]{
 #MLFQGood,
 #MLFQBad{
     cursor: pointer;
-    padding: .75rem 1.5rem;
+    /*padding: .75rem 1.5rem;*/
 }
 
 .btns-default > *{
-    width: 70%;
-}
-
-.best-color{
-    color: #28a745;
-}
-
-.worst-color{
-    color: #dc3545;
-}
-
-.prefilled-color{
-    color: #17a2b8;
+    width: 80%;
 }
 
 #infoGroup{
     width: 100%;
     padding: 3rem;
     min-height: max-content;
-    margin-bottom: 5rem;
-    border-style: inset;
-    border-width: 1.7px;
-    border-radius: 0.3rem;
 }
 
 #description{
@@ -328,6 +319,8 @@ input[type="number"]{
 
 .scheduler-info{
     white-space: pre-line;
+    font-family: 'Poppins', sans-serif;
+
 }
 
 /*
