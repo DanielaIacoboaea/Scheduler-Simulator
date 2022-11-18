@@ -28,6 +28,8 @@ export default class RR extends React.Component{
             currentProcessIdx: 0,
             arrivalTime: "",
             executionTime: "",
+            arrivalDisabled: false,
+            executionDisabled: false,
             totalExecutionTime: 0,
             avgTurnaround: 0,
             avgResponse: 0,
@@ -106,7 +108,9 @@ export default class RR extends React.Component{
                 executionTime: "",
                 running: true,
                 quantum: parseInt(procs_list[0].quantum),
-                disabled: true
+                disabled: true,
+                arrivalDisabled: true,
+                executionDisabled: true
             }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000));
 
         }
@@ -124,6 +128,8 @@ export default class RR extends React.Component{
             currentProcessIdx: 0,
             arrivalTime: "",
             executionTime: "",
+            arrivalDisabled: false,
+            executionDisabled: false,
             totalExecutionTime: 0,
             avgTurnaround: 0,
             avgResponse: 0,
@@ -234,7 +240,9 @@ export default class RR extends React.Component{
 
             if (!this.state.running){
                 this.setState(state => ({
-                    running: true
+                    running: true,
+                    arrivalDisabled: true,
+                    executionDisabled: true
                 }));
 
                 let sortProcList = sortProcs(this.state.procs, 1, {"1": "arrivalTime"});
@@ -357,6 +365,8 @@ export default class RR extends React.Component{
                 avgResponse: avgR,
                 quantumTicks: 0,
                 quantum: "",
+                arrivalDisabled: false,
+                executionDisabled: false,
                 disabled: false,
                 count: 0,
                 currentProcessIdx: 0
@@ -396,6 +406,7 @@ export default class RR extends React.Component{
                                 id={this.state.count}
                                 onChange={this.handleChange}
                                 value={this.state.arrivalTime}
+                                disabled={this.state.arrivalDisabled}
                                 min="0"
                                 max="200"
                                 autocomplete="off"
@@ -409,6 +420,7 @@ export default class RR extends React.Component{
                                 name="executionTime"
                                 onChange={this.handleChange}
                                 value={this.state.executionTime}
+                                disabled={this.state.executionDisabled}
                                 min="1"
                                 max="200"
                                 autocomplete="off"

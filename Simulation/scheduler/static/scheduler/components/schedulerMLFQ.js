@@ -44,6 +44,8 @@ export default class MLFQ extends React.Component{
             quantumDisabled: false,
             boostDisabled: false,
             queuesDisabled: false,
+            arrivalDisabled: false,
+            executionDisabled: false,
             textarea: ""
 
         };
@@ -153,7 +155,9 @@ export default class MLFQ extends React.Component{
                 quantumDisabled: true,
                 boostDisabled: true,
                 queuesDisabled: true,
-                running: true
+                running: true,
+                arrivalDisabled: true,
+                executionDisabled: true
             }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000));
 
         }
@@ -184,6 +188,8 @@ export default class MLFQ extends React.Component{
             quantumDisabled: false,
             boostDisabled: false,
             queuesDisabled: false,
+            arrivalDisabled: false,
+            executionDisabled: false,
             textarea: ""
         }));
         clearInterval(this.schedulerTimerId);
@@ -346,7 +352,9 @@ export default class MLFQ extends React.Component{
         if (this.state.procs.length !== 0){
             if (!this.state.running){
                 this.setState(state => ({
-                    running: true
+                    running: true,
+                    arrivalDisabled: true,
+                    executionDisabled: true
                 }));
 
                 let sortProcList = sortProcs(this.state.procs, 1, {"1": "arrivalTime"});
@@ -649,6 +657,8 @@ export default class MLFQ extends React.Component{
                 quantumDisabled: false,
                 boostDisabled: false,
                 queuesDisabled: false,
+                arrivalDisabled: false,
+                executionDisabled: false,
                 count: 0,
                 currentProcessIdx: 0
             }));
@@ -691,6 +701,7 @@ export default class MLFQ extends React.Component{
                                 id={this.state.count}
                                 onChange={this.handleChange}
                                 value={this.state.arrivalTime}
+                                disabled={this.state.arrivalDisabled}
                                 min="0"
                                 max="200"
                                 autocomplete="off"
@@ -704,6 +715,7 @@ export default class MLFQ extends React.Component{
                                 name="executionTime"
                                 onChange={this.handleChange}
                                 value={this.state.executionTime}
+                                disabled={this.state.executionDisabled}
                                 min="1"
                                 max="200"
                                 autocomplete="off"

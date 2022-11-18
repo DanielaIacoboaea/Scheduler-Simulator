@@ -33,6 +33,8 @@ export default class STCF extends React.Component{
             currentProcessIdx: 0,
             arrivalTime: "",
             executionTime: "",
+            arrivalDisabled: false,
+            executionDisabled: false,
             totalExecutionTime: 0,
             avgTurnaround: 0,
             avgResponse: 0,
@@ -105,7 +107,9 @@ export default class STCF extends React.Component{
                 avgResponse: 0,
                 arrivalTime: "",
                 executionTime: "",
-                running: true
+                running: true,
+                arrivalDisabled: true,
+                executionDisabled: true
             }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerInterrupt(), 1000));
 
         }
@@ -123,6 +127,8 @@ export default class STCF extends React.Component{
             currentProcessIdx: 0,
             arrivalTime: "",
             executionTime: "",
+            arrivalDisabled: false,
+            executionDisabled: false,
             totalExecutionTime: 0,
             avgTurnaround: 0,
             avgResponse: 0,
@@ -224,7 +230,9 @@ export default class STCF extends React.Component{
 
             if (!this.state.running){
                 this.setState(state => ({
-                    running: true
+                    running: true,
+                    arrivalDisabled: true,
+                    executionDisabled: true
                 }));
 
                 let sortProcList = sortProcs(this.state.procs, 2, {"1": "arrivalTime", "2": "executionTime"});
@@ -358,7 +366,9 @@ export default class STCF extends React.Component{
                 avgTurnaround: avgT,
                 avgResponse: avgR,
                 count: 0,
-                currentProcessIdx: 0
+                currentProcessIdx: 0,
+                arrivalDisabled: false,
+                executionDisabled: false
             }));
         }
     }
@@ -393,6 +403,7 @@ export default class STCF extends React.Component{
                                 id={this.state.count}
                                 onChange={this.handleChange}
                                 value={this.state.arrivalTime}
+                                disabled={this.state.arrivalDisabled}
                                 min="0"
                                 max="200"
                                 autocomplete="off"
@@ -406,6 +417,7 @@ export default class STCF extends React.Component{
                                 name="executionTime"
                                 onChange={this.handleChange}
                                 value={this.state.executionTime}
+                                disabled={this.state.executionDisabled}
                                 min="1"
                                 max="200"
                                 autocomplete="off"
