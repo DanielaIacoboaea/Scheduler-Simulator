@@ -58,7 +58,11 @@ export default class RR extends React.Component{
     componentDidMount(){
         /*
             Check if we received default processes and settings 
-            */
+        */
+
+        //set up the tooltips for input labels 
+        this.props.activateTooltip();
+
         if(this.props.prefilled){
             let procs_list = this.props.prefilled;
 
@@ -402,7 +406,7 @@ export default class RR extends React.Component{
                     <span class="material-symbols-outlined icon-play" onClick={this.handleClickStart}>play_circle</span>
                     <form onSubmit={this.handleSubmit}>
                     <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
-                        <label>
+                        <label data-toggle="tooltip" data-placement="top" title="When a process enters into the system.">
                             Arrival time: 
                             <input
                                 type="number"
@@ -417,7 +421,7 @@ export default class RR extends React.Component{
                                 required
                             />
                         </label>
-                        <label>
+                        <label data-toggle="tooltip" data-placement="top" title="How long the process will run.">
                             Execute time:
                             <input
                                 type="number"
@@ -431,7 +435,7 @@ export default class RR extends React.Component{
                                 required
                             />
                         </label>
-                        <label>
+                        <label data-toggle="tooltip" data-placement="top" title="Amount of time a process runs when scheduled.">
                             Time slice:
                             <input
                                 type="number"
@@ -447,7 +451,7 @@ export default class RR extends React.Component{
                         </label>
                     </form>
                     <div className="results-desc">
-                    <button type="button" className="btn btn-secondary" dataToggle="tooltip" dataPlacement="top" title="Turnaround and Response Time">Time
+                    <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
                     </button>
                     </div>
                 </div>

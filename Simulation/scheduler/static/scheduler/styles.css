@@ -193,6 +193,10 @@ form{
     background-color: #e9ecef;
 }
 
+label, 
+#icon-time{
+    cursor: help;
+}
 
 /*
     Define layout for all buttons in the home page

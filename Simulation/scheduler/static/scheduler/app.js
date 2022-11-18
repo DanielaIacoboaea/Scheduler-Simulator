@@ -32,6 +32,7 @@ class App extends React.Component{
         this.renderDefaultScheduler = this.renderDefaultScheduler.bind(this);
         this.returnToMainPage = this.returnToMainPage.bind(this);
         this.updateSubtitle = this.updateSubtitle.bind(this);
+        this.activateTooltip = this.activateTooltip.bind(this);
     }
 
     /*
@@ -106,6 +107,12 @@ class App extends React.Component{
         }));
     }
 
+    activateTooltip(){
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();   
+        });
+    }
+
     render(){
 
        /*
@@ -149,6 +156,7 @@ class App extends React.Component{
                                                         alertColor={subtitleColors[this.state.scheduler]}
                                                         prefilled={this.state.prefilled} 
                                                         updateSubtitle={this.updateSubtitle}
+                                                        activateTooltip={this.activateTooltip}
                                                         />
                                                     </section>:
                     this.state.scheduler === "SJF"? <section className={btnsWrapperSched}>
@@ -158,6 +166,7 @@ class App extends React.Component{
                                                         alertColor={subtitleColors[this.state.scheduler]}
                                                         prefilled={this.state.prefilled} 
                                                         updateSubtitle={this.updateSubtitle}
+                                                        activateTooltip={this.activateTooltip}
                                                         />
                                                     </section>:
                     this.state.scheduler === "STCF"? <section className={btnsWrapperSched}>
@@ -166,6 +175,7 @@ class App extends React.Component{
                                                             alertColor={subtitleColors[this.state.scheduler]}
                                                             prefilled={this.state.prefilled} 
                                                             updateSubtitle={this.updateSubtitle}
+                                                            activateTooltip={this.activateTooltip}
                                                         />
                                                     </section>:
                     this.state.scheduler === "RR"? <section className={btnsWrapperSched}>
@@ -174,6 +184,7 @@ class App extends React.Component{
                                                             alertColor={subtitleColors[this.state.scheduler]}
                                                             prefilled={this.state.prefilled}
                                                             updateSubtitle={this.updateSubtitle} 
+                                                            activateTooltip={this.activateTooltip}
                                                         />
                                                     </section>: 
                     this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>
@@ -182,6 +193,7 @@ class App extends React.Component{
                                                             alertColor={subtitleColors[this.state.scheduler]}
                                                             prefilled={this.state.prefilled} 
                                                             updateSubtitle={this.updateSubtitle}
+                                                            activateTooltip={this.activateTooltip}
                                                         />
                                                     </section>:
                     <section className={btnsWrapper}>

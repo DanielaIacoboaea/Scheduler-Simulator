@@ -71,6 +71,10 @@ export default class MLFQ extends React.Component{
         /*
             Check if we received default processes and settings 
         */
+
+        //set up the tooltips for input labels 
+        this.props.activateTooltip();
+
         if(this.props.prefilled){
             let procs_list = this.props.prefilled;
 
@@ -697,7 +701,7 @@ export default class MLFQ extends React.Component{
                     <span class="material-symbols-outlined icon-play" onClick={this.handleClickStart}>play_circle</span>
                     <form onSubmit={this.handleSubmit}>
                     <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
-                        <label>
+                        <label data-toggle="tooltip" data-placement="top" title="When a process enters into the system.">
                             Arrival time: 
                             <input
                                 type="number"
@@ -712,7 +716,7 @@ export default class MLFQ extends React.Component{
                                 required
                             />
                         </label>
-                        <label>
+                        <label data-toggle="tooltip" data-placement="top" title="How long the process will run.">
                             Execute time:
                             <input
                                 type="number"
@@ -726,7 +730,7 @@ export default class MLFQ extends React.Component{
                                 required
                             />
                         </label>
-                        <label>
+                        <label data-toggle="tooltip" data-placement="top" title="Amount of time a process runs when scheduled.">
                             Time slice:
                             <input
                                 type="number"
@@ -740,7 +744,7 @@ export default class MLFQ extends React.Component{
                                 required
                             />
                         </label>
-                        <label>
+                        <label data-toggle="tooltip" data-placement="top" title="Amount of time after which all processes move to the highest priority (queue 0).">
                             Priority Boost:
                             <input
                                 type="number"
@@ -754,7 +758,7 @@ export default class MLFQ extends React.Component{
                                 required
                             />
                         </label>
-                        <label>
+                        <label data-toggle="tooltip" data-placement="top" title="Number of priority queues. Each process moves to lower priority after its time slice is over.">
                             Queues:
                             <input
                                 type="number"
@@ -769,6 +773,10 @@ export default class MLFQ extends React.Component{
                             />
                         </label>
                     </form>
+                    <div className="results-desc">
+                        <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
+                        </button>
+                    </div>
                 </div>
                  {/* Render the progress bars for each process*/}
                 <RenderProgressBarsMLFQ
