@@ -1,11 +1,17 @@
 from django.shortcuts import render
+from django.urls import reverse
 from django.http import JsonResponse
+from django.http import HttpResponseRedirect
 
 from .models import Scheduler, Defaults
 
 # Create your views here.
 
 def index(request):
+    return HttpResponseRedirect(reverse("scheduler"))
+
+
+def scheduler(request):
     """
     Render the home page. From here the user can run schedulers with custom settings 
     or request prefilled settings for each scheduler.
