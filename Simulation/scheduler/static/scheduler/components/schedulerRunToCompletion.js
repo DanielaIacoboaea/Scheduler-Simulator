@@ -41,7 +41,14 @@ export default class SchedulerFIFOandSJF extends React.Component{
             totalExecutionTime: 0,
             avgTurnaround: 0,
             avgResponse: 0,
-            textarea: ""
+            textarea: "",
+            pasteSetup: "",
+            pasteSlice: "",
+            pasteSliceDisabled: true,
+            pasteBoost: "",
+            pasteBoostDisabled: true,
+            pasteQueues: "",
+            pasteQueuesDisabled: true
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.runScheduler = this.runScheduler.bind(this);
@@ -49,6 +56,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         this.handleClickStart = this.handleClickStart.bind(this);
         this.deleteProc = this.deleteProc.bind(this);
         this.copyCurrentConf = this.copyCurrentConf.bind(this);
+        this.pasteCurrentConf = this.pasteCurrentConf.bind(this);
     }
     
 
@@ -147,7 +155,14 @@ export default class SchedulerFIFOandSJF extends React.Component{
             totalExecutionTime: 0,
             avgTurnaround: 0,
             avgResponse: 0,
-            textarea: ""
+            textarea: "",
+            pasteSetup: "",
+            pasteSlice: "",
+            pasteSliceDisabled: true,
+            pasteBoost: "",
+            pasteBoostDisabled: true,
+            pasteQueues: "",
+            pasteQueuesDisabled: true
         }));
         clearInterval(this.schedulerTimerId);
     }
@@ -160,7 +175,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
         state first.
     */
     componentDidUpdate(prevProps){
+
         if(prevProps.sortBy !== this.props.sortBy){
+
             this.setState(state => ({
                 procs: [],
                 count: 0,
@@ -174,7 +191,15 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 totalExecutionTime: 0,
                 avgTurnaround: 0,
                 avgResponse: 0,
-                textarea: ""
+                textarea: "",
+                pasteSetup: "",
+                pasteSlice: "",
+                pasteSliceDisabled: true,
+                pasteBoost: "",
+                pasteBoostDisabled: true,
+                pasteQueues: "",
+                pasteQueuesDisabled: true
+
             }));
             clearInterval(this.state.schedulerTimerId);
         }
@@ -185,9 +210,92 @@ export default class SchedulerFIFOandSJF extends React.Component{
         - arrival time, execute time
      */
     handleChange(event){
-        this.setState((state) => ({
-            [event.target.name]: event.target.value
-        }));
+
+        /*
+            Check if the event is related to additional inputs 
+            for general settings in the paste area of a copied setup.
+            Based on the new scheduler selected by the user, that we're going
+            to switch to (this.state.pasteSetup);
+            Aditional inputs that this scheduler does not have will be:
+            - Time Slice 
+            - Boost Time
+            - Queues
+            Switching to MLFQ means checking if we have all 3 additional general 
+            settings inputs.
+        */
+        if(event.target.name === "pasteSlice"){
+
+            /*
+                If we have all the inputs for the RR scheduler, 
+                start a new session
+            */
+            if (this.state.pasteSetup === "RR" && this.state.textarea){
+                this.setState((state) => ({
+                    [event.target.name]: event.target.value
+                }), () => this.props.pastePrefill(this.props.sortBy, this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, "", ""));
+
+            }else if(this.state.pasteSetup === "MLFQ" && this.state.textarea){
+                /*
+                    If we have all the inputs for the MLFQ scheduler, 
+                    start a new session.
+                    Otherwise, just update state with this input.
+                */
+                if(this.state.pasteQueues && this.state.pasteBoost){
+                    this.setState((state) => ({
+                        [event.target.name]: event.target.value
+                    }), () => this.props.pastePrefill(this.props.sortBy, this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, this.state.pasteQueues, this.state.pasteBoost));
+                }else{
+                    this.setState((state) => ({
+                        [event.target.name]: event.target.value
+                    }));
+                }
+            }
+        }else if (event.target.name === "pasteQueues"){
+            /*
+                If we have all the inputs for the MLFQ scheduler, 
+                start a new session.
+                Otherwise, just update state with this input.
+            */
+            if(this.state.pasteSetup === "MLFQ" && this.state.textarea){
+
+                if(this.state.pasteSlice && this.state.pasteBoost){
+                    this.setState((state) => ({
+                        [event.target.name]: event.target.value
+                    }), () => this.props.pastePrefill(this.props.sortBy, this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, this.state.pasteQueues, this.state.pasteBoost));
+                }else{
+                    this.setState((state) => ({
+                        [event.target.name]: event.target.value
+                    }));
+                }
+            }
+        }else if (event.target.name === "pasteBoost"){
+            /*
+                If we have all the inputs for the MLFQ scheduler, 
+                start a new session.
+                Otherwise, just update state with this input.
+            */
+            if(this.state.pasteSetup === "MLFQ" && this.state.textarea){
+
+                if(this.state.pasteSlice && this.state.pasteQueues){
+                    this.setState((state) => ({
+                        [event.target.name]: event.target.value
+                    }), () => this.props.pastePrefill(this.props.sortBy, this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, this.state.pasteQueues, this.state.pasteBoost));
+                }else{
+                    this.setState((state) => ({
+                        [event.target.name]: event.target.value
+                    }));
+                }
+            }
+        }else{
+            /*
+                Otherwise, the input is not related to the copy-paste functionality,
+                just update the state.
+
+            */
+            this.setState((state) => ({
+                [event.target.name]: event.target.value
+            }));
+        }
     }
 
 
@@ -390,6 +498,52 @@ export default class SchedulerFIFOandSJF extends React.Component{
         }));
     }
 
+    /*
+        Paste the current copied scheduler setup.
+        The user can paste the current setup as prefilled settings for 
+        another scheduler, as well as for the current scheduler.
+        This action will start a new session for the selected scheduler.
+    */
+    pasteCurrentConf(event){
+        /*
+            Check if we have a setup copied in the textarea.
+        */
+        let errorMsg = `{"Oops":"No processes available to copy. Start by adding at least one."}`;
+
+        if(this.state.textarea && this.state.textarea !== errorMsg){
+
+            /*
+                If the new scheduler will be RR or MLFQ, enable extra inputs for 
+                their general settings that the current scheduler does not have.
+            */
+            if(event.target.value === "RR"){
+
+                this.setState((state) => ({
+                    pasteSetup: event.target.value,
+                    pasteSliceDisabled: false
+                }));
+
+            }else if(event.target.value === "MLFQ"){
+
+                this.setState((state) => ({
+                    pasteSetup: event.target.value,
+                    pasteSliceDisabled: false,
+                    pasteBoostDisabled: false,
+                    pasteQueuesDisabled: false
+                }));
+            
+            /*
+                Otherwise, start running the selected scheduler with a new session of 
+                prefilled copied settings.
+            */
+            }else{
+
+                this.setState((state) => ({
+                    pasteSetup: event.target.value
+                }), () => this.props.pastePrefill(this.props.sortBy, this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, this.state.pasteQueues, this.state.pasteBoost));
+            }
+        }
+    }
 
     render(){
         const processes = this.state.procs.slice();
@@ -453,6 +607,68 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 <div>
                     <textarea id="paste-textarea" value={this.state.textarea}>
                     </textarea>
+                </div>
+                <div id="paste-wrapper">
+                    <label data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                        Choose a scheduler to paste your setup:
+                        <br />
+                        </label>
+                    <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
+                        <option defaultValue disabled></option> 
+                        <option name="FIFO">FIFO</option>
+                        <option name="SJF">SJF</option>
+                        <option name="STCF">STCF</option>
+                        <option name="RR">RR</option>
+                        <option name="MLFQ">MLFQ</option>
+                    </select>
+                    <div>
+                        <label for="pasteSlice" data-toggle="tooltip" data-placement="top" title="Amount of time a process runs when scheduled.">
+                            Time slice:
+                        </label>
+                        <input
+                            type="number"
+                            name="pasteSlice"
+                            min="1"
+                            max="20"
+                            onChange={this.handleChange}
+                            value={this.state.pasteSlice}
+                            disabled={this.state.pasteSliceDisabled}
+                            autocomplete="off"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label for="pasteBoost" data-toggle="tooltip" data-placement="top" title="Amount of time after which all processes move to the highest priority (queue 0).">
+                            Priority Boost:
+                        </label>
+                        <input
+                            type="number"
+                            name="pasteBoost"
+                            min="1"
+                            max="100"
+                            onChange={this.handleChange}
+                            value={this.state.pasteBoost}
+                            disabled={this.state.pasteBoostDisabled}
+                            autocomplete="off"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label for="pasteQueues" data-toggle="tooltip" data-placement="top" title="Number of priority queues. Each process moves to lower priority after its time slice is over.">
+                            Queues:
+                        </label>
+                        <input
+                            type="number"
+                            name="pasteQueues"
+                            min="1"
+                            max="10"
+                            onChange={this.handleChange}
+                            value={this.state.pasteQueues}
+                            disabled={this.state.pasteQueuesDisabled}
+                            autocomplete="off"
+                            required
+                        />
+                    </div>
                 </div>
             </div>
             </React.Fragment>

@@ -46,8 +46,8 @@ export default class MLFQ extends React.Component{
             queuesDisabled: false,
             arrivalDisabled: false,
             executionDisabled: false,
-            textarea: ""
-
+            textarea: "",
+            pasteSetup: ""
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.runSchedulerTimeSlice = this.runSchedulerTimeSlice.bind(this);
@@ -55,6 +55,7 @@ export default class MLFQ extends React.Component{
         this.handleClickStart = this.handleClickStart.bind(this);
         this.deleteProc = this.deleteProc.bind(this);
         this.copyCurrentConf = this.copyCurrentConf.bind(this);
+        this.pasteCurrentConf = this.pasteCurrentConf.bind(this);
     }
     
 
@@ -194,7 +195,9 @@ export default class MLFQ extends React.Component{
             queuesDisabled: false,
             arrivalDisabled: false,
             executionDisabled: false,
-            textarea: ""
+            textarea: "",
+            pasteSetup: ""
+
         }));
         clearInterval(this.schedulerTimerId);
     }
@@ -202,9 +205,16 @@ export default class MLFQ extends React.Component{
     /* 
         get the user input for each process and update state:
         - arrival time, execute time, queues, boost, quantum
-     */
+    */
     handleChange(event){
 
+        /*
+            When switching to FIFO, SJF, STCF from MLFQ the following extra settings will be removed:
+            - time slice
+            - boost
+            - queues
+            When switching to RR only boost and queues settings will be removed.
+        */
         if (event.target.name === "numQueues"){
             let initialize_queues = [];
             for (let i = 0; i < parseInt(event.target.value); i++){
@@ -691,6 +701,31 @@ export default class MLFQ extends React.Component{
         }));
     }
 
+    /*
+        Paste the current copied scheduler setup.
+        The user can paste the current setup as prefilled settings for 
+        another scheduler, as well as for the current scheduler.
+        This action will start a new session for the selected scheduler.
+    */
+    pasteCurrentConf(event){
+        /*
+            Check if we have a setup copied in the textarea.
+        */
+        let errorMsg = `{"Oops":"No processes available to copy. Start by adding at least one."}`;
+
+        if(this.state.textarea && this.state.textarea !== errorMsg){
+            /*
+                Start running the selected scheduler with a new session of 
+                prefilled copied settings.
+                If the new scheduler is RR - remove boost and queues settings.
+                If the new scheduler is FIFO, SJF, STCF - remove time slice, boost and queues.
+            */
+            this.setState((state) => ({
+                pasteSetup: event.target.value
+            }), () => this.props.pastePrefill("MLFQ", this.state.pasteSetup, this.state.textarea, "", "", ""));
+        }
+    }
+
     render(){
         const processes = this.state.procs.slice();
         return(
@@ -795,6 +830,20 @@ export default class MLFQ extends React.Component{
                 <div>
                     <textarea id="paste-textarea" value={this.state.textarea}>
                     </textarea>
+                </div>
+                <div id="paste-wrapper">
+                    <label data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                        Choose a scheduler to paste your setup:
+                        <br />
+                    </label>
+                    <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
+                        <option defaultValue disabled></option> 
+                        <option name="FIFO">FIFO</option>
+                        <option name="SJF">SJF</option>
+                        <option name="STCF">STCF</option>
+                        <option name="RR">RR</option>
+                        <option name="MLFQ">MLFQ</option>
+                    </select>
                 </div>
             </div>
         </React.Fragment>

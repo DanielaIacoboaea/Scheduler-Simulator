@@ -18,13 +18,13 @@ body{
     color: #6c757d;
     padding: 2rem;
     cursor: default;
-    margin-bottom: 1.7rem;
+    margin-bottom: 1.6rem;
 }
 
 #page-subtitle{
     text-align: center;
     font-size: 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2.2rem;
     color: #212529;
 }
 
@@ -108,7 +108,7 @@ body{
 
 #copy{
     font-size: 0.9rem;
-    width: 80%;
+    width: 90%;
 }
 
 #paste-textarea{
@@ -123,7 +123,23 @@ body{
     letter-spacing: 0.1rem;
     line-height: 150%;
     font-family: 'Poppins', sans-serif;
+    width: 100%;
 }
+
+#paste-setup{
+    width: 100%;
+}
+
+#paste-wrapper{
+    display: flex;
+    flex-direction: column;
+}
+
+
+#paste-wrapper label{
+    display: inline-block;
+}
+
 
 .progress{
     height: 2.3rem;

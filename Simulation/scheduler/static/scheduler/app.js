@@ -33,6 +33,7 @@ class App extends React.Component{
         this.returnToMainPage = this.returnToMainPage.bind(this);
         this.updateSubtitle = this.updateSubtitle.bind(this);
         this.activateTooltip = this.activateTooltip.bind(this);
+        this.renderPasteScheduler = this.renderPasteScheduler.bind(this);
     }
 
     /*
@@ -101,16 +102,85 @@ class App extends React.Component{
         }));
     }
 
+    /*
+        Change subtitle based on scheduler name and 
+        type of settings:
+         - prefilled
+         - custom
+     */
     updateSubtitle(){
         this.setState((state) => ({
             subtitle: `Custom settings ${state.scheduler}`
         }));
     }
 
+    /*
+        Add tooltip for input labels 
+    */
     activateTooltip(){
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();   
         });
+    }
+
+    /*
+        Create prefilled settings and render the selected new scheduler,
+        after the user copied the setup for a scheduler.
+    */
+    renderPasteScheduler(old_name, new_name, procs, slice, queues, boost){
+
+        let processes = [];
+        
+        let procs_json = JSON.parse(procs);
+        let procs_list = procs_json["Procs"];
+
+        /*
+            If the current scheduler has fewer general settings than the new scheduler,
+            use the extra settings needed from input.
+            If the current scheduler has more general settings than the new scheduler,
+            remove them.
+        */
+        let pasteSlice;
+        let pasteQueues;
+        let pasteBoost;
+
+        if(old_name === "RR"){
+
+            pasteSlice = procs_json["Slice"];
+            pasteQueues = queues;
+            pasteBoost = boost;
+
+        }else if (old_name === "MLFQ"){
+
+            pasteSlice = procs_json["Slice"];
+            pasteQueues = procs_json["Queues"];
+            pasteBoost = procs_json["Boost"];
+        }else{
+            pasteSlice = slice;
+            pasteQueues = queues;
+            pasteBoost = boost;
+        }
+
+        /*
+            Build list of prefilled processes.
+        */
+        for (let i = 0; i < procs_list.length; i++){
+
+            processes.push({
+                "id": procs_list[i].id,
+                "arrivalTime": procs_list[i].Arrival,
+                "executeTime": procs_list[i].Execute,
+                "quantum": pasteSlice,
+                "boost": pasteBoost,
+                "queues": pasteQueues
+            })
+        }
+
+        this.setState((state) => ({
+            scheduler: new_name,
+            prefilled: processes,
+            subtitle: `Custom settings ${new_name}`
+        }));
     }
 
     render(){
@@ -157,6 +227,8 @@ class App extends React.Component{
                                                         prefilled={this.state.prefilled} 
                                                         updateSubtitle={this.updateSubtitle}
                                                         activateTooltip={this.activateTooltip}
+                                                        pastePrefill={this.renderPasteScheduler}
+                                                        key={this.state.scheduler}
                                                         />
                                                     </section>:
                     this.state.scheduler === "SJF"? <section className={btnsWrapperSched}>
@@ -167,6 +239,7 @@ class App extends React.Component{
                                                         prefilled={this.state.prefilled} 
                                                         updateSubtitle={this.updateSubtitle}
                                                         activateTooltip={this.activateTooltip}
+                                                        pastePrefill={this.renderPasteScheduler}
                                                         />
                                                     </section>:
                     this.state.scheduler === "STCF"? <section className={btnsWrapperSched}>
@@ -176,6 +249,7 @@ class App extends React.Component{
                                                             prefilled={this.state.prefilled} 
                                                             updateSubtitle={this.updateSubtitle}
                                                             activateTooltip={this.activateTooltip}
+                                                            pastePrefill={this.renderPasteScheduler}
                                                         />
                                                     </section>:
                     this.state.scheduler === "RR"? <section className={btnsWrapperSched}>
@@ -185,6 +259,7 @@ class App extends React.Component{
                                                             prefilled={this.state.prefilled}
                                                             updateSubtitle={this.updateSubtitle} 
                                                             activateTooltip={this.activateTooltip}
+                                                            pastePrefill={this.renderPasteScheduler}
                                                         />
                                                     </section>: 
                     this.state.scheduler === "MLFQ"? <section className={btnsWrapperSched}>
@@ -194,6 +269,7 @@ class App extends React.Component{
                                                             prefilled={this.state.prefilled} 
                                                             updateSubtitle={this.updateSubtitle}
                                                             activateTooltip={this.activateTooltip}
+                                                            pastePrefill={this.renderPasteScheduler}
                                                         />
                                                     </section>:
                     <section className={btnsWrapper}>
