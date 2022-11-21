@@ -18,13 +18,13 @@ body{
     color: #6c757d;
     padding: 2rem;
     cursor: default;
-    margin-bottom: 1.6rem;
+    margin-bottom: 1.8rem;
 }
 
 #page-subtitle{
     text-align: center;
     font-size: 2rem;
-    margin-bottom: 2.2rem;
+    margin-bottom: 2.5rem;
     color: #212529;
 }
 
@@ -323,7 +323,7 @@ input[type="number"]{
 #MLFQGood,
 #MLFQBad{
     cursor: pointer;
-    /*padding: .75rem 1.5rem;*/
+    padding: .75rem 1.5rem;
 }
 
 .btns-default > *{
@@ -376,7 +376,7 @@ input[type="number"]{
     .wrapper-btns-default{
         flex-direction: column;
         justify-content: space-evenly;
-        padding: 1rem;
+        padding: 0.2rem;
     }
 
     .btns-default{
@@ -413,11 +413,84 @@ input[type="number"]{
     }
     #infoGroup{
         margin-bottom: 4rem;
-        padding: 1rem;
+        padding: 0.2rem;
     }
-
     #description{
         flex-direction: column;
+    }
+
+    #infoGroup{
+        font-size: 0.9rem;
+    }
+
+    #icon-question{
+        font-size: 1.2rem !important;
+    }
+
+    #infoGroup .btn{
+        margin: 0.2rem;
+    }
+    #FIFOInfo,
+    #SJFInfo,
+    #STCFInfo,
+    #RRInfo{
+        font-size: 0.9rem;
+        padding: .55rem 1rem;
+    }
+
+    #MLFQInfo{
+        font-size: 0.8rem;
+    }
+
+    #FIFOGood,
+    #FIFOBad,
+    #SJFGood,
+    #SJFBad,
+    #STCFGood,
+    #STCFBad,
+    #RRGood,
+    #RRBad,
+    #MLFQGood,
+    #MLFQBad{
+        padding: .4rem 0.8rem;
+    }
+}
+
+@media(max-width: 1000px){
+    #infoGroup{
+        font-size: 0.9rem;
+    }
+
+    #icon-question{
+        font-size: 1.2rem !important;
+    }
+
+    #infoGroup .btn{
+        margin: 0.2rem;
+    }
+    #FIFOInfo,
+    #SJFInfo,
+    #STCFInfo,
+    #RRInfo{
+        font-size: 0.9rem;
+        padding: .55rem 1rem;
+    }
+
+    #MLFQInfo{
+        font-size: 0.8rem;
+    }
+
+    #FIFOGood,
+    #FIFOBad,
+    #SJFGood,
+    #SJFBad,
+    #STCFGood,
+    #STCFBad,
+    #RRGood,
+    #RRBad,
+    #MLFQGood,
+    #MLFQBad{
+        padding: .4rem 0.8rem;
     }
 }
 
@@ -480,6 +553,10 @@ input[type="number"]{
         margin-bottom: 1rem;
         padding: 1rem;
         margin-top: 1rem;
+    }
+
+    #page-subtitle{
+        margin-bottom: 1.5rem;
     }
     .results p{
         width: 7rem;
