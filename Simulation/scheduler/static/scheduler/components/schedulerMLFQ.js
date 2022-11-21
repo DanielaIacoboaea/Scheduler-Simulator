@@ -318,7 +318,7 @@ export default class MLFQ extends React.Component{
             - numQueues, quantum, boost
             - update the queues
         */
-        if(!this.state.running){
+        if(!this.state.running && this.state.timer === 0){
             this.props.updateSubtitle();
 
             const deleted = deleteEntry(this.state.procs.slice(), procId);
@@ -368,7 +368,7 @@ export default class MLFQ extends React.Component{
     */
     handleClickStart(){
         if (this.state.procs.length !== 0){
-            if (!this.state.running){
+            if (!this.state.running && this.state.totalExecutionTime !== 0){
                 this.setState(state => ({
                     running: true,
                     arrivalDisabled: true,
@@ -382,6 +382,11 @@ export default class MLFQ extends React.Component{
                 this.state.queues[0].splice(0, this.state.queues[0].length, ...sortQueue0);
 
                 this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
+            }else{
+                clearInterval(this.schedulerTimerId);
+                this.setState(state => ({
+                    running: false
+                }));
             }
         }
     }
@@ -678,7 +683,8 @@ export default class MLFQ extends React.Component{
                 arrivalDisabled: false,
                 executionDisabled: false,
                 count: 0,
-                currentProcessIdx: 0
+                currentProcessIdx: 0,
+                totalExecutionTime: 0
             }));
         }
     }
@@ -733,7 +739,7 @@ export default class MLFQ extends React.Component{
             <div className="container-fluid">
                 {/* Render the form through which the user will submit parameters for each process*/}
                 <div className="controlBtns">
-                    <span class="material-symbols-outlined icon-play" onClick={this.handleClickStart}>play_circle</span>
+                    <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
                     <form onSubmit={this.handleSubmit}>
                     <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
                         <label data-toggle="tooltip" data-placement="top" title="When a process enters into the system.">
@@ -824,9 +830,9 @@ export default class MLFQ extends React.Component{
                 />
             </div>
             <div className="wrapper-copy">
-                <div>
-                    <button type="button" className="btn btn-light btn-lg" id="copy" onClick={this.copyCurrentConf}>Copy Setup</button>
-                </div>
+                    <button type="button" className="btn btn-light btn-lg" id="copy" onClick={this.copyCurrentConf} data-toggle="tooltip" data-placement="top" title="Copy the current scheduler configuration.">
+                        Copy Setup
+                    </button>
                 <div>
                     <textarea id="paste-textarea" value={this.state.textarea}>
                     </textarea>

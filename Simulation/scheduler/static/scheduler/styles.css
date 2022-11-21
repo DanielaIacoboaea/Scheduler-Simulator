@@ -37,7 +37,7 @@ body{
 */
 .material-symbols-outlined {
     cursor: pointer;
-    transition: color 200ms ease-in, scale 200ms ease-in;
+    transition: color 200ms ease-in, scale 200ms ease-in, background-color 200ms ease-in;
   font-variation-settings:
   'FILL' 1,
   'wght' 200,
@@ -65,6 +65,14 @@ body{
 
 .icon-play{
     color: #17a2b8;
+    border-radius: 30px;
+    text-align: center;
+}
+
+.icon-play:hover{
+    background-color: #17a2b8;
+    color: #ffffff;
+    border-radius: 30px;
 }
 
 .icon-back{

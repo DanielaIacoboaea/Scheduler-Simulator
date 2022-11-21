@@ -266,7 +266,7 @@ export default class RR extends React.Component{
         delete a process from the scheduler
     */
     deleteProc(procId){
-        if(!this.state.running){
+        if(!this.state.running && this.state.timer === 0){
             /* 
                 if the list of procs is empty, reset:
                  - the count to 0
@@ -307,7 +307,7 @@ export default class RR extends React.Component{
     handleClickStart(){
         if (this.state.procs.length !== 0){
 
-            if (!this.state.running){
+            if (!this.state.running && this.state.totalExecutionTime !== 0){
                 this.setState(state => ({
                     running: true,
                     arrivalDisabled: true,
@@ -318,6 +318,11 @@ export default class RR extends React.Component{
                 this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
 
                 this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
+            }else{
+                clearInterval(this.schedulerTimerId);
+                this.setState(state => ({
+                    running: false
+                }));
             }
         }
     }
@@ -438,7 +443,8 @@ export default class RR extends React.Component{
                 executionDisabled: false,
                 disabled: false,
                 count: 0,
-                currentProcessIdx: 0
+                currentProcessIdx: 0,
+                totalExecutionTime: 0
             }));
         }
     }
@@ -501,7 +507,7 @@ export default class RR extends React.Component{
             <div className="container-fluid">
                 {/* Render the form through which the user will submit parameters for each process*/}
                 <div className="controlBtns">
-                    <span class="material-symbols-outlined icon-play" onClick={this.handleClickStart}>play_circle</span>
+                    <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
                     <form onSubmit={this.handleSubmit}>
                     <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
                         <label data-toggle="tooltip" data-placement="top" title="When a process enters into the system.">
@@ -563,9 +569,9 @@ export default class RR extends React.Component{
                 />
             </div>
             <div className="wrapper-copy">
-                <div>
-                    <button type="button" className="btn btn-light btn-lg" id="copy" onClick={this.copyCurrentConf}>Copy Setup</button>
-                </div>
+                    <button type="button" className="btn btn-light btn-lg" id="copy" onClick={this.copyCurrentConf} data-toggle="tooltip" data-placement="top" title="Copy the current scheduler configuration.">
+                        Copy Setup
+                    </button>
                 <div>
                     <textarea id="paste-textarea" value={this.state.textarea}>
                     </textarea>
