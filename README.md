@@ -28,11 +28,11 @@ Use the following to install and run the project, after downloading it:
 `pip3 install -r requirements.txt`  in order to install **Django**
 
 Inside the project directory (**Capstone/Simulation**) run the following command:  
+`python3 manage.py makemigrations scheduler` to make migrations for the scheduler app  
+`python3 manage.py migrate` to apply migrations to your database  
 `python3 manage.py loaddata data.json` to load default data into the database  
 
-
-Inside the project directory (**Capstone/Simulation**) run the following command:  
-`python3 manage.py runserver`
+`python3 manage.py runserver` to run the app  
 
 
 --- 
