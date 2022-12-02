@@ -1,0 +1,45 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %} Scheduler Simulator {% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+        <meta name="description" content="A simulator that allows to run different CPU Schedulers">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin=”anonymous”></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <link href="{% static 'scheduler/styles.css' %}" rel="stylesheet"></link>
+        <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <script src="https://bundle.run/@babel/plugin-syntax-dynamic-import@7.8.3"crossorigin></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    </head>
+    <body>
+        <main id="app">
+        </main>
+        
+        {% block script %}
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/colors.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/progressBar.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/buttons.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/buttonsDefault.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/renderProgressBars.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/renderProgressBarsMLFQ.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/runProcess.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/addDefaultProc.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/copyConfiguration.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/deleteProc.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/computeAverage.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/sortListOfProcs.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/schedulerRunToCompletion.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/schedulerSTCF.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/schedulerRR.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/components/schedulerMLFQ.js' %}"></script>
+        <script type="text/babel" data-plugins="transform-es2015-modules-umd" src="{% static 'scheduler/app.js' %}"></script>
+        {% endblock %}
+    </body>
+</html>
