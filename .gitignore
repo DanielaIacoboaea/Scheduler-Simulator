@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.sqlite3
+node_modules/
+dist/
+venv/
+package-lock.json
