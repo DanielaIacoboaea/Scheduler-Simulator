@@ -702,7 +702,7 @@ export default class MLFQ extends React.Component{
             "Queues": this.state.numQueues
         };
         const configuration = copyConfiguration(this.state.procs, general_settings)
-
+        
         this.setState(state => ({
             textarea: configuration
         }));
