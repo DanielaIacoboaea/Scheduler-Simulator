@@ -7,8 +7,6 @@ import copyConfiguration from "./copyConfiguration";
 import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
 import Input from "./inputNumber";
-import Description from "./sessionDescription";
-
 
 /*
     The First-In First-Out (FIFO) and Shortest Job First (SJF) Schedulers
@@ -55,16 +53,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
             colorDeleteIcon: "#dc3545",
             colorAddIcon: "#28a745"
         };
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.runScheduler = this.runScheduler.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleClickStart = this.handleClickStart.bind(this);
-        this.deleteProc = this.deleteProc.bind(this);
-        this.copyCurrentConf = this.copyCurrentConf.bind(this);
-        this.pasteCurrentConf = this.pasteCurrentConf.bind(this);
     }
     
-
     /* 
         When the component is mounted, check if we have prefilled settings to 
         display and start running a session.
@@ -219,7 +209,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         get the user input for each process and update state:
         - arrival time, execute time
      */
-    handleChange(event){
+    handleChange = (event) => {
 
         this.setState((state) => ({
             [event.target.name]: event.target.value
@@ -231,7 +221,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         Save a process to state in the array with all the processes 
         that the scheduler should schedule to run.
     */
-    handleSubmit(event){
+    handleSubmit = (event) => {
     
         event.preventDefault();
         
@@ -279,7 +269,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
     /* 
         delete a process from the scheduler
     */
-    deleteProc(procId){
+    deleteProc = (procId) => {
 
         if(!this.state.running && this.state.timer === 0){
 
@@ -316,7 +306,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         Schedule a process to run every second until the timer reaches the total 
         Execution Time for all processes.
     */
-    handleClickStart(){
+    handleClickStart = () => {
 
         if (this.state.procs.length !== 0){
 
@@ -360,7 +350,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         - run the process and update its progress within state 
         - if the process is done, select the next proc to run from the list
     */
-    runScheduler(){
+    runScheduler = () => {
         /* 
             check timer 
         */
@@ -432,7 +422,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         Copy current settings for the scheduler 
         and update the textarea in JSON format.
     */
-    copyCurrentConf(){
+    copyCurrentConf = () => {
         const configuration = copyConfiguration(this.state.procs, {})
 
         this.setState(state => ({
@@ -446,7 +436,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         another scheduler, as well as for the current scheduler.
         This action will start a new session for the selected scheduler.
     */
-    pasteCurrentConf(event){
+    pasteCurrentConf = (event) => {
         /*
             Check if we have a setup copied in the textarea.
         */

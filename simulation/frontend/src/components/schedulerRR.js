@@ -47,13 +47,6 @@ export default class RR extends React.Component{
             colorDeleteIcon: "#dc3545",
             colorAddIcon: "#28a745"
         };
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.runSchedulerTimeSlice = this.runSchedulerTimeSlice.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleClickStart = this.handleClickStart.bind(this);
-        this.deleteProc = this.deleteProc.bind(this);
-        this.copyCurrentConf = this.copyCurrentConf.bind(this);
-        this.pasteCurrentConf = this.pasteCurrentConf.bind(this);
     }
     
 
@@ -167,7 +160,7 @@ export default class RR extends React.Component{
         get the user input for each process and update state:
         - arrival time, execute time and quantum(time slice)
      */
-    handleChange(event){
+    handleChange = (event) => {
 
         this.setState((state) => ({
             [event.target.name]: event.target.value
@@ -178,7 +171,7 @@ export default class RR extends React.Component{
         Save a process to state in the array with all the processes 
         that the scheduler should run.
     */
-    handleSubmit(event){
+    handleSubmit = (event) => {
         event.preventDefault();
         /* 
             check if a pervious session is over 
@@ -222,7 +215,7 @@ export default class RR extends React.Component{
     /* 
         delete a process from the scheduler
     */
-    deleteProc(procId){
+    deleteProc = (procId) => {
         if(!this.state.running && this.state.timer === 0){
             /* 
                 if the list of procs is empty, reset:
@@ -261,7 +254,7 @@ export default class RR extends React.Component{
         Run the scheduler every second until the timer reaches the total 
         Execution Time for all process.
     */
-    handleClickStart(){
+    handleClickStart = () => {
         if (this.state.procs.length !== 0){
 
             if (!this.state.running && this.state.totalExecutionTime !== 0){
@@ -295,7 +288,7 @@ export default class RR extends React.Component{
         - check if the current running used its time slice 
         - if it did, schedule the next process
     */
-    runSchedulerTimeSlice(){
+    runSchedulerTimeSlice = () => {
         
         const quantumSlice = parseInt(this.state.quantum);
        
@@ -416,7 +409,7 @@ export default class RR extends React.Component{
         Copy current settings for the scheduler 
         and update the textarea in JSON format.
     */
-    copyCurrentConf(){
+    copyCurrentConf = () => {
 
         const general_settings = {"Slice": this.state.quantum};
         const configuration = copyConfiguration(this.state.procs, general_settings)
@@ -432,7 +425,7 @@ export default class RR extends React.Component{
         another scheduler, as well as for the current scheduler.
         This action will start a new session for the selected scheduler.
     */
-    pasteCurrentConf(event){
+    pasteCurrentConf = (event) => {
         /*
             Check if we have a setup copied in the textarea.
         */
@@ -542,7 +535,7 @@ export default class RR extends React.Component{
                 <div className="wrapper-copy">
                     <div id="paste-wrapper">
                         <label data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
-                            Choose a scheduler to paste your setup:
+                            Simulate setup with a different scheduler: 
                             <br />
                         </label>
                         <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>

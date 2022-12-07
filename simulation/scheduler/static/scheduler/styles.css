@@ -172,6 +172,10 @@ body{
     display: inline-block;
 }
 
+.paste-setup-MLFQ{
+    width: 30% !important;
+}
+
 
 .progress{
     height: 2.3rem;
