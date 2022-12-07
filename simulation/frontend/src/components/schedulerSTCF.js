@@ -169,92 +169,10 @@ export default class STCF extends React.Component{
         - arrival time, execute time
     */
     handleChange(event){
-
-        /*
-            Check if the event is related to additional inputs 
-            for general settings in the paste area of a copied setup.
-            Based on the new scheduler selected by the user, that we're going
-            to switch to (this.state.pasteSetup);
-            Aditional inputs that this scheduler does not have will be:
-            - Time Slice 
-            - Boost Time
-            - Queues
-            Switching to MLFQ means checking if we have all 3 additional general 
-            settings inputs.
-        */
-        if(event.target.name === "pasteSlice"){
-
-            /*
-                If we have all the inputs for the RR scheduler, 
-                start a new session
-            */
-            if (this.state.pasteSetup === "RR" && this.state.textarea){
-                this.setState((state) => ({
-                    [event.target.name]: event.target.value
-                }), () => this.props.pastePrefill("STCF", this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, "", ""));
-
-            }else if(this.state.pasteSetup === "MLFQ" && this.state.textarea){
-                /*
-                    If we have all the inputs for the MLFQ scheduler, 
-                    start a new session.
-                    Otherwise, just update state with this input.
-                */
-                if(this.state.pasteQueues && this.state.pasteBoost){
-                    this.setState((state) => ({
-                        [event.target.name]: event.target.value
-                    }), () => this.props.pastePrefill("STCF", this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, this.state.pasteQueues, this.state.pasteBoost));
-                }else{
-                    this.setState((state) => ({
-                        [event.target.name]: event.target.value
-                    }));
-                }
-            }
-        }else if (event.target.name === "pasteQueues"){
-            /*
-                If we have all the inputs for the MLFQ scheduler, 
-                start a new session.
-                Otherwise, just update state with this input.
-            */
-            if(this.state.pasteSetup === "MLFQ" && this.state.textarea){
-
-                if(this.state.pasteSlice && this.state.pasteBoost){
-                    this.setState((state) => ({
-                        [event.target.name]: event.target.value
-                    }), () => this.props.pastePrefill("STCF", this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, this.state.pasteQueues, this.state.pasteBoost));
-                }else{
-                    this.setState((state) => ({
-                        [event.target.name]: event.target.value
-                    }));
-                }
-            }
-        }else if (event.target.name === "pasteBoost"){
-            /*
-                If we have all the inputs for the MLFQ scheduler, 
-                start a new session.
-                Otherwise, just update state with this input.
-            */
-            if(this.state.pasteSetup === "MLFQ" && this.state.textarea){
-
-                if(this.state.pasteSlice && this.state.pasteQueues){
-                    this.setState((state) => ({
-                        [event.target.name]: event.target.value
-                    }), () => this.props.pastePrefill("STCF", this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, this.state.pasteQueues, this.state.pasteBoost));
-                }else{
-                    this.setState((state) => ({
-                        [event.target.name]: event.target.value
-                    }));
-                }
-            }
-        }else{
-            /*
-                Otherwise, the input is not related to the copy-paste functionality,
-                just update the state.
-
-            */
-            this.setState((state) => ({
-                [event.target.name]: event.target.value
-            }));
-        }
+        
+        this.setState((state) => ({
+            [event.target.name]: event.target.value
+        }));
     }
 
 
@@ -521,6 +439,7 @@ export default class STCF extends React.Component{
         /*
             Check if we have a setup copied in the textarea.
         */
+        this.copyCurrentConf();
         let errorMsg = `{"Oops":"No processes available to copy. Start by adding at least one."}`;
 
         if(this.state.textarea && this.state.textarea !== errorMsg){
@@ -543,17 +462,35 @@ export default class STCF extends React.Component{
                     pasteBoostDisabled: false,
                     pasteQueuesDisabled: false
                 }));
-            
-            /*
-                Otherwise, start running the selected scheduler with a new session of 
-                prefilled copied settings.
-            */
             }else{
 
                 this.setState((state) => ({
                     pasteSetup: event.target.value
-                }), () => this.props.pastePrefill("STCF", this.state.pasteSetup, this.state.textarea, this.state.pasteSlice, this.state.pasteQueues, this.state.pasteBoost));
+                }));
             }
+        }
+    }
+
+    handleGo = () => {
+
+        const name = this.state.pasteSetup;
+        const slice = this.state.pasteSlice;
+        const boost = this.state.pasteBoost;
+        const queues = this.state.pasteQueues;
+        const setup = this.state.textarea;
+        const currentName = "STCF";
+
+        if(name === "RR" && slice !== ""){
+
+            this.props.pastePrefill(currentName, name, setup, slice, queues, boost);
+
+        }else if (name === "MLFQ" && slice !== "" && boost !== "" && queues !== ""){
+
+            this.props.pastePrefill(currentName, name, setup, slice, queues, boost);
+
+        }else if (name === "FIFO" || name === "SJF"){
+
+            this.props.pastePrefill(currentName, name, setup, slice, queues, boost);
         }
     }
 
@@ -561,106 +498,102 @@ export default class STCF extends React.Component{
         const processes = this.state.procs.slice();
         return(
             <React.Fragment>
-            <div className="container-fluid">
-                {/* Render the form through which the user will submit parameters for each process*/}
-                <div className="controlBtns">
-                    <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
-                    <form onSubmit={this.handleSubmit}>
-                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
-                        <Input title="When a process enters into the system."
-                                label="Arrival time: "
-                                name="arrivalTime"
-                                id={this.state.count}
-                                handleChange={this.handleChange}
-                                value={this.state.arrivalTime}
-                                disabled={this.state.arrivalDisabled}
-                                min="0"
-                                max="200"
-                        />
-                        <Input title="How long the process will run."
-                                label="Execute time: "
-                                name="executionTime"
-                                id="inputExecutionTime"
-                                handleChange={this.handleChange}
-                                value={this.state.executionTime}
-                                disabled={this.state.executionDisabled}
-                                min="1"
-                                max="200"
-                        />
-                    </form>
-                    <div className="results-desc">
-                    <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
-                    </button>
+            <div class="scheduler-wrapper">
+                <div className="container-fluid">
+                    {/* Render the form through which the user will submit parameters for each process*/}
+                    <div className="controlBtns">
+                        <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
+                        <form onSubmit={this.handleSubmit}>
+                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
+                            <Input title="When a process enters into the system."
+                                    label="Arrival time: "
+                                    name="arrivalTime"
+                                    id={this.state.count}
+                                    handleChange={this.handleChange}
+                                    value={this.state.arrivalTime}
+                                    disabled={this.state.arrivalDisabled}
+                                    min="0"
+                                    max="200"
+                            />
+                            <Input title="How long the process will run."
+                                    label="Execute time: "
+                                    name="executionTime"
+                                    id="inputExecutionTime"
+                                    handleChange={this.handleChange}
+                                    value={this.state.executionTime}
+                                    disabled={this.state.executionDisabled}
+                                    min="1"
+                                    max="200"
+                            />
+                        </form>
+                        <div className="results-desc">
+                        <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
+                        </button>
+                        </div>
                     </div>
+                    {/* Render the progress bars for each process*/}
+                    <RenderProgressBars 
+                        procs={processes.sort((a, b) => a.id - b.id)}
+                        deleteBar={this.deleteProc}
+                        avgTurnaround={this.state.avgTurnaround}
+                        avgResponse={this.state.avgResponse}
+                        alertColor={this.props.alertColor}
+                        name="STCF"
+                        prefilledType={this.props.prefilledType}
+                        colorDeleteIcon={this.state.colorDeleteIcon}
+                    />
                 </div>
-                {/* Render the progress bars for each process*/}
-                <RenderProgressBars 
-                    procs={processes.sort((a, b) => a.id - b.id)}
-                    deleteBar={this.deleteProc}
-                    avgTurnaround={this.state.avgTurnaround}
-                    avgResponse={this.state.avgResponse}
-                    alertColor={this.props.alertColor}
-                    name="STCF"
-                    prefilledType={this.props.prefilledType}
-                    colorDeleteIcon={this.state.colorDeleteIcon}
-                />
-            </div>
-            <div className="wrapper-copy">
-                    <button type="button" className="btn btn-light btn-lg" id="copy" onClick={this.copyCurrentConf} data-toggle="tooltip" data-placement="top" title="Copy the current scheduler configuration.">
-                        Copy Setup
-                    </button>
-                <div>
-                    <textarea id="paste-textarea" value={this.state.textarea}>
-                    </textarea>
-                </div>
-                <div id="paste-wrapper">
-                    <label data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
-                        Choose a scheduler to paste your setup:
-                        <br />
-                    </label>
-                    <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
-                        <option defaultValue disabled></option>
-                        <option name="FIFO">FIFO</option>
-                        <option name="SJF">SJF</option>
-                        <option name="STCF">STCF</option>
-                        <option name="RR">RR</option>
-                        <option name="MLFQ">MLFQ</option>
-                    </select>
-                    <div>
-                        <Input title="Amount of time a process runs when scheduled."
-                                label="Time slice: "
-                                name="pasteSlice"
-                                id="pasteSlice"
-                                handleChange={this.handleChange}
-                                value={this.state.pasteSlice}
-                                disabled={this.state.pasteSliceDisabled}
-                                min="1"
-                                max="50"
-                        />
-                    </div>
-                    <div>
-                        <Input title="Amount of time after which all processes move to the highest priority (queue 0)."
-                                label="Priority Boost: "
-                                name="pasteBoost"
-                                id="pasteBoost"
-                                handleChange={this.handleChange}
-                                value={this.state.pasteBoost}
-                                disabled={this.state.pasteBoostDisabled}
-                                min="1"
-                                max="100"
-                        />
-                    </div>
-                    <div>
-                        <Input title="Number of priority queues. Each process moves to lower priority after its time slice is over."
-                                label="Queues: "
-                                name="pasteQueues"
-                                id="pasteQueues"
-                                handleChange={this.handleChange}
-                                value={this.state.pasteQueues}
-                                disabled={this.state.pasteQueuesDisabled}
-                                min="1"
-                                max="10"
-                        />
+                <div className="wrapper-copy">
+                    <div id="paste-wrapper">
+                        <label data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                            Choose a scheduler to paste your setup:
+                            <br />
+                        </label>
+                        <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
+                            <option defaultValue disabled></option>
+                            <option name="FIFO">FIFO</option>
+                            <option name="SJF">SJF</option>
+                            <option name="STCF">STCF</option>
+                            <option name="RR">RR</option>
+                            <option name="MLFQ">MLFQ</option>
+                        </select>
+                        <div>
+                            <Input title="Amount of time a process runs when scheduled."
+                                    label="Time slice: "
+                                    name="pasteSlice"
+                                    id="pasteSlice"
+                                    handleChange={this.handleChange}
+                                    value={this.state.pasteSlice}
+                                    disabled={this.state.pasteSliceDisabled}
+                                    min="1"
+                                    max="50"
+                            />
+                        </div>
+                        <div>
+                            <Input title="Amount of time after which all processes move to the highest priority (queue 0)."
+                                    label="Priority Boost: "
+                                    name="pasteBoost"
+                                    id="pasteBoost"
+                                    handleChange={this.handleChange}
+                                    value={this.state.pasteBoost}
+                                    disabled={this.state.pasteBoostDisabled}
+                                    min="1"
+                                    max="100"
+                            />
+                        </div>
+                        <div>
+                            <Input title="Number of priority queues. Each process moves to lower priority after its time slice is over."
+                                    label="Queues: "
+                                    name="pasteQueues"
+                                    id="pasteQueues"
+                                    handleChange={this.handleChange}
+                                    value={this.state.pasteQueues}
+                                    disabled={this.state.pasteQueuesDisabled}
+                                    min="1"
+                                    max="10"
+                            />
+                        </div>
+                        <button type="button" className="go" id="go-paste" onClick={this.handleGo}>GO!</button>
                     </div>
                 </div>
             </div>

@@ -51,18 +51,18 @@ export default class RenderProgressBars extends React.Component{
                 )
             }
             {/* Render avg session results if we have them */}
-            {this.props.prefilledType?
-                <Description sched={this.props.name}
-                            type={this.props.prefilledType}
-                />:
-                <div className="results avgs">
-                </div>
-            }
             {this.props.avgTurnaround?
                 <div className="results avgs" style={{backgroundColor: this.props.alertColor}}>
                     <p>Average Turnaround Time : {this.props.avgTurnaround.toFixed(2)} </p>
                     <p>Average Response Time : {this.props.avgResponse.toFixed(2)} </p>
                 </div>:
+                <div className="results avgs">
+                </div>
+            }
+            {this.props.prefilledType?
+                <Description sched={this.props.name}
+                            type={this.props.prefilledType}
+                />:
                 <div className="results avgs">
                 </div>
             }

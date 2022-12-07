@@ -731,18 +731,28 @@ export default class MLFQ extends React.Component{
         /*
             Check if we have a setup copied in the textarea.
         */
+        this.copyCurrentConf();
         let errorMsg = `{"Oops":"No processes available to copy. Start by adding at least one."}`;
 
         if(this.state.textarea && this.state.textarea !== errorMsg){
-            /*
-                Start running the selected scheduler with a new session of 
-                prefilled copied settings.
-                If the new scheduler is RR - remove boost and queues settings.
-                If the new scheduler is FIFO, SJF, STCF - remove time slice, boost and queues.
-            */
             this.setState((state) => ({
                 pasteSetup: event.target.value
-            }), () => this.props.pastePrefill("MLFQ", this.state.pasteSetup, this.state.textarea, "", "", ""));
+            }));
+        }
+    }
+
+    handleGo = () => {
+
+        const name = this.state.pasteSetup;
+        const slice = this.state.pasteSlice;
+        const boost = this.state.pasteBoost;
+        const queues = this.state.pasteQueues;
+        const setup = this.state.textarea;
+        const currentName = "MLFQ";
+
+       if (name === "FIFO" || name === "SJF" || name === "STCF" || name === "RR"){
+
+            this.props.pastePrefill(currentName, name, setup, slice, queues, boost);
         }
     }
 
@@ -750,102 +760,98 @@ export default class MLFQ extends React.Component{
         const processes = this.state.procs.slice();
         return(
             <React.Fragment>
-            <div className="container-fluid">
-                {/* Render the form through which the user will submit parameters for each process*/}
-                <div className="controlBtns">
-                    <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
-                    <form onSubmit={this.handleSubmit}>
-                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
-                        <Input title="When a process enters into the system."
-                                label="Arrival time: "
-                                name="arrivalTime"
-                                id={this.state.count}
-                                handleChange={this.handleChange}
-                                value={this.state.arrivalTime}
-                                disabled={this.state.arrivalDisabled}
-                                min="0"
-                                max="200"
-                        />
-                        <Input title="How long the process will run."
-                                label="Execute time: "
-                                name="executionTime"
-                                id="inputExecutionTime"
-                                handleChange={this.handleChange}
-                                value={this.state.executionTime}
-                                disabled={this.state.executionDisabled}
-                                min="1"
-                                max="200"
-                        />
-                        <Input title="Amount of time a process runs when scheduled."
-                                label="Time slice: "
-                                name="quantum"
-                                id="quantum"
-                                handleChange={this.handleChange}
-                                value={this.state.quantum}
-                                disabled={this.state.quantumDisabled}
-                                min="1"
-                                max="50"
-                        />
-                        <Input title="Amount of time after which all processes move to the highest priority (queue 0)."
-                                label="Priority Boost: "
-                                name="boost"
-                                id="boost"
-                                handleChange={this.handleChange}
-                                value={this.state.boost}
-                                disabled={this.state.boostDisabled}
-                                min="1"
-                                max="100"
-                        />
-                        <Input title="Number of priority queues. Each process moves to lower priority after its time slice is over."
-                                label="Queues: "
-                                name="numQueues"
-                                id="numQueues"
-                                handleChange={this.handleChange}
-                                value={this.state.numQueues}
-                                disabled={this.state.queuesDisabled}
-                                min="1"
-                                max="10"
-                        />
-                    </form>
-                    <div className="results-desc">
-                        <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
-                        </button>
+            <div class="scheduler-wrapper">
+                <div className="container-fluid">
+                    {/* Render the form through which the user will submit parameters for each process*/}
+                    <div className="controlBtns">
+                        <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
+                        <form onSubmit={this.handleSubmit}>
+                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
+                            <Input title="When a process enters into the system."
+                                    label="Arrival time: "
+                                    name="arrivalTime"
+                                    id={this.state.count}
+                                    handleChange={this.handleChange}
+                                    value={this.state.arrivalTime}
+                                    disabled={this.state.arrivalDisabled}
+                                    min="0"
+                                    max="200"
+                            />
+                            <Input title="How long the process will run."
+                                    label="Execute time: "
+                                    name="executionTime"
+                                    id="inputExecutionTime"
+                                    handleChange={this.handleChange}
+                                    value={this.state.executionTime}
+                                    disabled={this.state.executionDisabled}
+                                    min="1"
+                                    max="200"
+                            />
+                            <Input title="Amount of time a process runs when scheduled."
+                                    label="Time slice: "
+                                    name="quantum"
+                                    id="quantum"
+                                    handleChange={this.handleChange}
+                                    value={this.state.quantum}
+                                    disabled={this.state.quantumDisabled}
+                                    min="1"
+                                    max="50"
+                            />
+                            <Input title="Amount of time after which all processes move to the highest priority (queue 0)."
+                                    label="Priority Boost: "
+                                    name="boost"
+                                    id="boost"
+                                    handleChange={this.handleChange}
+                                    value={this.state.boost}
+                                    disabled={this.state.boostDisabled}
+                                    min="1"
+                                    max="100"
+                            />
+                            <Input title="Number of priority queues. Each process moves to lower priority after its time slice is over."
+                                    label="Queues: "
+                                    name="numQueues"
+                                    id="numQueues"
+                                    handleChange={this.handleChange}
+                                    value={this.state.numQueues}
+                                    disabled={this.state.queuesDisabled}
+                                    min="1"
+                                    max="10"
+                            />
+                        </form>
+                        <div className="results-desc">
+                            <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
+                            </button>
+                        </div>
                     </div>
+                    {/* Render the progress bars for each process*/}
+                    <RenderProgressBarsMLFQ
+                        procs={processes.sort((a, b) => a.id - b.id)}
+                        queues={this.state.queues}
+                        deleteBar={this.deleteProc}
+                        avgTurnaround={this.state.avgTurnaround}
+                        avgResponse={this.state.avgResponse}
+                        alertColor={this.props.alertColor}
+                        name="MLFQ"
+                        prefilledType={this.props.prefilledType}
+                        colorDeleteIcon={this.state.colorDeleteIcon}
+                    />
                 </div>
-                 {/* Render the progress bars for each process*/}
-                <RenderProgressBarsMLFQ
-                    procs={processes.sort((a, b) => a.id - b.id)}
-                    queues={this.state.queues}
-                    deleteBar={this.deleteProc}
-                    avgTurnaround={this.state.avgTurnaround}
-                    avgResponse={this.state.avgResponse}
-                    alertColor={this.props.alertColor}
-                    name="MLFQ"
-                    prefilledType={this.props.prefilledType}
-                    colorDeleteIcon={this.state.colorDeleteIcon}
-                />
-            </div>
-            <div className="wrapper-copy">
-                    <button type="button" className="btn btn-light btn-lg" id="copy" onClick={this.copyCurrentConf} data-toggle="tooltip" data-placement="top" title="Copy the current scheduler configuration.">
-                        Copy Setup
-                    </button>
-                <div>
-                    <textarea id="paste-textarea" value={this.state.textarea}>
-                    </textarea>
-                </div>
-                <div id="paste-wrapper">
-                    <label data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
-                        Choose a scheduler to paste your setup:
-                        <br />
-                    </label>
-                    <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
-                        <option defaultValue disabled></option> 
-                        <option name="FIFO">FIFO</option>
-                        <option name="SJF">SJF</option>
-                        <option name="STCF">STCF</option>
-                        <option name="RR">RR</option>
-                        <option name="MLFQ">MLFQ</option>
-                    </select>
+                <div className="wrapper-copy">
+                    <div id="paste-wrapper">
+                        <label data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                            Choose a scheduler to paste your setup:
+                            <br />
+                        </label>
+                        <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
+                            <option defaultValue disabled></option> 
+                            <option name="FIFO">FIFO</option>
+                            <option name="SJF">SJF</option>
+                            <option name="STCF">STCF</option>
+                            <option name="RR">RR</option>
+                            <option name="MLFQ">MLFQ</option>
+                        </select>
+                        <button type="button" className="go" id="go-paste" onClick={this.handleGo}>GO!</button>
+                    </div>
                 </div>
             </div>
         </React.Fragment>

@@ -110,13 +110,32 @@ body{
     display: flex;
     width: 100%;
 }
+
 .wrapper-copy{
     margin-right: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 #copy{
     font-size: 0.9rem;
     width: 90%;
+}
+
+.go{
+    color: #fff;
+    background-color: #dc3545;
+    border-radius: 50%;
+    border-color: transparent;
+    width: max-content;
+    cursor: pointer !important;
+    font-size: 1.2rem;
+    outline: none !important;
+    padding: 0.4rem 0.8rem;
+    transition: scale 200ms ease-in, font-size 200ms ease-in;
+}
+
+.go:hover{
+    scale: 0.9;
 }
 
 #paste-textarea{
@@ -135,14 +154,19 @@ body{
 }
 
 #paste-setup{
-    width: 100%;
+    width: 10%;
 }
 
 #paste-wrapper{
     display: flex;
-    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    border-style: inset;
+    border-width: 1.7px;
+    padding: 2rem;
+    border-radius: 0.3rem;
+    border-width: 1.7px;
 }
-
 
 #paste-wrapper label{
     display: inline-block;
@@ -373,6 +397,12 @@ input[type="number"]{
     border-bottom: 1.2px solid #C9D4DE;
 }
 
+.scheduler-wrapper{
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    margin-bottom: 3rem;
+}
 
 #infoGroup{
     width: 100%;
@@ -394,6 +424,10 @@ input[type="number"]{
     white-space: pre-line;
     font-family: 'Poppins', sans-serif;
 
+}
+
+.container-fluid{
+    min-height: 54vh;
 }
 
 /*
