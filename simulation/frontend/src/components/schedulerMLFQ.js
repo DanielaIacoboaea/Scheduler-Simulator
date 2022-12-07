@@ -49,7 +49,9 @@ export default class MLFQ extends React.Component{
             arrivalDisabled: false,
             executionDisabled: false,
             textarea: "",
-            pasteSetup: ""
+            pasteSetup: "",
+            colorDeleteIcon: "#dc3545",
+            colorAddIcon: "#28a745"
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.runSchedulerTimeSlice = this.runSchedulerTimeSlice.bind(this);
@@ -164,7 +166,9 @@ export default class MLFQ extends React.Component{
                 queuesDisabled: true,
                 running: true,
                 arrivalDisabled: true,
-                executionDisabled: true
+                executionDisabled: true,
+                colorDeleteIcon: "#6c757d",
+                colorAddIcon: "#6c757d"
             }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000));
 
         }
@@ -198,7 +202,9 @@ export default class MLFQ extends React.Component{
             arrivalDisabled: false,
             executionDisabled: false,
             textarea: "",
-            pasteSetup: ""
+            pasteSetup: "",
+            colorDeleteIcon: "#dc3545",
+            colorAddIcon: "#28a745"
 
         }));
         clearInterval(this.schedulerTimerId);
@@ -374,7 +380,9 @@ export default class MLFQ extends React.Component{
                 this.setState(state => ({
                     running: true,
                     arrivalDisabled: true,
-                    executionDisabled: true
+                    executionDisabled: true,
+                    colorDeleteIcon: "#6c757d",
+                    colorAddIcon: "#6c757d"
                 }));
 
                 let sortProcList = sortProcs(this.state.procs, 1, {"1": "arrivalTime"});
@@ -387,7 +395,9 @@ export default class MLFQ extends React.Component{
             }else{
                 clearInterval(this.schedulerTimerId);
                 this.setState(state => ({
-                    running: false
+                    running: false,
+                    colorDeleteIcon: "#dc3545",
+                    colorAddIcon: "#28a745"
                 }));
             }
         }
@@ -686,7 +696,9 @@ export default class MLFQ extends React.Component{
                 executionDisabled: false,
                 count: 0,
                 currentProcessIdx: 0,
-                totalExecutionTime: 0
+                totalExecutionTime: 0,
+                colorDeleteIcon: "#dc3545",
+                colorAddIcon: "#28a745"
             }));
         }
     }
@@ -743,7 +755,7 @@ export default class MLFQ extends React.Component{
                 <div className="controlBtns">
                     <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
                     <form onSubmit={this.handleSubmit}>
-                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
+                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
                         <Input title="When a process enters into the system."
                                 label="Arrival time: "
                                 name="arrivalTime"
@@ -810,6 +822,7 @@ export default class MLFQ extends React.Component{
                     alertColor={this.props.alertColor}
                     name="MLFQ"
                     prefilledType={this.props.prefilledType}
+                    colorDeleteIcon={this.state.colorDeleteIcon}
                 />
             </div>
             <div className="wrapper-copy">

@@ -48,7 +48,9 @@ export default class STCF extends React.Component{
             pasteBoost: "",
             pasteBoostDisabled: true,
             pasteQueues: "",
-            pasteQueuesDisabled: true
+            pasteQueuesDisabled: true,
+            colorDeleteIcon: "#dc3545",
+            colorAddIcon: "#28a745"
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.runSchedulerInterrupt = this.runSchedulerInterrupt.bind(this);
@@ -123,7 +125,9 @@ export default class STCF extends React.Component{
                 executionTime: "",
                 running: true,
                 arrivalDisabled: true,
-                executionDisabled: true
+                executionDisabled: true,
+                colorDeleteIcon: "#6c757d",
+                colorAddIcon: "#6c757d"
             }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerInterrupt(), 1000));
 
         }
@@ -153,7 +157,9 @@ export default class STCF extends React.Component{
             pasteBoost: "",
             pasteBoostDisabled: true,
             pasteQueues: "",
-            pasteQueuesDisabled: true
+            pasteQueuesDisabled: true,
+            colorDeleteIcon: "#dc3545",
+            colorAddIcon: "#28a745"
         }));
         clearInterval(this.schedulerTimerId);
     }
@@ -340,7 +346,9 @@ export default class STCF extends React.Component{
                 this.setState(state => ({
                     running: true,
                     arrivalDisabled: true,
-                    executionDisabled: true
+                    executionDisabled: true,
+                    colorDeleteIcon: "#6c757d",
+                    colorAddIcon: "#6c757d"
                 }));
 
                 let sortProcList = sortProcs(this.state.procs, 2, {"1": "arrivalTime", "2": "executionTime"});
@@ -350,7 +358,9 @@ export default class STCF extends React.Component{
             }else{
                 clearInterval(this.schedulerTimerId);
                 this.setState(state => ({
-                    running: false
+                    running: false,
+                    colorDeleteIcon: "#dc3545",
+                    colorAddIcon: "#28a745"
                 }));
             }
         }
@@ -482,7 +492,9 @@ export default class STCF extends React.Component{
                 currentProcessIdx: 0,
                 arrivalDisabled: false,
                 executionDisabled: false,
-                totalExecutionTime: 0
+                totalExecutionTime: 0,
+                colorDeleteIcon: "#dc3545",
+                colorAddIcon: "#28a745"
             }));
         }
     }
@@ -554,7 +566,7 @@ export default class STCF extends React.Component{
                 <div className="controlBtns">
                     <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
                     <form onSubmit={this.handleSubmit}>
-                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
+                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
                         <Input title="When a process enters into the system."
                                 label="Arrival time: "
                                 name="arrivalTime"
@@ -590,6 +602,7 @@ export default class STCF extends React.Component{
                     alertColor={this.props.alertColor}
                     name="STCF"
                     prefilledType={this.props.prefilledType}
+                    colorDeleteIcon={this.state.colorDeleteIcon}
                 />
             </div>
             <div className="wrapper-copy">
