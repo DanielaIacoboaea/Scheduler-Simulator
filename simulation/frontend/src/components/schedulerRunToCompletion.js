@@ -6,6 +6,7 @@ import addProcess from "./addDefaultProc";
 import copyConfiguration from "./copyConfiguration";
 import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
+import Input from "./inputNumber";
 
 
 /*
@@ -563,37 +564,27 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 <div className="controlBtns">
                     <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
                     <form onSubmit={this.handleSubmit}>
-                    <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
-                        <label data-toggle="tooltip" data-placement="top" title="When a process enters into the system.">
-                            Arrival time: 
-                            <input
-                                type="number"
+                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
+                        <Input title="When a process enters into the system."
+                                label="Arrival time: "
                                 name="arrivalTime"
                                 id={this.state.count}
-                                onChange={this.handleChange}
+                                handleChange={this.handleChange}
                                 value={this.state.arrivalTime}
                                 disabled={this.state.arrivalDisabled}
                                 min="0"
                                 max="200"
-                                autocomplete="off"
-                                required
-                            />
-                        </label>
-                        <label data-toggle="tooltip" data-placement="top" title="How long the process will run.">
-                            Execute time:
-                            <input
-                                type="number"
+                        />
+                        <Input title="How long the process will run."
+                                label="Execute time: "
                                 name="executionTime"
                                 id="inputExecutionTime"
-                                onChange={this.handleChange}
+                                handleChange={this.handleChange}
                                 value={this.state.executionTime}
                                 disabled={this.state.executionDisabled}
-                                autocomplete="off"
                                 min="1"
                                 max="200"
-                                required
-                            />
-                        </label>
+                        />
                     </form>
                     <div className="results-desc">
                     <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
@@ -633,51 +624,39 @@ export default class SchedulerFIFOandSJF extends React.Component{
                         <option name="MLFQ">MLFQ</option>
                     </select>
                     <div>
-                        <label for="pasteSlice" data-toggle="tooltip" data-placement="top" title="Amount of time a process runs when scheduled.">
-                            Time slice:
-                        </label>
-                        <input
-                            type="number"
-                            name="pasteSlice"
-                            min="1"
-                            max="20"
-                            onChange={this.handleChange}
-                            value={this.state.pasteSlice}
-                            disabled={this.state.pasteSliceDisabled}
-                            autocomplete="off"
-                            required
+                        <Input title="Amount of time a process runs when scheduled."
+                                label="Time slice: "
+                                name="pasteSlice"
+                                id="pasteSlice"
+                                handleChange={this.handleChange}
+                                value={this.state.pasteSlice}
+                                disabled={this.state.pasteSliceDisabled}
+                                min="1"
+                                max="50"
                         />
                     </div>
                     <div>
-                        <label for="pasteBoost" data-toggle="tooltip" data-placement="top" title="Amount of time after which all processes move to the highest priority (queue 0).">
-                            Priority Boost:
-                        </label>
-                        <input
-                            type="number"
-                            name="pasteBoost"
-                            min="1"
-                            max="100"
-                            onChange={this.handleChange}
-                            value={this.state.pasteBoost}
-                            disabled={this.state.pasteBoostDisabled}
-                            autocomplete="off"
-                            required
+                        <Input title="Amount of time after which all processes move to the highest priority (queue 0)."
+                                label="Priority Boost: "
+                                name="pasteBoost"
+                                id="pasteBoost"
+                                handleChange={this.handleChange}
+                                value={this.state.pasteBoost}
+                                disabled={this.state.pasteBoostDisabled}
+                                min="1"
+                                max="100"
                         />
                     </div>
                     <div>
-                        <label for="pasteQueues" data-toggle="tooltip" data-placement="top" title="Number of priority queues. Each process moves to lower priority after its time slice is over.">
-                            Queues:
-                        </label>
-                        <input
-                            type="number"
-                            name="pasteQueues"
-                            min="1"
-                            max="10"
-                            onChange={this.handleChange}
-                            value={this.state.pasteQueues}
-                            disabled={this.state.pasteQueuesDisabled}
-                            autocomplete="off"
-                            required
+                        <Input title="Number of priority queues. Each process moves to lower priority after its time slice is over."
+                                label="Queues: "
+                                name="pasteQueues"
+                                id="pasteQueues"
+                                handleChange={this.handleChange}
+                                value={this.state.pasteQueues}
+                                disabled={this.state.pasteQueuesDisabled}
+                                min="1"
+                                max="10"
                         />
                     </div>
                 </div>

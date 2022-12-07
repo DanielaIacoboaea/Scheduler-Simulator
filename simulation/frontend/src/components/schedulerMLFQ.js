@@ -6,6 +6,7 @@ import copyConfiguration from "./copyConfiguration";
 import colors from "./colors";
 import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
+import Input from "./inputNumber";
 
 
 /* 
@@ -742,78 +743,57 @@ export default class MLFQ extends React.Component{
                 <div className="controlBtns">
                     <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
                     <form onSubmit={this.handleSubmit}>
-                    <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
-                        <label data-toggle="tooltip" data-placement="top" title="When a process enters into the system.">
-                            Arrival time: 
-                            <input
-                                type="number"
+                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
+                        <Input title="When a process enters into the system."
+                                label="Arrival time: "
                                 name="arrivalTime"
                                 id={this.state.count}
-                                onChange={this.handleChange}
+                                handleChange={this.handleChange}
                                 value={this.state.arrivalTime}
                                 disabled={this.state.arrivalDisabled}
                                 min="0"
                                 max="200"
-                                autocomplete="off"
-                                required
-                            />
-                        </label>
-                        <label data-toggle="tooltip" data-placement="top" title="How long the process will run.">
-                            Execute time:
-                            <input
-                                type="number"
+                        />
+                        <Input title="How long the process will run."
+                                label="Execute time: "
                                 name="executionTime"
-                                onChange={this.handleChange}
+                                id="inputExecutionTime"
+                                handleChange={this.handleChange}
                                 value={this.state.executionTime}
                                 disabled={this.state.executionDisabled}
                                 min="1"
                                 max="200"
-                                autocomplete="off"
-                                required
-                            />
-                        </label>
-                        <label data-toggle="tooltip" data-placement="top" title="Amount of time a process runs when scheduled.">
-                            Time slice:
-                            <input
-                                type="number"
+                        />
+                        <Input title="Amount of time a process runs when scheduled."
+                                label="Time slice: "
                                 name="quantum"
-                                onChange={this.handleChange}
+                                id="quantum"
+                                handleChange={this.handleChange}
                                 value={this.state.quantum}
-                                min="1"
-                                max="100"
                                 disabled={this.state.quantumDisabled}
-                                autocomplete="off"
-                                required
-                            />
-                        </label>
-                        <label data-toggle="tooltip" data-placement="top" title="Amount of time after which all processes move to the highest priority (queue 0).">
-                            Priority Boost:
-                            <input
-                                type="number"
+                                min="1"
+                                max="50"
+                        />
+                        <Input title="Amount of time after which all processes move to the highest priority (queue 0)."
+                                label="Priority Boost: "
                                 name="boost"
-                                onChange={this.handleChange}
+                                id="boost"
+                                handleChange={this.handleChange}
                                 value={this.state.boost}
+                                disabled={this.state.boostDisabled}
                                 min="1"
                                 max="100"
-                                disabled={this.state.boostDisabled}
-                                autocomplete="off"
-                                required
-                            />
-                        </label>
-                        <label data-toggle="tooltip" data-placement="top" title="Number of priority queues. Each process moves to lower priority after its time slice is over.">
-                            Queues:
-                            <input
-                                type="number"
+                        />
+                        <Input title="Number of priority queues. Each process moves to lower priority after its time slice is over."
+                                label="Queues: "
                                 name="numQueues"
-                                onChange={this.handleChange}
+                                id="numQueues"
+                                handleChange={this.handleChange}
                                 value={this.state.numQueues}
+                                disabled={this.state.queuesDisabled}
                                 min="1"
                                 max="10"
-                                disabled={this.state.queuesDisabled}
-                                autocomplete="off"
-                                required
-                            />
-                        </label>
+                        />
                     </form>
                     <div className="results-desc">
                         <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
