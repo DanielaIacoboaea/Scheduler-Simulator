@@ -555,6 +555,8 @@ export default class RR extends React.Component{
                     avgTurnaround={this.state.avgTurnaround}
                     avgResponse={this.state.avgResponse}
                     alertColor={this.props.alertColor}
+                    name="RR"
+                    prefilledType={this.props.prefilledType}
                 />
             </div>
             <div className="wrapper-copy">

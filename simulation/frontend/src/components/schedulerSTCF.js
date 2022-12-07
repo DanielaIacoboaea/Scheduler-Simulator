@@ -588,6 +588,8 @@ export default class STCF extends React.Component{
                     avgTurnaround={this.state.avgTurnaround}
                     avgResponse={this.state.avgResponse}
                     alertColor={this.props.alertColor}
+                    name="STCF"
+                    prefilledType={this.props.prefilledType}
                 />
             </div>
             <div className="wrapper-copy">

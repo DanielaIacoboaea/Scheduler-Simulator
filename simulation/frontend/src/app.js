@@ -27,6 +27,7 @@ class App extends React.Component{
         this.state = {
             scheduler: "",
             prefilled: "",
+            prefilledType: "",
             subtitle: ""
         };
         this.renderScheduler = this.renderScheduler.bind(this);
@@ -44,6 +45,7 @@ class App extends React.Component{
         this.setState((state) => ({
             scheduler: name,
             prefilled: "",
+            prefilledType: "",
             subtitle: `Custom settings ${name}`
         }));
     }
@@ -76,12 +78,14 @@ class App extends React.Component{
                 this.setState((state) => ({
                     scheduler: prefillScheduler[0],
                     prefilled: result.default,
+                    prefilledType: "Good",
                     subtitle: `Best ${prefillScheduler[0]}`
                 }));
             }else{
                 this.setState((state) => ({
                     scheduler: prefillScheduler[0],
                     prefilled: result.default,
+                    prefilledType: "Bad",
                     subtitle: `Worst ${prefillScheduler[0]}`
                 }));
             }
@@ -99,6 +103,7 @@ class App extends React.Component{
         this.setState((state) => ({
             scheduler: "",
             prefilled: "",
+            prefilledType: "",
             subtitle: ""
         }));
     }
@@ -180,6 +185,7 @@ class App extends React.Component{
         this.setState((state) => ({
             scheduler: new_name,
             prefilled: processes,
+            prefilledType: "",
             subtitle: `Custom settings ${new_name}`
         }));
     }
@@ -226,6 +232,7 @@ class App extends React.Component{
                                                         sortBy="FIFO" 
                                                         alertColor={subtitleColors[this.state.scheduler]}
                                                         prefilled={this.state.prefilled} 
+                                                        prefilledType={this.state.prefilledType}
                                                         updateSubtitle={this.updateSubtitle}
                                                         activateTooltip={this.activateTooltip}
                                                         pastePrefill={this.renderPasteScheduler}
@@ -238,6 +245,7 @@ class App extends React.Component{
                                                         sortBy="SJF" 
                                                         alertColor={subtitleColors[this.state.scheduler]}
                                                         prefilled={this.state.prefilled} 
+                                                        prefilledType={this.state.prefilledType}
                                                         updateSubtitle={this.updateSubtitle}
                                                         activateTooltip={this.activateTooltip}
                                                         pastePrefill={this.renderPasteScheduler}
@@ -248,6 +256,7 @@ class App extends React.Component{
                                                         <STCF 
                                                             alertColor={subtitleColors[this.state.scheduler]}
                                                             prefilled={this.state.prefilled} 
+                                                            prefilledType={this.state.prefilledType}
                                                             updateSubtitle={this.updateSubtitle}
                                                             activateTooltip={this.activateTooltip}
                                                             pastePrefill={this.renderPasteScheduler}
@@ -258,6 +267,7 @@ class App extends React.Component{
                                                         <RR 
                                                             alertColor={subtitleColors[this.state.scheduler]}
                                                             prefilled={this.state.prefilled}
+                                                            prefilledType={this.state.prefilledType}
                                                             updateSubtitle={this.updateSubtitle} 
                                                             activateTooltip={this.activateTooltip}
                                                             pastePrefill={this.renderPasteScheduler}
@@ -268,16 +278,13 @@ class App extends React.Component{
                                                         <MLFQ 
                                                             alertColor={subtitleColors[this.state.scheduler]}
                                                             prefilled={this.state.prefilled} 
+                                                            prefilledType={this.state.prefilledType}
                                                             updateSubtitle={this.updateSubtitle}
                                                             activateTooltip={this.activateTooltip}
                                                             pastePrefill={this.renderPasteScheduler}
                                                         />
                                                     </section>:
                     <section className={btnsWrapper}>
-                        <h4 className="guide-header">
-                            Learn how each scheduler works. <br /> 
-                            Practice exemples with pre-filled settings for best and worst case scenarios to see them in action: 
-                        </h4>
                         <ButtonsDefault handleDefaultClick={this.renderDefaultScheduler}/>
                         <h4 className="guide-header">
                             Now that you've got the hang of it, go ahead and run any scheduler with your own custom settings:

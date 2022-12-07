@@ -1,5 +1,6 @@
 import React from "react";
 import ProgressBar from "./progressBar";
+import Description from "./sessionDescription";
 
 /*
     Render all progress bars for the FIFO, SJF, STCF and RR Schedulers.
@@ -28,7 +29,7 @@ export default class RenderProgressBars extends React.Component{
                 </div>
                 <div className="process">
                     <div>
-                        <span class="material-symbols-outlined icon-delete" id={proc.id} onClick={this.handleDeleteClick}>delete</span>
+                        <span class="material-symbols-outlined icon-delete" style={{color: this.props.colorDeleteIcon}} id={proc.id} onClick={this.handleDeleteClick}>delete</span>
                     </div>
                     <ProgressBar
                         barWidth={proc.executedPercentage.toFixed()}
@@ -50,6 +51,13 @@ export default class RenderProgressBars extends React.Component{
                 )
             }
             {/* Render avg session results if we have them */}
+            {this.props.prefilledType?
+                <Description sched={this.props.name}
+                            type={this.props.prefilledType}
+                />:
+                <div className="results avgs">
+                </div>
+            }
             {this.props.avgTurnaround?
                 <div className="results avgs" style={{backgroundColor: this.props.alertColor}}>
                     <p>Average Turnaround Time : {this.props.avgTurnaround.toFixed(2)} </p>

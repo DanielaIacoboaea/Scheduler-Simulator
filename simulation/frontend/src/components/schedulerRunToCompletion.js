@@ -7,6 +7,7 @@ import copyConfiguration from "./copyConfiguration";
 import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
 import Input from "./inputNumber";
+import Description from "./sessionDescription";
 
 
 /*
@@ -50,7 +51,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
             pasteBoost: "",
             pasteBoostDisabled: true,
             pasteQueues: "",
-            pasteQueuesDisabled: true
+            pasteQueuesDisabled: true,
+            colorDeleteIcon: "#dc3545",
+            colorAddIcon: "#28a745"
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.runScheduler = this.runScheduler.bind(this);
@@ -124,7 +127,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 Update state with all default settings 
                 and start running the scheduler with these settings
             */
-            this.setState((state) => ({
+            this.setState((state, props) => ({
                 procs: addProc,
                 count: count,
                 totalExecutionTime: totalExecution,
@@ -134,7 +137,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 executionTime: "",
                 running: true,
                 arrivalDisabled: true,
-                executionDisabled: true
+                executionDisabled: true,
+                colorDeleteIcon: "#6c757d",
+                colorAddIcon: "#6c757d"
             }), () => this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000));
 
         }
@@ -164,7 +169,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
             pasteBoost: "",
             pasteBoostDisabled: true,
             pasteQueues: "",
-            pasteQueuesDisabled: true
+            pasteQueuesDisabled: true,
+            colorDeleteIcon: "#dc3545",
+            colorAddIcon: "#28a745"
         }));
         clearInterval(this.schedulerTimerId);
     }
@@ -200,8 +207,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 pasteBoost: "",
                 pasteBoostDisabled: true,
                 pasteQueues: "",
-                pasteQueuesDisabled: true
-
+                pasteQueuesDisabled: true,
+                colorDeleteIcon: "#dc3545",
+                colorAddIcon: "#28a745"
             }));
             clearInterval(this.schedulerTimerId);
         }
@@ -398,7 +406,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 this.setState(state => ({
                     running: true,
                     arrivalDisabled: true,
-                    executionDisabled: true
+                    executionDisabled: true,
+                    colorDeleteIcon: "#6c757d",
+                    colorAddIcon: "#6c757d"
                 }));
                 
                 if (this.props.sortBy === "FIFO"){
@@ -417,7 +427,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
             }else{
                 clearInterval(this.schedulerTimerId);
                 this.setState(state => ({
-                    running: false
+                    running: false,
+                    colorDeleteIcon: "#dc3545",
+                    colorAddIcon: "#28a745"
                 }));
             }
         }
@@ -491,7 +503,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 count: 0,
                 arrivalDisabled: false,
                 executionDisabled: false,
-                totalExecutionTime: 0
+                totalExecutionTime: 0,
+                colorDeleteIcon: "#dc3545",
+                colorAddIcon: "#28a745"
             }));
         }
     }
@@ -564,7 +578,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 <div className="controlBtns">
                     <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
                     <form onSubmit={this.handleSubmit}>
-                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add">add_circle</span></button>
+                        <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
                         <Input title="When a process enters into the system."
                                 label="Arrival time: "
                                 name="arrivalTime"
@@ -598,6 +612,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                     avgTurnaround={this.state.avgTurnaround}
                     avgResponse={this.state.avgResponse}
                     alertColor={this.props.alertColor}
+                    name={this.props.sortBy}
+                    prefilledType={this.props.prefilledType}
+                    colorDeleteIcon={this.state.colorDeleteIcon}
                 />
             </div>
             <div className="wrapper-copy">

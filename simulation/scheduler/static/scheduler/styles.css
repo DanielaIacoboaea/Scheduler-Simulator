@@ -209,6 +209,11 @@ form{
     width: 100%;
     margin-bottom: 0;
 }
+
+.sessionDescription{
+    margin: 2rem 1rem 2rem 1rem;
+}
+
 .mlfq-process{
     display: flex;
     justify-content: space-evenly;
@@ -320,6 +325,37 @@ input[type="number"]{
     border-width: 1.7px;
 }
 
+.wrapper-btns-info{
+    display: flex;
+    flex-direction: column;
+}
+
+.btns-default-info{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+
+#FIFOGood,
+#FIFOBad,
+#SJFGood,
+#SJFBad,
+#STCFGood,
+#STCFBad,
+#RRGood,
+#RRBad,
+#MLFQGood,
+#MLFQBad,
+#FIFOInfo,
+#SJFInfo,
+#STCFInfo,
+#RRInfo,
+#MLFQInfo{
+    cursor: pointer;
+    padding: .75rem 1.5rem;
+}
+
 #FIFOGood,
 #FIFOBad,
 #SJFGood,
@@ -330,13 +366,13 @@ input[type="number"]{
 #RRBad,
 #MLFQGood,
 #MLFQBad{
-    cursor: pointer;
-    padding: .75rem 1.5rem;
+    width: 70%;
 }
 
-.btns-default > *{
-    width: 80%;
+.wrapper-btns-info{
+    border-bottom: 1.2px solid #C9D4DE;
 }
+
 
 #infoGroup{
     width: 100%;
@@ -347,6 +383,7 @@ input[type="number"]{
 #description{
     display: flex;
     justify-content: space-evenly;
+    flex-direction: column;
 }
 
 .card{

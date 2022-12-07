@@ -808,6 +808,8 @@ export default class MLFQ extends React.Component{
                     avgTurnaround={this.state.avgTurnaround}
                     avgResponse={this.state.avgResponse}
                     alertColor={this.props.alertColor}
+                    name="MLFQ"
+                    prefilledType={this.props.prefilledType}
                 />
             </div>
             <div className="wrapper-copy">
