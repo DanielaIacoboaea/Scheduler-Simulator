@@ -7,6 +7,7 @@ import colors from "./colors";
 import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
 import Input from "./inputNumber";
+import TimeTooltip from "./timeTooltip";
 
 
 /* 
@@ -819,10 +820,7 @@ export default class MLFQ extends React.Component{
                             <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{this.state.playIcon}</span></button>
 
                         </form>
-                        <div className="results-desc">
-                            <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time
-                            </button>
-                        </div>
+                        <TimeTooltip />
                     </div>
                     {/* Render the progress bars for each process*/}
                     <RenderProgressBarsMLFQ
