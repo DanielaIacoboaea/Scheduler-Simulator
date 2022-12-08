@@ -32,6 +32,7 @@ export default class STCF extends React.Component{
             procs: [],
             count: 0,
             running: false,
+            playIcon: "play_circle",
             timer: 0,
             currentProcessIdx: 0,
             arrivalTime: "",
@@ -116,6 +117,7 @@ export default class STCF extends React.Component{
                 arrivalTime: "",
                 executionTime: "",
                 running: true,
+                playIcon: "pause_circle",
                 arrivalDisabled: true,
                 executionDisabled: true,
                 colorDeleteIcon: "#6c757d",
@@ -133,6 +135,7 @@ export default class STCF extends React.Component{
             procs: [],
             count: 0,
             running: false,
+            playIcon: "play_circle",
             timer: 0,
             currentProcessIdx: 0,
             arrivalTime: "",
@@ -255,6 +258,7 @@ export default class STCF extends React.Component{
             if (!this.state.running && this.state.totalExecutionTime !== 0){
                 this.setState(state => ({
                     running: true,
+                    playIcon: "pause_circle",
                     arrivalDisabled: true,
                     executionDisabled: true,
                     colorDeleteIcon: "#6c757d",
@@ -269,6 +273,7 @@ export default class STCF extends React.Component{
                 clearInterval(this.schedulerTimerId);
                 this.setState(state => ({
                     running: false,
+                    playIcon: "play_circle",
                     colorDeleteIcon: "#dc3545",
                     colorAddIcon: "#28a745"
                 }));
@@ -395,6 +400,7 @@ export default class STCF extends React.Component{
             */
             this.setState(state => ({
                 running: false,
+                playIcon: "play_circle",
                 timer: 0,
                 avgTurnaround: avgT,
                 avgResponse: avgR,
@@ -494,9 +500,8 @@ export default class STCF extends React.Component{
                 <div className="container-fluid">
                     {/* Render the form through which the user will submit parameters for each process*/}
                     <div className="controlBtns">
-                        <span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>play_pause</span>
                         <form onSubmit={this.handleSubmit}>
-                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
+                            <p id="add-proc-desc">Add a new process: </p>
                             <Input title="When a process enters into the system."
                                     label="Arrival time: "
                                     name="arrivalTime"
@@ -517,6 +522,8 @@ export default class STCF extends React.Component{
                                     min="1"
                                     max="200"
                             />
+                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
+                            <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{this.state.playIcon}</span></button>
                         </form>
                         <div className="results-desc">
                         <button id="icon-time" type="button" className="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Turnaround Time: T(arrival) - T(completion); Response Time: T(arrival) - T(First Run)">Time

@@ -65,14 +65,12 @@ body{
 
 .icon-play{
     color: #17a2b8;
-    border-radius: 30px;
-    text-align: center;
 }
 
-.icon-play:hover{
-    background-color: #17a2b8;
-    color: #ffffff;
-    border-radius: 30px;
+#button-play{
+    background-color: transparent;
+    border: none;
+    outline: none !important;
 }
 
 .icon-back{
@@ -214,6 +212,18 @@ body{
 form{
     display: flex;
     align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+#add-proc-desc{
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+}
+
+#label-simulate{
+    color: #6c757d;
+    font-size: 1.3rem;
 }
 
 .container-fluid{
