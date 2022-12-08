@@ -56,7 +56,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
             colorAddIcon: "#28a745"
         };
     }
-    
+
+
     /* 
         When the component is mounted, check if we have prefilled settings to 
         display and start running a session.
@@ -72,69 +73,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         this.props.activateTooltip();
 
         if(this.props.prefilled){
-            let procs_list = this.props.prefilled;
-
-            /*
-                Create an array that will hold all procs 
-             */
-            let addProc = [];
-            let count = 0;
-            let totalExecution = 0;
-
-            /*
-                Add each default proc to the array of procs
-                Can't use a for loop to update state in React at each iteration 
-                because react updates state asynchronous and uses batch updating. 
-                As a consequence, for a for loop, only the last iteration 
-                is in fact reflected in the state.
-                This is why we can't just call handleSubmit and  handleClickStart 
-                to push all the processes at once and run the scheduler.
-                So we reuse parts of handleSubmit and handleClickStart to achieve this.
-             */
-            for (let i = 0; i < procs_list.length; i++){
-
-                let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
-                addProc.splice(0, addProc.length, ...newAddproc);
-
-                count++;
-                totalExecution += parseInt(procs_list[i].executeTime);
-            }
-
-            /*
-                Sort the array of procs based on the type of scheduler
-            */
-            if (this.props.sortBy === "FIFO"){
-
-                let sortAddProc = sortProcs(addProc, 1, {"1": "arrivalTime"});
-                addProc.splice(0, addProc.length, ...sortAddProc);
-
-            }else if (this.props.sortBy === "SJF"){
-
-                let sortAddProc = sortProcs(addProc, 2, {"1": "arrivalTime", "2": "executionTime"});
-                addProc.splice(0, addProc.length, ...sortAddProc);
-
-            }
-
-            /* 
-                Update state with all default settings 
-                and start running the scheduler with these settings
-            */
-            this.setState((state, props) => ({
-                procs: addProc,
-                count: count,
-                totalExecutionTime: totalExecution,
-                avgTurnaround: 0,
-                avgResponse: 0,
-                arrivalTime: "",
-                executionTime: "",
-                running: true,
-                playIcon: "pause_circle",
-                arrivalDisabled: true,
-                executionDisabled: true,
-                colorDeleteIcon: "#6c757d",
-                colorAddIcon: "#6c757d"
-            }), () => this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000));
-
+            this.prefillState();
         }
     }
 
@@ -142,6 +81,106 @@ export default class SchedulerFIFOandSJF extends React.Component{
         Clear state and timer when the component unmounts 
     */
     componentWillUnmount(){
+        this.clearState();
+        clearInterval(this.schedulerTimerId);
+    }
+
+    /*
+        Because this component is shared between 2 schedulers (FIFO and SJF),
+        the only difference is in how we sort the procs, the state is maintained 
+        between the button clicks (change from one scheduler to another).
+        So if the Scheduler name changes(e.g from FIFO to SJF) we need to clear the 
+        state first.
+    */
+    componentDidUpdate(prevProps){
+    
+        if (prevProps.prefilled !== this.props.prefilled){
+            if (this.props.prefilled){
+                this.clearState();
+                clearInterval(this.schedulerTimerId);
+                this.prefillState();
+            }else{
+                this.clearState();
+                clearInterval(this.schedulerTimerId);
+            }
+        }
+
+        if(prevProps.sortBy !== this.props.sortBy){
+            this.clearState();
+            clearInterval(this.schedulerTimerId);
+        }
+    }
+
+    /*
+        Add prefilled list of procs to state and start 
+        a new scheduling session.
+    */
+    prefillState = () => {
+        let procs_list = this.props.prefilled;
+
+        /*
+            Create an array that will hold all procs 
+            */
+        let addProc = [];
+        let count = 0;
+        let totalExecution = 0;
+
+        /*
+            Add each default proc to the array of procs
+            Can't use a for loop to update state in React at each iteration 
+            because react updates state asynchronous and uses batch updating. 
+            As a consequence, for a for loop, only the last iteration 
+            is in fact reflected in the state.
+            This is why we can't just call handleSubmit and  handleClickStart 
+            to push all the processes at once and run the scheduler.
+            So we reuse parts of handleSubmit and handleClickStart to achieve this.
+            */
+        for (let i = 0; i < procs_list.length; i++){
+
+            let newAddproc = addProcess(addProc, count, procs_list[i].arrivalTime, procs_list[i].executeTime);
+            addProc.splice(0, addProc.length, ...newAddproc);
+
+            count++;
+            totalExecution += parseInt(procs_list[i].executeTime);
+        }
+
+        /*
+            Sort the array of procs based on the type of scheduler
+        */
+        if (this.props.sortBy === "FIFO"){
+
+            let sortAddProc = sortProcs(addProc, 1, {"1": "arrivalTime"});
+            addProc.splice(0, addProc.length, ...sortAddProc);
+
+        }else if (this.props.sortBy === "SJF"){
+
+            let sortAddProc = sortProcs(addProc, 2, {"1": "arrivalTime", "2": "executionTime"});
+            addProc.splice(0, addProc.length, ...sortAddProc);
+
+        }
+
+        /* 
+            Update state with all default settings 
+            and start running the scheduler with these settings
+        */
+        this.setState((state, props) => ({
+            procs: addProc,
+            count: count,
+            totalExecutionTime: totalExecution,
+            avgTurnaround: 0,
+            avgResponse: 0,
+            arrivalTime: "",
+            executionTime: "",
+            running: true,
+            playIcon: "pause_circle",
+            arrivalDisabled: true,
+            executionDisabled: true,
+            colorDeleteIcon: "#6c757d",
+            colorAddIcon: "#6c757d"
+        }), () => this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000));
+    }
+
+    clearState = () => {
         this.setState(state => ({
             procs: [],
             count: 0,
@@ -167,47 +206,6 @@ export default class SchedulerFIFOandSJF extends React.Component{
             colorDeleteIcon: "#dc3545",
             colorAddIcon: "#28a745"
         }));
-        clearInterval(this.schedulerTimerId);
-    }
-
-    /*
-        Because this component is shared between 2 schedulers (FIFO and SJF),
-        the only difference is in how we sort the procs, the state is maintained 
-        between the button clicks (change from one scheduler to another).
-        So if the Scheduler name changes(e.g from FIFO to SJF) we need to clear the 
-        state first.
-    */
-    componentDidUpdate(prevProps){
-
-        if(prevProps.sortBy !== this.props.sortBy){
-
-            this.setState(state => ({
-                procs: [],
-                count: 0,
-                running: false,
-                playIcon: "play_circle",
-                timer: 0,
-                currentProcessIdx: 0,
-                arrivalTime: "",
-                executionTime: "",
-                arrivalDisabled: false,
-                executionDisabled: false,
-                totalExecutionTime: 0,
-                avgTurnaround: 0,
-                avgResponse: 0,
-                textarea: "",
-                pasteSetup: "",
-                pasteSlice: "",
-                pasteSliceDisabled: true,
-                pasteBoost: "",
-                pasteBoostDisabled: true,
-                pasteQueues: "",
-                pasteQueuesDisabled: true,
-                colorDeleteIcon: "#dc3545",
-                colorAddIcon: "#28a745"
-            }));
-            clearInterval(this.schedulerTimerId);
-        }
     }
 
     /* 
@@ -553,7 +551,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 </div>
                 <div className="wrapper-copy">
                     <div id="paste-wrapper">
-                        <label id="label-simulate"data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                        <label id="label-simulate" data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
                             Simulate setup with a different scheduler: 
                             <br />
                         </label>

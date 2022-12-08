@@ -76,6 +76,40 @@ export default class MLFQ extends React.Component{
         this.props.activateTooltip();
 
         if(this.props.prefilled){
+            this.prefillState();
+        }
+    }
+
+
+
+    /*
+        Clear state and timer when the component unmounts 
+    */
+     componentWillUnmount(){
+        this.clearState();
+        clearInterval(this.schedulerTimerId);
+    }
+
+    componentDidUpdate(prevProps){
+    
+        if (prevProps.prefilled !== this.props.prefilled){
+            if (this.props.prefilled){
+                this.clearState();
+                clearInterval(this.schedulerTimerId);
+                this.prefillState();
+            }else{
+                this.clearState();
+                clearInterval(this.schedulerTimerId);
+            }
+        }
+    }
+    
+    /*
+        Add prefilled list of procs to state and start 
+        a new scheduling session.
+    */
+    prefillState = () => {
+        if(this.props.prefilled){
             let procs_list = this.props.prefilled;
 
             /*
@@ -169,11 +203,8 @@ export default class MLFQ extends React.Component{
 
         }
     }
-
-    /*
-        Clear state and timer when the component unmounts 
-    */
-    componentWillUnmount(){
+    
+    clearState = () => {
         this.setState(state => ({
             procs: [],
             numQueues: "",
@@ -202,9 +233,7 @@ export default class MLFQ extends React.Component{
             pasteSetup: "",
             colorDeleteIcon: "#dc3545",
             colorAddIcon: "#28a745"
-
         }));
-        clearInterval(this.schedulerTimerId);
     }
 
     /* 
@@ -837,7 +866,7 @@ export default class MLFQ extends React.Component{
                 </div>
                 <div className="wrapper-copy">
                     <div id="paste-wrapper">
-                        <label data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                        <label id="label-simulate" data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
                             Simulate setup with a different scheduler: 
                             <br />
                         </label>

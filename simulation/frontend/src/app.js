@@ -30,18 +30,12 @@ class App extends React.Component{
             prefilledType: "",
             subtitle: ""
         };
-        this.renderScheduler = this.renderScheduler.bind(this);
-        this.renderDefaultScheduler = this.renderDefaultScheduler.bind(this);
-        this.returnToMainPage = this.returnToMainPage.bind(this);
-        this.updateSubtitle = this.updateSubtitle.bind(this);
-        this.activateTooltip = this.activateTooltip.bind(this);
-        this.renderPasteScheduler = this.renderPasteScheduler.bind(this);
     }
 
     /*
         Render scheduler with custom settings
     */
-    renderScheduler(name){
+    renderScheduler = (name) => {
         this.setState((state) => ({
             scheduler: name,
             prefilled: "",
@@ -53,7 +47,7 @@ class App extends React.Component{
     /*
         Render scheduler with default settings
     */
-    renderDefaultScheduler(name){
+    renderDefaultScheduler = (name) => {
         const regSchedulers = ["FIFO", "SJF", "STCF", "RR", "MLFQ"];
         let prefillScheduler;
         let prefillType;
@@ -99,7 +93,7 @@ class App extends React.Component{
     /*
         Clear state and render the home page
      */
-    returnToMainPage(){
+    returnToMainPage = () => {
         this.setState((state) => ({
             scheduler: "",
             prefilled: "",
@@ -114,7 +108,7 @@ class App extends React.Component{
          - prefilled
          - custom
      */
-    updateSubtitle(){
+    updateSubtitle = () => {
         this.setState((state) => ({
             subtitle: `Custom settings ${state.scheduler}`
         }));
@@ -123,7 +117,7 @@ class App extends React.Component{
     /*
         Add tooltip for input labels 
     */
-    activateTooltip(){
+    activateTooltip = () => {
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();   
         });
@@ -133,7 +127,7 @@ class App extends React.Component{
         Create prefilled settings and render the selected new scheduler,
         after the user copied the setup for a scheduler.
     */
-    renderPasteScheduler(old_name, new_name, procs, slice, queues, boost){
+    renderPasteScheduler = (old_name, new_name, procs, slice, queues, boost) => {
 
         let processes = [];
         
@@ -199,8 +193,10 @@ class App extends React.Component{
         */
        const btnsSched = <Buttons 
                             handleRenderClick={this.renderScheduler} 
+                            handleDefaultClick={this.renderDefaultScheduler}
                             wrapperBtnsClass="wrapper-btns" 
                             schedulerId={this.state.scheduler} 
+                            prefilledType={this.state.prefilledType}
                             returnToMainPage={this.returnToMainPage}
                         />;
 

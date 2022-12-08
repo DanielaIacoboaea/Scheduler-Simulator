@@ -11,11 +11,12 @@ import Description from "./sessionDescription";
 export default class RenderProgressBars extends React.Component{
     constructor(props){
         super(props);
-        this.handleDeleteClick = this.handleDeleteClick.bind(this);
     }
-    handleDeleteClick(event){
+
+    handleDeleteClick = (event) => {
         this.props.deleteBar(event.target.id);
     }
+    
     render(){
         return(
             <React.Fragment>

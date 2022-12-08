@@ -8,10 +8,9 @@ import React from "react";
 export default class ButtonsDefault extends React.Component{
     constructor(props){
         super(props);
-        this.startDefaultScheduler = this.startDefaultScheduler.bind(this);
     }
 
-    startDefaultScheduler(event){
+    startDefaultScheduler = (event) => {
         this.props.handleDefaultClick(event.target.id);
     }
 
