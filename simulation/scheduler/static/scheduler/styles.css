@@ -67,7 +67,12 @@ body{
     color: #17a2b8;
 }
 
-#button-play{
+.icon-clear{
+    color: #dec8c8;
+}
+
+#button-play,
+#button-clear{
     background-color: transparent;
     border: none;
     outline: none !important;

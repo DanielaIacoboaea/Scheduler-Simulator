@@ -63,7 +63,7 @@ export default class RenderProgressBarsMLFQ extends React.Component{
                 )
             }
             {/* Render avg session results if we have them */}
-            {this.props.avgTurnaround?
+            {this.props.sessionComplete?
                 <div className="results avgs" style={{backgroundColor: this.props.alertColor}}>
                     <p>Average Turnaround Time : {this.props.avgTurnaround.toFixed(2)} </p>
                     <p>Average Response Time : {this.props.avgResponse.toFixed(2)} </p>

@@ -53,7 +53,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
             pasteQueues: "",
             pasteQueuesDisabled: true,
             colorDeleteIcon: "#dc3545",
-            colorAddIcon: "#28a745"
+            colorAddIcon: "#28a745",
+            colorClearIcon: "#dec8c8",
+            sessionComplete: false
         };
     }
 
@@ -73,7 +75,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         this.props.activateTooltip();
 
         if(this.props.prefilled){
-            this.prefillState();
+            this.prefillState(true, this.props.prefilled);
         }
     }
 
@@ -98,7 +100,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
             if (this.props.prefilled){
                 this.clearState();
                 clearInterval(this.schedulerTimerId);
-                this.prefillState();
+                this.prefillState(true, this.props.prefilled);
             }else{
                 this.clearState();
                 clearInterval(this.schedulerTimerId);
@@ -114,9 +116,11 @@ export default class SchedulerFIFOandSJF extends React.Component{
     /*
         Add prefilled list of procs to state and start 
         a new scheduling session.
+        If start is true, it will start a new scheduling session.
+        If start is false, it will just update state, without starting a new scheduling session.
     */
-    prefillState = () => {
-        let procs_list = this.props.prefilled;
+    prefillState = (start, prefillProcs) => {
+        let procs_list = prefillProcs;
 
         /*
             Create an array that will hold all procs 
@@ -163,21 +167,41 @@ export default class SchedulerFIFOandSJF extends React.Component{
             Update state with all default settings 
             and start running the scheduler with these settings
         */
-        this.setState((state, props) => ({
-            procs: addProc,
-            count: count,
-            totalExecutionTime: totalExecution,
-            avgTurnaround: 0,
-            avgResponse: 0,
-            arrivalTime: "",
-            executionTime: "",
-            running: true,
-            playIcon: "pause_circle",
-            arrivalDisabled: true,
-            executionDisabled: true,
-            colorDeleteIcon: "#6c757d",
-            colorAddIcon: "#6c757d"
-        }), () => this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000));
+        if (start){
+            this.setState((state, props) => ({
+                procs: addProc,
+                count: count,
+                totalExecutionTime: totalExecution,
+                avgTurnaround: 0,
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: "",
+                running: true,
+                playIcon: "pause_circle",
+                arrivalDisabled: true,
+                executionDisabled: true,
+                colorDeleteIcon: "#6c757d",
+                colorAddIcon: "#6c757d",
+                colorClearIcon: "#6c757d"
+            }), () => this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000));
+        }else{
+            this.setState((state, props) => ({
+                procs: addProc,
+                count: count,
+                totalExecutionTime: totalExecution,
+                avgTurnaround: 0,
+                avgResponse: 0,
+                arrivalTime: "",
+                executionTime: "",
+                running: false,
+                playIcon: "play_circle",
+                arrivalDisabled: false,
+                executionDisabled: false,
+                colorDeleteIcon: "#dc3545",
+                colorAddIcon: "#28a745",
+                colorClearIcon: "#dec8c8"
+            }));
+        }
     }
 
     clearState = () => {
@@ -204,7 +228,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
             pasteQueues: "",
             pasteQueuesDisabled: true,
             colorDeleteIcon: "#dc3545",
-            colorAddIcon: "#28a745"
+            colorAddIcon: "#28a745",
+            colorClearIcon: "#dec8c8",
+            sessionComplete: false
         }));
     }
 
@@ -288,7 +314,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
                     totalExecutionTime: deleted.updateTotalExecTime,
                     count: 0,
                     avgTurnaround: 0,
-                    avgResponse: 0
+                    avgResponse: 0,
+                    sessionComplete: false
                 }));
             }else{
                 this.setState(state => ({
@@ -320,7 +347,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
                     arrivalDisabled: true,
                     executionDisabled: true,
                     colorDeleteIcon: "#6c757d",
-                    colorAddIcon: "#6c757d"
+                    colorAddIcon: "#6c757d",
+                    colorClearIcon: "#6c757d"
                 }));
                 
                 if (this.props.sortBy === "FIFO"){
@@ -342,7 +370,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
                     running: false,
                     playIcon: "play_circle",
                     colorDeleteIcon: "#dc3545",
-                    colorAddIcon: "#28a745"
+                    colorAddIcon: "#28a745",
+                    colorClearIcon: "#dec8c8"
                 }));
             }
         }
@@ -419,7 +448,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 executionDisabled: false,
                 totalExecutionTime: 0,
                 colorDeleteIcon: "#dc3545",
-                colorAddIcon: "#28a745"
+                colorAddIcon: "#28a745",
+                colorClearIcon: "#dec8c8",
+                sessionComplete: true
             }));
         }
     }
@@ -479,6 +510,10 @@ export default class SchedulerFIFOandSJF extends React.Component{
         }
     }
 
+    /*
+        Switch with the current setup as prefilled settings to
+        other scheduler.
+    */
     handleGo = () => {
 
         const name = this.state.pasteSetup;
@@ -502,6 +537,35 @@ export default class SchedulerFIFOandSJF extends React.Component{
         }
     }
 
+    /*
+        Reset the completed scheduling session.
+        The progress made by each proc returns to 0.
+    */
+    handleClear = () => {
+        const session = this.state.sessionComplete;
+        const active = this.state.running;
+        const procs = this.state.procs.slice();
+        const clearProcs = [];
+
+        if(!active && session){
+
+            for (let i = 0; i < procs.length; i++){
+
+                clearProcs.push({
+                    "id": procs[i].id,
+                    "arrivalTime": procs[i].arrivalTime,
+                    "executeTime": procs[i].executionTime,
+                    "quantum": "",
+                    "boost": "",
+                    "queues": ""
+                })
+            }
+            this.clearState();
+            clearInterval(this.schedulerTimerId);
+            this.prefillState(false, clearProcs);
+        }
+    }
+
     render(){
         const processes = this.state.procs.slice();
         return(
@@ -510,6 +574,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 <div className="container-fluid">
                     {/* Render the form through which the user will submit parameters for each process*/}
                     <div className="controlBtns">
+                        <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: this.state.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
                         <form onSubmit={this.handleSubmit}>
                             <p id="add-proc-desc">Add a new process: </p>
                             <Input title="When a process enters into the system."
@@ -533,8 +598,9 @@ export default class SchedulerFIFOandSJF extends React.Component{
                                     max="200"
                             />
                             <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
-                            <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{this.state.playIcon}</span></button>
                         </form>
+                        <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{this.state.playIcon}</span></button>
+
                         <TimeTooltip />
                     </div>
                     {/* Render the progress bars for each process*/}
@@ -547,6 +613,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                         name={this.props.sortBy}
                         prefilledType={this.props.prefilledType}
                         colorDeleteIcon={this.state.colorDeleteIcon}
+                        sessionComplete={this.state.sessionComplete}
                     />
                 </div>
                 <div className="wrapper-copy">
