@@ -8,7 +8,7 @@ export default class Input extends React.Component{
     render(){
         return(
             <React.Fragment>
-                <label data-toggle="tooltip" data-placement="top" title={this.props.title}>
+                <label data-toggle="tooltip" data-html="true" data-placement="top" title={this.props.title}>
                     {this.props.label} 
                 </label>
                 <input

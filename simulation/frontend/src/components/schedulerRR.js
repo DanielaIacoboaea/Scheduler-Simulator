@@ -8,6 +8,7 @@ import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
 import Input from "./inputNumber";
 import TimeTooltip from "./timeTooltip";
+import {arrival, execute, slice, boost, queues} from "./inputTooltips";
 
 
 /*
@@ -583,7 +584,7 @@ export default class RR extends React.Component{
                         <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: this.state.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
                         <form onSubmit={this.handleSubmit}>
                             <p id="add-proc-desc">Add a new process: </p>
-                            <Input title="When a process enters into the system."
+                            <Input title={arrival}
                                     label="Arrival time: "
                                     name="arrivalTime"
                                     id={this.state.count}
@@ -593,7 +594,7 @@ export default class RR extends React.Component{
                                     min="0"
                                     max="200"
                             />
-                            <Input title="How long the process will run."
+                            <Input title={execute}
                                     label="Execute time: "
                                     name="executionTime"
                                     id="inputExecutionTime"
@@ -603,7 +604,7 @@ export default class RR extends React.Component{
                                     min="1"
                                     max="200"
                             />
-                            <Input title="Amount of time a process runs when scheduled."
+                            <Input title={slice}
                                     label="Time slice: "
                                     name="quantum"
                                     id="quantum"
@@ -647,7 +648,7 @@ export default class RR extends React.Component{
                             <option name="MLFQ">MLFQ</option>
                         </select>
                         <div>
-                            <Input title="Amount of time after which all processes move to the highest priority (queue 0)."
+                            <Input title={boost}
                                     label="Priority Boost: "
                                     name="pasteBoost"
                                     id="pasteBoost"
@@ -659,7 +660,7 @@ export default class RR extends React.Component{
                             />
                         </div>
                         <div>
-                            <Input title="Number of priority queues. Each process moves to lower priority after its time slice is over."
+                            <Input title={queues}
                                     label="Queues: "
                                     name="pasteQueues"
                                     id="pasteQueues"
