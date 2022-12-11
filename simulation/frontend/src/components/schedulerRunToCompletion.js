@@ -55,7 +55,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
             colorDeleteIcon: "#dc3545",
             colorAddIcon: "#28a745",
             colorClearIcon: "#dec8c8",
-            sessionComplete: false
+            sessionComplete: false,
+            showDescription: false
         };
     }
 
@@ -182,7 +183,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 executionDisabled: true,
                 colorDeleteIcon: "#6c757d",
                 colorAddIcon: "#6c757d",
-                colorClearIcon: "#6c757d"
+                colorClearIcon: "#6c757d",
+                showDescription: true
             }), () => this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000));
         }else{
             this.setState((state, props) => ({
@@ -230,7 +232,8 @@ export default class SchedulerFIFOandSJF extends React.Component{
             colorDeleteIcon: "#dc3545",
             colorAddIcon: "#28a745",
             colorClearIcon: "#dec8c8",
-            sessionComplete: false
+            sessionComplete: false,
+            showDescription: false
         }));
     }
 
@@ -271,6 +274,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 addProc = [];
                 count = 0;
                 totalExecution = 0;
+                this.clearState();
             }else{
                 addProc = this.state.procs.slice();
                 count = this.state.count;
@@ -309,14 +313,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                 if the list of procs is empty, reset the count and statistics 
             */
             if (deleted.updateProcs.length === 0){
-                this.setState(state => ({
-                    procs: deleted.updateProcs,
-                    totalExecutionTime: deleted.updateTotalExecTime,
-                    count: 0,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    sessionComplete: false
-                }));
+                this.clearState();
             }else{
                 this.setState(state => ({
                     procs: deleted.updateProcs,
@@ -612,6 +609,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                         alertColor={this.props.alertColor}
                         name={this.props.sortBy}
                         prefilledType={this.props.prefilledType}
+                        showDescription={this.state.showDescription}
                         colorDeleteIcon={this.state.colorDeleteIcon}
                         sessionComplete={this.state.sessionComplete}
                     />

@@ -4,7 +4,7 @@ export default class Input extends React.Component{
     constructor(props){
         super(props);
     }
-   
+
     render(){
         return(
             <React.Fragment>
@@ -15,11 +15,12 @@ export default class Input extends React.Component{
                     type="number"
                     name={this.props.name}
                     id={this.props.id}
-                    onChange={this.props.handleChange}
+                    onInput={this.props.handleChange}
                     value={this.props.value}
                     disabled={this.props.disabled}
                     min={this.props.min}
                     max={this.props.max}
+                    valid={this.va}
                     autocomplete="off"
                     required
                 />

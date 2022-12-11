@@ -52,7 +52,8 @@ export default class RR extends React.Component{
             clear: {
                 "quantum": ""
             },
-            sessionComplete: false
+            sessionComplete: false,
+            showDescription: false
         };
     }
     
@@ -160,7 +161,8 @@ export default class RR extends React.Component{
                     executionDisabled: true,
                     colorDeleteIcon: "#6c757d",
                     colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d"
+                    colorClearIcon: "#6c757d",
+                    showDescription: true
                 }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000));
             }else{
                 this.setState((state) => ({
@@ -216,7 +218,8 @@ export default class RR extends React.Component{
             clear: {
                 "quantum": ""
             },
-            sessionComplete: false
+            sessionComplete: false,
+            showDescription: false
         }));
     }
     
@@ -254,6 +257,7 @@ export default class RR extends React.Component{
                 addProc = [];
                 count = 0;
                 totalExecution = 0;
+                this.clearState();
             }else{
                 addProc = this.state.procs.slice();
                 count = this.state.count;
@@ -292,17 +296,7 @@ export default class RR extends React.Component{
 
             const deleted = deleteEntry(this.state.procs.slice(), procId);
             if (deleted.updateProcs.length === 0){
-
-                this.setState(state => ({
-                    procs: deleted.updateProcs,
-                    totalExecutionTime: deleted.updateTotalExecTime,
-                    quantum: "",
-                    disabled: false,
-                    count: 0,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    sessionComplete: false
-                }));
+                this.clearState();
             }else{
                 this.setState(state => ({
                     procs: deleted.updateProcs,
@@ -633,6 +627,7 @@ export default class RR extends React.Component{
                         alertColor={this.props.alertColor}
                         name="RR"
                         prefilledType={this.props.prefilledType}
+                        showDescription={this.state.showDescription}
                         colorDeleteIcon={this.state.colorDeleteIcon}
                         sessionComplete={this.state.sessionComplete}
                     />

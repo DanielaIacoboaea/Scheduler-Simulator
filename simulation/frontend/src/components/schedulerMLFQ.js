@@ -8,6 +8,7 @@ import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
 import Input from "./inputNumber";
 import TimeTooltip from "./timeTooltip";
+import updateQueues from "./updateQueuesMLFQ";
 
 
 /* 
@@ -60,7 +61,8 @@ export default class MLFQ extends React.Component{
                 "boost": "",
                 "numQueues": ""
             },
-            sessionComplete: false
+            sessionComplete: false,
+            showDescription: false
         };
     }
     
@@ -131,10 +133,6 @@ export default class MLFQ extends React.Component{
             let timeSliceDefault = parseInt(procs_list[0].quantum);
             let boostDefault = parseInt(procs_list[0].boost);
 
-            for (let i = 0; i < numQueuesDefault; i++){
-                addToQueue[i] = [];
-            }
-
             /*
                  Add each default proc to the array of procs
                 Can't use a for loop to update state in React at each iteration 
@@ -162,11 +160,11 @@ export default class MLFQ extends React.Component{
                     queueIdx: 0
                 }
                 addProc.push(newAddproc);
-                addToQueue[0].push(newAddproc);
                 count++;
                 totalExecution += parseInt(procs_list[i].executeTime);
             }
 
+            addToQueue = updateQueues(addProc, numQueuesDefault);
             /*
                 Sort the array of procs based on the type of scheduler
             */
@@ -207,7 +205,8 @@ export default class MLFQ extends React.Component{
                     executionDisabled: true,
                     colorDeleteIcon: "#6c757d",
                     colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d"
+                    colorClearIcon: "#6c757d",
+                    showDescription: true
                 }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000))
             }else{
 
@@ -273,7 +272,8 @@ export default class MLFQ extends React.Component{
                 "boost": "",
                 "numQueues": ""
             },
-            sessionComplete: false
+            sessionComplete: false,
+            showDescription: false
         }));
     }
 
@@ -328,6 +328,7 @@ export default class MLFQ extends React.Component{
                 count = 0;
                 totalExecution = 0;
                 addToQueue = [];
+                this.clearState();
                 /*
                     initalize all queues with an empty array
                  */
@@ -409,21 +410,7 @@ export default class MLFQ extends React.Component{
                 clear the state as well
              */
             if (deleted.updateProcs.length === 0){
-                this.setState(state => ({
-                    procs: deleted.updateProcs,
-                    totalExecutionTime: deleted.updateTotalExecTime,
-                    queues: [],
-                    numQueues: "",
-                    quantum: "",
-                    boost: "",
-                    quantumDisabled: false,
-                    boostDisabled: false,
-                    queuesDisabled: false,
-                    count: 0,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    sessionComplete: false
-                }));
+                this.clearState();
             }else{
                 this.setState(state => ({
                     procs: deleted.updateProcs,
@@ -489,6 +476,8 @@ export default class MLFQ extends React.Component{
         const quantumSlice = parseInt(this.state.quantum);
         const boost = parseInt(this.state.boost);
         const numQueues = parseInt(this.state.numQueues);
+        let boostReached = false;
+        let quantumReached = false;
 
         /* 
             check timer 
@@ -496,6 +485,8 @@ export default class MLFQ extends React.Component{
         if(this.state.timer < this.state.totalExecutionTime){
 
             /*
+                Check arrival of new process
+                -----------------------------
                 Check if a new process from queue 0 is supposed to run now
              */
             let copyProcsOnQueue0 = this.state.queues[0].slice();
@@ -503,7 +494,6 @@ export default class MLFQ extends React.Component{
             let newArrivalProcIdx = this.state.currentProcessIdx;
 
             for (let i = 0; i < copyProcsOnQueue0.length; i++){
-                
                 /*
                     if the process already ran, skip it
                  */
@@ -529,9 +519,12 @@ export default class MLFQ extends React.Component{
             }
 
             /*
+                Interrupt the current running process
+                -------------------------------------
                 Schedule the proc to run
              */
             if (newArrivalProcIdx !== this.state.currentProcessIdx){
+
                 this.setState(state => ({
                     currentProcessIdx: newArrivalProcIdx,
                     currentQueueIdx: 0,
@@ -540,17 +533,18 @@ export default class MLFQ extends React.Component{
             }
 
             /* 
+                Boost slice reached
+                -------------------
                 if it is time to boost all procs to queue 0
             */
             if (this.state.boostTicks === boost){
-
                 let get_procs = this.state.procs.slice();
                 
                 /*
                     If a process still has time left, update it's queueIdx to 
                     queue 0.
                  */
-                for (let i = 0; i < get_procs.length; i++){
+                for (let i = 0; i < get_procs.length; i++){ 
                     if(get_procs[i].executed < get_procs[i].executionTime){
                         get_procs[i].queueIdx = 0;
                     }
@@ -560,115 +554,89 @@ export default class MLFQ extends React.Component{
                     If a process ran to completion, leave it on its current queue
                     Otherwise move them to the first queue(0)
                 */
-                let build_queues = [];
-                for (let i = 0; i < numQueues; i++){
-                    build_queues[i] = [];
-                }
-
-                let currentQueues = this.state.queues.slice();
-
-                for(let i = 0; i < currentQueues.length; i++){
-
-                    for(let j = 0; j < currentQueues[i].length; j++){
-
-                        if(currentQueues[i][j].executed < currentQueues[i][j].executionTime){
-                            build_queues[0].push(currentQueues[i][j]);
-                        }else{
-                            let remainIdx = currentQueues[i][j].queueIdx;
-                            build_queues[remainIdx].push(currentQueues[i][j]);
-                        }
-                    }
-                }
+                let build_queues = updateQueues(get_procs, numQueues);
 
                 /*
                     Update state to reflect where each process is on the queue
                     and reset the number of ticks for the boost time slice
                  */
+                boostReached  = true;
+
                 this.setState(state => ({
                     procs: get_procs,
                     queues: build_queues,
                     boostTicks: 0,
-                    quantumTicks: 0,
+                    quantumTicks: 0,  //added new instead of 0
                     currentQueueIdx: 0
                 }));
 
             }
 
             /*
+                Time slice reached 
+                ------------------
                 check if the current running proc used its quantum 
                 if it's the case, move the process on a queue with 
                 a lower priority (e.g from 0 - 1, 1-2). If it is on the last queue,
                 it remains there until the next boost happens
             */
-            
             if(this.state.quantumTicks === quantumSlice){
-
                 let currentProcIdx = this.state.currentProcessIdx;
                 let findProc;
-
+                let procs = this.state.procs.slice();
                 /*
                     Find the current running process
                  */
-                for (let i = 0; i < this.state.procs.length; i++){
-                    if(this.state.procs[i].id === currentProcIdx){
+                for (let i = 0; i < procs.length; i++){
+                    if(procs[i].id === currentProcIdx){
                         findProc = i;
                     }
                 }
 
-                let currentProc = this.state.procs[findProc];
-
-                /*
-                    If the proc is not complete, move it down one queue
-                    Otherwise leave it on it's current queue
-                 */
+                let currentProc = procs[findProc];
                 if (currentProc.executed < currentProc.executionTime){
-
                     if (currentProc.queueIdx + 1 < numQueues){
-
-                        const procOnQueue = currentProc.queueIdx;
-                        const updateProcs = this.state.procs.slice();
-                        updateProcs[findProc].queueIdx += 1;
-
-                        const updateQueue = this.state.queues.slice();
-                        let idxOfProc = updateQueue[procOnQueue].indexOf(currentProc);
-                        updateQueue[procOnQueue].splice(idxOfProc, 1);
-
-                        updateQueue[procOnQueue + 1].push(currentProc);
-                        
-                        /*
-                            update state to reflect changes in the process and for the queue
-                         */
-                        this.setState(state => ({
-                            procs: updateProcs,
-                            queues: updateQueue,
-                            currentQueueIdx: 0
-                        }));
+                        procs[findProc].queueIdx += 1;
                     }
                 }
-                
-                /*
-                    Starting with the queue with the highest priority(0) chech 
-                    each queue to see if it has any proc available to run
-                    get the first process available to run from that queue
-                */
 
+                let updateQueue = updateQueues(procs, numQueues);
+                quantumReached = true;
+
+                this.setState(state => ({
+                    procs: procs,
+                    queues: updateQueue,
+                    quantumTicks: 0
+                }));
+            }
+                
+            /*
+                Starting with the queue with the highest priority(0) chech 
+                each queue to see if it has any proc available to run
+                get the first process available to run from that queue
+            */
+            if(boostReached || quantumReached){
                 let sortProcList = sortProcs(this.state.procs, 2, {"1": "queueIdx", "2": "arrivalTime"});
-                this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
+                let procs = [];
+
+                procs.splice(0, procs.length, ...sortProcList);
 
                 let chooseProcId;
                 let newQueue;
 
-                for(let i = 0; i < this.state.procs.length; i++){
-                    if(this.state.procs[i].executed === this.state.procs[i].executionTime){
+                for(let i = 0; i < procs.length; i++){
+                    if(procs[i].executed === procs[i].executionTime){
                         continue;
                     }
-                    if(this.state.procs[i].arrivalTime > this.state.timer){
+                    if(procs[i].arrivalTime > this.state.timer){
                         continue;
                     }
-                    chooseProcId = this.state.procs[i].id;
-                    newQueue = this.state.procs[i].queueIdx;
+                    chooseProcId = procs[i].id;
+                    newQueue = procs[i].queueIdx;
                     break;
                 }
+
+                let updateQueue = updateQueues(procs, numQueues);
 
                 /*
                     Update state to move to the new queue and start running the new process
@@ -676,29 +644,29 @@ export default class MLFQ extends React.Component{
                 this.setState(state => ({
                     currentProcessIdx: chooseProcId,
                     currentQueueIdx: newQueue,
-                    quantumTicks: 0
+                    queues: updateQueue
                 }));
             }
+
 
             /*
                 Run the selected process and update its internal state
             */
-            
             let newProcIdForScheduler;
             for (let i = 0; i < this.state.procs.length; i++){
                 if (this.state.procs[i].id === this.state.currentProcessIdx){
                     newProcIdForScheduler = i;
                 }
             }
-            
 
             const schedule = runProcess(this.state.timer, this.state.procs, newProcIdForScheduler);
             
             if(schedule){
+
                 /*
                     If the timer is lower than the proc's arrival time in the system, 
                     don't run it
-                 */
+                */
                 if (schedule.noProcToRun){
                     this.setState(state => ({
                         totalExecutionTime: state.totalExecutionTime + 1,
@@ -709,26 +677,22 @@ export default class MLFQ extends React.Component{
                         Otherwise, update the process's internal state
                         If the process is complete, signal that another process should run 
                         by setting quantumTicks to quantumSlice
-                     */
+                    */
 
-                    let updateProcInQueue = this.state.queues.slice();
-                    let queueIdxProc = this.state.procs[newProcIdForScheduler].queueIdx;
-                    updateProcInQueue[queueIdxProc].executed += 1;
+                    let updateQueue = updateQueues(schedule.updateProcs, numQueues);
 
                     if(schedule.procDone){
-
                         this.setState(state => ({
                             procs: schedule.updateProcs,
-                            queues: updateProcInQueue,
+                            queues: updateQueue,
                             timer: state.timer + 1,
                             boostTicks: state.boostTicks + 1,
                             quantumTicks: quantumSlice
                         }));
                     }else{
-
                         this.setState(state => ({
                             procs: schedule.updateProcs,
-                            queues: updateProcInQueue,
+                            queues: updateQueue,
                             timer: state.timer + 1,
                             boostTicks: state.boostTicks + 1,
                             quantumTicks: state.quantumTicks + 1
@@ -736,7 +700,6 @@ export default class MLFQ extends React.Component{
                     }
                 }
             }
-
         }else if(this.state.timer === this.state.totalExecutionTime){
             /* 
                 if timer reached the end (all the procs ran to completion)
@@ -947,6 +910,7 @@ export default class MLFQ extends React.Component{
                         alertColor={this.props.alertColor}
                         name="MLFQ"
                         prefilledType={this.props.prefilledType}
+                        showDescription={this.state.showDescription}
                         colorDeleteIcon={this.state.colorDeleteIcon}
                         sessionComplete={this.state.sessionComplete}
                     />

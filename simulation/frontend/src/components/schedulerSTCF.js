@@ -54,7 +54,8 @@ export default class STCF extends React.Component{
             colorDeleteIcon: "#dc3545",
             colorAddIcon: "#28a745",
             colorClearIcon: "#dec8c8",
-            sessionComplete: false
+            sessionComplete: false,
+            showDescription: false
         };
     }
 
@@ -158,7 +159,8 @@ export default class STCF extends React.Component{
                     executionDisabled: true,
                     colorDeleteIcon: "#6c757d",
                     colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d"
+                    colorClearIcon: "#6c757d",
+                    showDescription: true
                 }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerInterrupt(), 1000));
             }else{
                 this.setState((state) => ({
@@ -207,7 +209,8 @@ export default class STCF extends React.Component{
             colorDeleteIcon: "#dc3545",
             colorAddIcon: "#28a745",
             colorClearIcon: "#dec8c8",
-            sessionComplete: false
+            sessionComplete: false,
+            showDescription: false
         }));
     }
 
@@ -248,6 +251,7 @@ export default class STCF extends React.Component{
                 addProc = [];
                 count = 0;
                 totalExecution = 0;
+                this.clearState();
             }else{
                 addProc = this.state.procs.slice();
                 count = this.state.count;
@@ -283,14 +287,7 @@ export default class STCF extends React.Component{
             const deleted = deleteEntry(this.state.procs.slice(), procId);
 
             if (deleted.updateProcs.length === 0){
-                this.setState(state => ({
-                    procs: deleted.updateProcs,
-                    totalExecutionTime: deleted.updateTotalExecTime,
-                    count: 0,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    sessionComplete: false
-                }));
+                this.clearState();
             }else{
                 this.setState(state => ({
                     procs: deleted.updateProcs,
@@ -350,29 +347,32 @@ export default class STCF extends React.Component{
         /* 
             check timer 
         */
-        if(this.state.timer < this.state.totalExecutionTime){
+        const timer = this.state.timer;
+        const sessionTime = this.state.totalExecutionTime;
+
+        if(timer < sessionTime){
 
             /*
                 Check if a new process entered the system
                 and it should run at this timer
              */
-            let copyProcs = this.state.procs.slice();
+            let procs = this.state.procs.slice();
 
             let newArrivalProcIdx = this.state.currentProcessIdx;
 
-            for (let i = 0; i < copyProcs.length; i++){
+            for (let i = 0; i < procs.length; i++){
 
                 /*
                     Make sure that procs that arrive at the same time get a chance to run 
                  */
-                if (i+1 < copyProcs.length){
+                if (i+1 < procs.length){
 
-                    if (copyProcs[i].arrivalTime === this.state.timer && copyProcs[i+1].arrivalTime !== this.state.timer){
+                    if (procs[i].arrivalTime === timer && procs[i+1].arrivalTime !== timer){
                         newArrivalProcIdx = i;
                         break;
                     }
                 }else{
-                    if (copyProcs[i].arrivalTime === this.state.timer){
+                    if (procs[i].arrivalTime === timer){
                         newArrivalProcIdx = i;
                         break;
                     }
@@ -380,21 +380,12 @@ export default class STCF extends React.Component{
             }
 
             /*
-                If a process different than the current proc arrived,
-                take this process as reference
-             */
-            if (newArrivalProcIdx !== this.state.currentProcessIdx){
-                this.setState(state => ({
-                    currentProcessIdx: newArrivalProcIdx
-                }));
-            }
-
-            /*
                 Check all procs with arrival time before the selected process 
                 and select the one with the smallest execution time left
              */
-            let sortProcsTimeLeft = copyProcs.slice(0, this.state.currentProcessIdx + 1).sort((a, b) => a.timeLeft - b.timeLeft);
-            let unsortedProcs = copyProcs.slice(this.state.currentProcessIdx + 1, copyProcs.length);
+            
+            let sortProcsTimeLeft = procs.slice(0, newArrivalProcIdx + 1).sort((a, b) => a.timeLeft - b.timeLeft);
+            let unsortedProcs = procs.slice(newArrivalProcIdx + 1, procs.length);
             let newProcs = sortProcsTimeLeft.concat(unsortedProcs);
             let newProcessIdx;
             
@@ -404,11 +395,10 @@ export default class STCF extends React.Component{
                     break;
                 }
             }
-
              /*
                 Run the selected process and update its internal state
              */
-            const schedule = runProcess(this.state.timer, newProcs, newProcessIdx);
+            const schedule = runProcess(timer, newProcs, newProcessIdx);
             
             if(schedule){
                 /*
@@ -429,7 +419,7 @@ export default class STCF extends React.Component{
                         this.setState(state => ({
                             procs: schedule.updateProcs,
                             timer: state.timer + 1,
-                            currentProcessIdx: newProcessIdx + 1
+                            currentProcessIdx: state.currentProcessIdx + 1
                         }));
                     }else{
                         this.setState(state => ({
@@ -440,7 +430,7 @@ export default class STCF extends React.Component{
                     }
                 }
             }
-        }else if(this.state.timer === this.state.totalExecutionTime){
+        }else if(timer === sessionTime){
             /* 
                 if timer reached the end (all the procs ran to completion)
                 compute the results for the session (avgTurnaround, avgResponse)
@@ -625,6 +615,7 @@ export default class STCF extends React.Component{
                         alertColor={this.props.alertColor}
                         name="STCF"
                         prefilledType={this.props.prefilledType}
+                        showDescription={this.state.showDescription}
                         colorDeleteIcon={this.state.colorDeleteIcon}
                         sessionComplete={this.state.sessionComplete}
                     />

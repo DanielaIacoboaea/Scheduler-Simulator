@@ -71,7 +71,7 @@ export default class RenderProgressBarsMLFQ extends React.Component{
                 <div className="results avgs">
                 </div>
             }
-            {this.props.prefilledType?
+            {this.props.prefilledType && this.props.showDescription?
                 <Description sched={this.props.name}
                             type={this.props.prefilledType}
                 />:
