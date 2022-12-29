@@ -1,5 +1,5 @@
 # Scheduler Simulator
-*The **capstone Project** marks the end of the **CS50’s Web Programming with Python and JavaScript** online course*.  
+*The **Capstone Project** marks the end of the **CS50’s Web Programming with Python and JavaScript** online course*.  
 
 The purpose of this project is to design and implement a web application of your own with **Python** and **JavaScript**, distinct from the other projects in this course.
 
@@ -23,22 +23,44 @@ The app uses **Django**, the **Python**-based web framework, and **Django**'s **
 For frontend, the app is built with **React**(using **npm package manager**, **Babel**, **Webpack**), **HTML**, **CSS**, **JavaScript** and **Bootstrap**. 
 
 
-Use the following to install and run the project, after downloading it:
+#### Useful commands:
 
-Inside the project directory (**capstone/**) run the following command:  
+* **Download** the project:
+
+`git clone https://github.com/DanielaIacoboaea/Scheduler-Simulator.git`
+
+
+* **Install** the project:
+
+Inside the project directory (**Scheduler-Simulator/**) run the following commands:  
 
 `python3 -m venv venv`  to create a virtual environment  
 `source venv/bin/activate` to activate your virtual environment  
-`pip3 install -r requirements.txt`  in order to install **Django**  
+`pip3 install -r requirements.txt` (you need **Django**)  
 
-Inside the app directory (**capstone/simulation**) run the following command:  
+Inside the app directory (**Scheduler-Simulator/simulation**) run the following commands:  
 
 `python3 manage.py makemigrations scheduler` to make migrations for the scheduler app  
 `python3 manage.py migrate` to apply migrations to your database  
-`python3 manage.py loaddata data.json` to load default data into the database  
+`python3 manage.py loaddata data.json` to load default data into the database 
 
-`python3 manage.py runserver` to run the app  
+* **Building the UI**:   
 
+    *Only necessary when making UI changes.*  
+    
+The bundled **main.js** file is already created using `npm run build` for the **React** components.
+    
+Read more on the structure of the project in [The Structure of the Project ](#the-structure-of-the-project) section. 
+    
+To build the project after making UI changes, from **Scheduler-Simulator/simulation** directory run the commands:   
+`cd frontend/ && npm run build`  
+`cd ../ && python3 manage.py runserver`
+
+* **Run** the app:
+
+Inside the app directory (**Scheduler-Simulator/simulation**) run the following command:
+
+`python3 manage.py runserver`
 
 --- 
 
@@ -169,19 +191,19 @@ The *scheduler* app uses the frontend build separately with **React** and bundle
 
 ## Backend 
 
-##### capstone/simulation/scheduler/views.py 
+##### Scheduler-Simulator/simulation/scheduler/views.py 
 
 Here are defined the routes for:
 * the home page, rendering the index.html template from the view
 * the endpoint API, that returns the prefilled settings from the database to the requester. 
 
-##### capstone/simulation/scheduler/models.py
+##### Scheduler-Simulator/simulation/scheduler/models.py
 
 *  models for the database
 *  the database has prefilled workloads examples (best performing and worst performing) for each scheduler 
 
 
-##### capstone/simulation/scheduler/templates/scheduler/index.html
+##### Scheduler-Simulator/simulation/scheduler/templates/scheduler/index.html
 
 The index.html template is rendered when the default route is reached.  
 
@@ -189,7 +211,7 @@ The index.html template is rendered when the default route is reached.
 * the main *React* component called **App** is rendered to the DOM. 
 
 
-##### capstone/simulation/scheduler/static/scheduler/
+##### Scheduler-Simulator/simulation/scheduler/static/scheduler/
 
 Has the following files and folders: 
 
@@ -198,7 +220,7 @@ Has the following files and folders:
 
 ## Frontend 
 
-##### capstone/simulation/frontend/src
+##### Scheduler-Simulator/simulation/frontend/src
 
 Has the following files and folders: 
 
@@ -207,7 +229,7 @@ Has the following files and folders:
 * components/tests/ - with a few tests for components written using **Jest**
 
 
-##### capstone/simulation/frontend/src/app.js 
+##### Scheduler-Simulator/simulation/frontend/src/app.js 
 
 The **app.js** component is at the core of the app.  
 
@@ -216,7 +238,7 @@ Its main purpose is to allow the user to learn about each scheduler and navigate
 At the same time, allows for new scheduler components to be added/removed and also allows for **major changes** to be made to any scheduler **without impacting** other schedulers.
 
 
-##### capstone/simulation/frontend/src/components/ 
+##### Scheduler-Simulator/simulation/frontend/src/components/ 
 
 The **components** folder has all the **modules** needed for the app:
 
@@ -239,8 +261,6 @@ The course had a brief introduction to **React** and I thought that it would be 
 Eventually, I used what I've learned in the final project.  
 
 Also, at the same time, I was working on an OS Course (*Introduction to Operating Systems, Three Easy Pieces by Remzi Arpaci Dusseau*) and the idea of the project came by combining the two.
-
-
 
 
 
