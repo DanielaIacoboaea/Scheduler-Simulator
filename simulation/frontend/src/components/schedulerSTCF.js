@@ -8,7 +8,8 @@ import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
 import Input from "./inputNumber";
 import TimeTooltip from "./timeTooltip";
-import {arrival, execute, slice, boost, queues} from "./inputTooltips";
+import {arrival, execute, slice, boost, queues, switchScheduler} from "./inputTooltips";
+import {general, general_paste} from "./generalStateSettings";
 
 
 /*
@@ -30,32 +31,8 @@ export default class STCF extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            procs: [],
-            count: 0,
-            running: false,
-            playIcon: "play_circle",
-            timer: 0,
-            currentProcessIdx: 0,
-            arrivalTime: "",
-            executionTime: "",
-            arrivalDisabled: false,
-            executionDisabled: false,
-            totalExecutionTime: 0,
-            avgTurnaround: 0,
-            avgResponse: 0,
-            textarea: "",
-            pasteSetup: "",
-            pasteSlice: "",
-            pasteSliceDisabled: true,
-            pasteBoost: "",
-            pasteBoostDisabled: true,
-            pasteQueues: "",
-            pasteQueuesDisabled: true,
-            colorDeleteIcon: "#dc3545",
-            colorAddIcon: "#28a745",
-            colorClearIcon: "#dec8c8",
-            sessionComplete: false,
-            showDescription: false
+            general: general,
+            paste: general_paste
         };
     }
 
@@ -144,73 +121,41 @@ export default class STCF extends React.Component{
                 Update state with all default settings 
                 and start sunning the scheduler with these settings
             */
-           if(start){
+
+            let setGeneral = {...general};
+            setGeneral.procs = addProc;
+            setGeneral.count = count;
+            setGeneral.totalExecutionTime = totalExecution;
+
+            if(start){
+                setGeneral.running = true;
+                setGeneral.playIcon = "pause_circle";
+                setGeneral.arrivalDisabled = true;
+                setGeneral.executionDisabled = true;
+                setGeneral.colorDeleteIcon = "#6c757d";
+                setGeneral.colorAddIcon = "#6c757d";
+                setGeneral.colorClearIcon = "#6c757d";
+                setGeneral.showDescription = true;
+
                 this.setState((state) => ({
-                    procs: addProc,
-                    count: count,
-                    totalExecutionTime: totalExecution,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    arrivalTime: "",
-                    executionTime: "",
-                    running: true,
-                    playIcon: "pause_circle",
-                    arrivalDisabled: true,
-                    executionDisabled: true,
-                    colorDeleteIcon: "#6c757d",
-                    colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d",
-                    showDescription: true
+                    general: setGeneral
                 }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerInterrupt(), 1000));
+
             }else{
                 this.setState((state) => ({
-                    procs: addProc,
-                    count: count,
-                    totalExecutionTime: totalExecution,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    arrivalTime: "",
-                    executionTime: "",
-                    running: false,
-                    playIcon: "play_circle",
-                    arrivalDisabled: false,
-                    executionDisabled: false,
-                    colorDeleteIcon: "#dc3545",
-                    colorAddIcon: "#28a745",
-                    colorClearIcon: "#dec8c8"
+                    general: setGeneral
                 }));
             }
         }
     }
     
     clearState = () => {
+        let clear_general = {...general};
+        let clear_paste = {...general_paste};
+
         this.setState(state => ({
-            procs: [],
-            count: 0,
-            running: false,
-            playIcon: "play_circle",
-            timer: 0,
-            currentProcessIdx: 0,
-            arrivalTime: "",
-            executionTime: "",
-            arrivalDisabled: false,
-            executionDisabled: false,
-            totalExecutionTime: 0,
-            avgTurnaround: 0,
-            avgResponse: 0,
-            textarea: "",
-            pasteSetup: "",
-            pasteSlice: "",
-            pasteSliceDisabled: true,
-            pasteBoost: "",
-            pasteBoostDisabled: true,
-            pasteQueues: "",
-            pasteQueuesDisabled: true,
-            colorDeleteIcon: "#dc3545",
-            colorAddIcon: "#28a745",
-            colorClearIcon: "#dec8c8",
-            sessionComplete: false,
-            showDescription: false
+           general: clear_general,
+           paste: clear_paste
         }));
     }
 
@@ -221,9 +166,22 @@ export default class STCF extends React.Component{
     */
     handleChange = (event) => {
 
-        this.setState((state) => ({
-            [event.target.name]: event.target.value
-        }));
+        if (event.target.name in this.state.general){
+
+            this.setState((state) => ({
+                general: {...state.general,
+                    [event.target.name]: event.target.value
+                }
+            }));
+
+        }else {
+            
+            this.setState((state) => ({
+                paste: {...state.paste,
+                    [event.target.name]: event.target.value
+                }
+            }));
+        }
     }
 
 
@@ -244,31 +202,42 @@ export default class STCF extends React.Component{
         let addProc;
         let count;
         let totalExecution;
-        if (this.state.arrivalTime && this.state.executionTime){
+
+        const procArrival = this.state.general.arrivalTime;
+        const procExecute = this.state.general.executionTime;
+        const avgT = this.state.general.avgTurnaround;
+        const old_procs = this.state.general.procs.slice();
+        const old_count = this.state.general.count;
+        const old_totalExecute = this.state.general.totalExecutionTime;
+
+        if (procArrival && procExecute){
             this.props.updateSubtitle();
 
-            if (this.state.avgTurnaround !== 0){
+            if (avgT !== 0){
                 addProc = [];
                 count = 0;
                 totalExecution = 0;
                 this.clearState();
             }else{
-                addProc = this.state.procs.slice();
-                count = this.state.count;
-                totalExecution = this.state.totalExecutionTime;
+                addProc = old_procs;
+                count = old_count;
+                totalExecution = old_totalExecute;
             }
 
-            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
+            let newAddproc = addProcess(addProc, count, procArrival, procExecute);
             addProc.splice(0, addProc.length, ...newAddproc);
 
             this.setState((state) => ({
-                procs: addProc,
-                count: count + 1,
-                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
-                avgTurnaround: 0,
-                avgResponse: 0,
-                arrivalTime: "",
-                executionTime: ""
+                general: {...state.general,
+                    procs: addProc,
+                    count: count + 1,
+                    totalExecutionTime: totalExecution + parseInt(procExecute),
+                    avgTurnaround: 0,
+                    avgResponse: 0,
+                    arrivalTime: "",
+                    executionTime: "",
+                    sessionComplete: false
+                }
             }));
         }
     }
@@ -281,17 +250,23 @@ export default class STCF extends React.Component{
             if the list of procs is empty, reset the count to 0
             reset statistics to 0 as well
         */
-        if(!this.state.running && this.state.timer === 0){
+        const running = this.state.general.running;
+        const timer = this.state.general.timer;
+        const procs = this.state.general.procs.slice();
+
+        if(!running && timer === 0){
             this.props.updateSubtitle();
 
-            const deleted = deleteEntry(this.state.procs.slice(), procId);
+            const deleted = deleteEntry(procs, procId);
 
             if (deleted.updateProcs.length === 0){
                 this.clearState();
             }else{
                 this.setState(state => ({
-                    procs: deleted.updateProcs,
-                    totalExecutionTime: deleted.updateTotalExecTime
+                    general: {...state.general,
+                        procs: deleted.updateProcs,
+                        totalExecutionTime: deleted.updateTotalExecTime
+                    }
                 }));
             }
         }
@@ -304,31 +279,47 @@ export default class STCF extends React.Component{
         Execution Time for all process.
     */
     handleClickStart = () => {
-        if (this.state.procs.length !== 0){
 
-            if (!this.state.running && this.state.totalExecutionTime !== 0){
+        let procs = this.state.general.procs.slice();
+        const numProcs = this.state.general.procs.length;
+        const running = this.state.general.running;
+        const totalExecute = this.state.general.totalExecutionTime;
+
+        if (numProcs !== 0){
+
+            let update = {...this.state.general};
+
+            if (!running && totalExecute !== 0){
+
+                let sortProcList = sortProcs(procs, 2, {"1": "arrivalTime", "2": "executionTime"});
+                procs.splice(0, numProcs, ...sortProcList);
+
                 this.setState(state => ({
-                    running: true,
-                    playIcon: "pause_circle",
-                    arrivalDisabled: true,
-                    executionDisabled: true,
-                    colorDeleteIcon: "#6c757d",
-                    colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d"
+                    general: {...state.general,
+                        procs: procs,
+                        running: true,
+                        playIcon: "pause_circle",
+                        arrivalDisabled: true,
+                        executionDisabled: true,
+                        colorDeleteIcon: "#6c757d",
+                        colorAddIcon: "#6c757d",
+                        colorClearIcon: "#6c757d"
+                    }
                 }));
-
-                let sortProcList = sortProcs(this.state.procs, 2, {"1": "arrivalTime", "2": "executionTime"});
-                this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
 
                 this.schedulerTimerId = setInterval(() => this.runSchedulerInterrupt(), 1000);
             }else{
+                
                 clearInterval(this.schedulerTimerId);
+
                 this.setState(state => ({
-                    running: false,
-                    playIcon: "play_circle",
-                    colorDeleteIcon: "#dc3545",
-                    colorAddIcon: "#28a745",
-                    colorClearIcon: "#dec8c8"
+                    general: {...state.general,
+                        running: false,
+                        playIcon: "play_circle",
+                        colorDeleteIcon: "#dc3545",
+                        colorAddIcon: "#28a745",
+                        colorClearIcon: "#dec8c8"
+                    }
                 }));
             }
         }
@@ -347,90 +338,101 @@ export default class STCF extends React.Component{
         /* 
             check timer 
         */
-        const timer = this.state.timer;
-        const sessionTime = this.state.totalExecutionTime;
+        
+        const timer = this.state.general.timer;
+        const totalExecute = this.state.general.totalExecutionTime;
 
-        if(timer < sessionTime){
+        if(timer < totalExecute){
 
             /*
                 Check if a new process entered the system
                 and it should run at this timer
-             */
-            let procs = this.state.procs.slice();
+            */
 
-            let newArrivalProcIdx = this.state.currentProcessIdx;
+            let procs = this.state.general.procs.slice();
+            let running_proc_idx = this.state.general.currentProcessIdx;
 
             for (let i = 0; i < procs.length; i++){
 
                 /*
                     Make sure that procs that arrive at the same time get a chance to run 
-                 */
-                if (i+1 < procs.length){
+                */
 
-                    if (procs[i].arrivalTime === timer && procs[i+1].arrivalTime !== timer){
-                        newArrivalProcIdx = i;
-                        break;
-                    }
-                }else{
-                    if (procs[i].arrivalTime === timer){
-                        newArrivalProcIdx = i;
-                        break;
-                    }
+                if (procs[i].arrivalTime === timer || procs[i].arrivalTime < timer && procs[i].executed === 0){
+                    running_proc_idx = i;
+                    break;
                 }
             }
 
+
             /*
                 Check all procs with arrival time before the selected process 
-                and select the one with the smallest execution time left
-             */
-            
-            let sortProcsTimeLeft = procs.slice(0, newArrivalProcIdx + 1).sort((a, b) => a.timeLeft - b.timeLeft);
-            let unsortedProcs = procs.slice(newArrivalProcIdx + 1, procs.length);
+                and select the one with the smallest execution time left.
+                If a process different than the current proc arrived,
+                take this process as reference
+            */
+            let sortProcsTimeLeft = procs.slice(0, running_proc_idx + 1).sort((a, b) => a.timeLeft - b.timeLeft);
+            let unsortedProcs = procs.slice(running_proc_idx + 1, procs.length);
             let newProcs = sortProcsTimeLeft.concat(unsortedProcs);
             let newProcessIdx;
-            
+
             for (let i = 0; i < newProcs.length; i++){
                 if(newProcs[i].timeLeft !== 0){
                     newProcessIdx = i;
                     break;
                 }
             }
-             /*
+
+            /*
                 Run the selected process and update its internal state
-             */
-            const schedule = runProcess(timer, newProcs, newProcessIdx);
+            */
+            const scheduler = runProcess(timer, newProcs, newProcessIdx);
             
-            if(schedule){
+            if(scheduler){
                 /*
                     If the timer is lower than the proc's arrival time in the system, 
                     don't run it and increase the total execution Time 
-                 */
-                if (schedule.noProcToRun){
+                */
+                let update = {...this.state.general}
+                update.timer = timer + 1;
+
+                if (scheduler.noProcToRun){
+
                     this.setState(state => ({
-                        totalExecutionTime: state.totalExecutionTime + 1,
-                        timer: state.timer + 1
+                        general: {...state.general,
+                            timer: state.general.timer + 1,
+                            totalExecutionTime: state.general.totalExecutionTime + 1
+                        }
                     }));
+
                 }else{
                     /*
                         Otherwise, update the process's internal state
                         If the process is complete, select the next process from the list
                      */
-                    if(schedule.procDone){
+                    if(scheduler.procDone){
+
                         this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            timer: state.timer + 1,
-                            currentProcessIdx: state.currentProcessIdx + 1
+                            general: {...state.general,
+                                procs: scheduler.updateProcs,
+                                currentProcessIdx: state.general.currentProcessIdx + 1,
+                                timer: state.general.timer + 1
+                            }
                         }));
-                    }else{
+
+                    }else if (!scheduler.procDone){
+    
                         this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            timer: state.timer + 1,
-                            currentProcessIdx: newProcessIdx
+                            general: {...state.general,
+                                timer: state.general.timer + 1,
+                                procs: scheduler.updateProcs
+                            }
                         }));
                     }
                 }
             }
-        }else if(timer === sessionTime){
+        }else if(timer === totalExecute){
+
             /* 
                 if timer reached the end (all the procs ran to completion)
                 compute the results for the session (avgTurnaround, avgResponse)
@@ -438,27 +440,24 @@ export default class STCF extends React.Component{
             */
             clearInterval(this.schedulerTimerId);
 
-            let avgT = getAverage(this.state.procs, "turnaround");
-            let avgR = getAverage(this.state.procs, "response");
+            let procs = this.state.general.procs.slice();
+            let avgT = getAverage(procs, "turnaround");
+            let avgR = getAverage(procs, "response");
 
             /* 
                 reset the component's state
             */
+            this.copyCurrentConf();
+            let textareaProcs = this.state.general.textarea;
+
             this.setState(state => ({
-                running: false,
-                playIcon: "play_circle",
-                timer: 0,
-                avgTurnaround: avgT,
-                avgResponse: avgR,
-                count: 0,
-                currentProcessIdx: 0,
-                arrivalDisabled: false,
-                executionDisabled: false,
-                totalExecutionTime: 0,
-                colorDeleteIcon: "#dc3545",
-                colorAddIcon: "#28a745",
-                colorClearIcon: "#dec8c8",
-                sessionComplete: true
+                general: {...general,
+                    procs: procs,
+                    avgTurnaround: avgT,
+                    avgResponse: avgR,
+                    sessionComplete: true,
+                    textarea: textareaProcs
+                }
             }));
         }
     }
@@ -468,10 +467,12 @@ export default class STCF extends React.Component{
         and update the textarea in JSON format.
     */
     copyCurrentConf = () => {
-        const configuration = copyConfiguration(this.state.procs, {})
+        const configuration = copyConfiguration(this.state.general.procs, {});
 
         this.setState(state => ({
-            textarea: configuration
+            general: {...state.general,
+                textarea: configuration
+            }
         }));
     }
 
@@ -488,30 +489,38 @@ export default class STCF extends React.Component{
         this.copyCurrentConf();
         let errorMsg = `{"Oops":"No processes available to copy. Start by adding at least one."}`;
 
-        if(this.state.textarea && this.state.textarea !== errorMsg){
+        const textarea = this.state.general.textarea;
+
+        if(textarea && textarea !== errorMsg){
+
             /*
                 If the new scheduler will be RR or MLFQ, enable extra inputs for 
                 their general settings that the current scheduler does not have.
             */
             if(event.target.value === "RR"){
-
+                
                 this.setState((state) => ({
-                    pasteSetup: event.target.value,
-                    pasteSliceDisabled: false
+                    paste: {...state.paste,
+                        pasteSetup: event.target.value,
+                        pasteSliceDisabled: false
+                    }
                 }));
 
             }else if(event.target.value === "MLFQ"){
 
                 this.setState((state) => ({
-                    pasteSetup: event.target.value,
-                    pasteSliceDisabled: false,
-                    pasteBoostDisabled: false,
-                    pasteQueuesDisabled: false
+                    paste: {...state.paste,
+                        pasteSetup: event.target.value,
+                        pasteBoostDisabled: false,
+                        pasteQueuesDisabled: false,
+                        pasteSliceDisabled: false
+                    }
                 }));
             }else{
-
                 this.setState((state) => ({
-                    pasteSetup: event.target.value
+                    paste: {...state.paste,
+                        pasteSetup: event.target.value
+                    }
                 }));
             }
         }
@@ -519,11 +528,11 @@ export default class STCF extends React.Component{
 
     handleGo = () => {
 
-        const name = this.state.pasteSetup;
-        const slice = this.state.pasteSlice;
-        const boost = this.state.pasteBoost;
-        const queues = this.state.pasteQueues;
-        const setup = this.state.textarea;
+        const name = this.state.paste.pasteSetup;
+        const slice = this.state.paste.pasteSlice;
+        const boost = this.state.paste.pasteBoost;
+        const queues = this.state.paste.pasteQueues;
+        const setup = this.state.general.textarea;
         const currentName = "STCF";
 
         if(name === "RR" && slice !== ""){
@@ -545,9 +554,9 @@ export default class STCF extends React.Component{
         The progress made by each proc returns to 0.
     */
     handleClear = () => {
-        const session = this.state.sessionComplete;
-        const active = this.state.running;
-        const procs = this.state.procs.slice();
+        const session = this.state.general.sessionComplete;
+        const active = this.state.general.running;
+        const procs = this.state.general.procs.slice();
         const clearProcs = [];
 
         if(!active && session){
@@ -570,23 +579,25 @@ export default class STCF extends React.Component{
     }
 
     render(){
-        const processes = this.state.procs.slice();
+        const state = {...this.state.general};
+        const paste = {...this.state.paste};
+
         return(
             <React.Fragment>
             <div class="scheduler-wrapper">
                 <div className="container-fluid">
                     {/* Render the form through which the user will submit parameters for each process*/}
                     <div className="controlBtns">
-                        <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: this.state.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
+                        <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: state.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
                         <form onSubmit={this.handleSubmit}>
                             <p id="add-proc-desc">Add a new process: </p>
                             <Input title={arrival}
                                     label="Arrival time: "
                                     name="arrivalTime"
-                                    id={this.state.count}
+                                    id={state.count}
                                     handleChange={this.handleChange}
-                                    value={this.state.arrivalTime}
-                                    disabled={this.state.arrivalDisabled}
+                                    value={state.arrivalTime}
+                                    disabled={state.arrivalDisabled}
                                     min="0"
                                     max="200"
                             />
@@ -595,39 +606,39 @@ export default class STCF extends React.Component{
                                     name="executionTime"
                                     id="inputExecutionTime"
                                     handleChange={this.handleChange}
-                                    value={this.state.executionTime}
-                                    disabled={this.state.executionDisabled}
+                                    value={state.executionTime}
+                                    disabled={state.executionDisabled}
                                     min="1"
                                     max="200"
                             />
-                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
+                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: state.colorAddIcon}}>add_circle</span></button>
                         </form>
-                        <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{this.state.playIcon}</span></button>
+                        <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{state.playIcon}</span></button>
 
                         <TimeTooltip />
                     </div>
                     {/* Render the progress bars for each process*/}
                     <RenderProgressBars 
-                        procs={processes.sort((a, b) => a.id - b.id)}
+                        procs={state.procs.sort((a, b) => a.id - b.id)}
                         deleteBar={this.deleteProc}
-                        avgTurnaround={this.state.avgTurnaround}
-                        avgResponse={this.state.avgResponse}
+                        avgTurnaround={state.avgTurnaround}
+                        avgResponse={state.avgResponse}
                         alertColor={this.props.alertColor}
                         name="STCF"
                         prefilledType={this.props.prefilledType}
-                        showDescription={this.state.showDescription}
-                        colorDeleteIcon={this.state.colorDeleteIcon}
-                        sessionComplete={this.state.sessionComplete}
+                        showDescription={state.showDescription}
+                        colorDeleteIcon={state.colorDeleteIcon}
+                        sessionComplete={state.sessionComplete}
                     />
                 </div>
                 <div className="wrapper-copy">
                     <div id="paste-wrapper">
-                        <label id="label-simulate" data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                        <label id="label-simulate" data-toggle="tooltip" data-placement="top" data-html="true" title={switchScheduler}>
                                 Simulate setup with a different scheduler: 
                             <br />
                         </label>
-                        <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
-                            <option defaultValue disabled></option>
+                        <select className="form-control form-control-sm" id="paste-setup" value={paste.pasteSetup} onChange={this.pasteCurrentConf}>
+                            <option defaultValue>Select</option> 
                             <option name="FIFO">FIFO</option>
                             <option name="SJF">SJF</option>
                             <option name="STCF">STCF</option>
@@ -640,8 +651,8 @@ export default class STCF extends React.Component{
                                     name="pasteSlice"
                                     id="pasteSlice"
                                     handleChange={this.handleChange}
-                                    value={this.state.pasteSlice}
-                                    disabled={this.state.pasteSliceDisabled}
+                                    value={paste.pasteSlice}
+                                    disabled={paste.pasteSliceDisabled}
                                     min="1"
                                     max="50"
                             />
@@ -652,8 +663,8 @@ export default class STCF extends React.Component{
                                     name="pasteBoost"
                                     id="pasteBoost"
                                     handleChange={this.handleChange}
-                                    value={this.state.pasteBoost}
-                                    disabled={this.state.pasteBoostDisabled}
+                                    value={paste.pasteBoost}
+                                    disabled={paste.pasteBoostDisabled}
                                     min="1"
                                     max="100"
                             />
@@ -664,8 +675,8 @@ export default class STCF extends React.Component{
                                     name="pasteQueues"
                                     id="pasteQueues"
                                     handleChange={this.handleChange}
-                                    value={this.state.pasteQueues}
-                                    disabled={this.state.pasteQueuesDisabled}
+                                    value={paste.pasteQueues}
+                                    disabled={paste.pasteQueuesDisabled}
                                     min="1"
                                     max="10"
                             />

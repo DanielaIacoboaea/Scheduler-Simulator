@@ -18,6 +18,7 @@ export default class RenderProgressBars extends React.Component{
     }
     
     render(){
+
         return(
             <React.Fragment>
             {/* Render progress bars and process information */}

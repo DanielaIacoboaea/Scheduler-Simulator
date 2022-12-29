@@ -9,7 +9,8 @@ import sortProcs from "./sortListOfProcs";
 import Input from "./inputNumber";
 import TimeTooltip from "./timeTooltip";
 import updateQueues from "./updateQueuesMLFQ";
-import {arrival, execute, slice, boost, queues} from "./inputTooltips";
+import {arrival, execute, slice, boost, queues, switchScheduler} from "./inputTooltips";
+import {general, specific_MLFQ, paste_MLFQ} from "./generalStateSettings";
 
 
 /* 
@@ -21,7 +22,6 @@ import {arrival, execute, slice, boost, queues} from "./inputTooltips";
 
 */
 
-
 export default class MLFQ extends React.Component{
     /* 
     Component for Multi-Level Feedback Queue Scheduler 
@@ -29,41 +29,9 @@ export default class MLFQ extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            procs: [],
-            numQueues: "",
-            queues: [],
-            count: 0,
-            running: false,
-            playIcon: "play_circle",
-            timer: 0,
-            currentProcessIdx: 0,
-            currentQueueIdx: 0,
-            arrivalTime: "",
-            executionTime: "",
-            totalExecutionTime: 0,
-            avgTurnaround: 0,
-            avgResponse: 0,
-            quantum: "",
-            quantumTicks: 0,
-            boost: "",
-            boostTicks: 0,
-            quantumDisabled: false,
-            boostDisabled: false,
-            queuesDisabled: false,
-            arrivalDisabled: false,
-            executionDisabled: false,
-            textarea: "",
-            pasteSetup: "",
-            colorDeleteIcon: "#dc3545",
-            colorAddIcon: "#28a745",
-            colorClearIcon: "#dec8c8",
-            clear: {
-                "quantum": "",
-                "boost": "",
-                "numQueues": ""
-            },
-            sessionComplete: false,
-            showDescription: false
+            general: general,
+            specific: specific_MLFQ,
+            paste: paste_MLFQ
         };
     }
     
@@ -135,7 +103,7 @@ export default class MLFQ extends React.Component{
             let boostDefault = parseInt(procs_list[0].boost);
 
             /*
-                 Add each default proc to the array of procs
+                Add each default proc to the array of procs
                 Can't use a for loop to update state in React at each iteration 
                 because react updates state asynchronous and uses batch updating. 
                 As a consequence, for a for loop, only the last iteration 
@@ -180,101 +148,60 @@ export default class MLFQ extends React.Component{
             let sortQueue = sortProcs(addToQueue[0], 1, {"1": "arrivalTime"});
             addToQueue[0].splice(0, addToQueue[0].length, ...sortQueue);
 
+            let setGeneral = {...general};
+            let setSpecific = {...specific_MLFQ};
+
+            setGeneral.procs = addProc;
+            setGeneral.count = count;
+            setGeneral.totalExecutionTime = totalExecution;
+
+            setSpecific.quantum = timeSliceDefault;
+            setSpecific.quantumDisabled = true;
+            setSpecific.boost = boostDefault;
+            setSpecific.boostDisabled = true;
+            setSpecific.numQueues = numQueuesDefault;
+            setSpecific.queuesDisabled = true;
+            setSpecific.queues = addToQueue;
+
             /* 
                 Update state with all default settings 
                 and start sunning the scheduler with these settings
             */
             if(start){
-                this.setState((state) => ({
-                    procs: addProc,
-                    count: count,
-                    queues: addToQueue,
-                    totalExecutionTime: totalExecution,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    arrivalTime: "",
-                    executionTime: "",
-                    numQueues: numQueuesDefault,
-                    quantum: timeSliceDefault,
-                    boost: boostDefault,
-                    quantumDisabled: true,
-                    boostDisabled: true,
-                    queuesDisabled: true,
-                    running: true,
-                    playIcon: "pause_circle",
-                    arrivalDisabled: true,
-                    executionDisabled: true,
-                    colorDeleteIcon: "#6c757d",
-                    colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d",
-                    showDescription: true
-                }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000))
+
+                setGeneral.running = true;
+                setGeneral.playIcon = "pause_circle";
+                setGeneral.arrivalDisabled = true;
+                setGeneral.executionDisabled = true;
+                setGeneral.colorDeleteIcon = "#6c757d";
+                setGeneral.colorAddIcon = "#6c757d";
+                setGeneral.colorClearIcon = "#6c757d";
+                setGeneral.showDescription = true;
+
+                this.setState((state, props) => ({
+                    general: setGeneral,
+                    specific: setSpecific
+
+                }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000));
             }else{
 
-                this.setState((state) => ({
-                    procs: addProc,
-                    count: count,
-                    queues: addToQueue,
-                    totalExecutionTime: totalExecution,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    arrivalTime: "",
-                    executionTime: "",
-                    numQueues: numQueuesDefault,
-                    quantum: timeSliceDefault,
-                    boost: boostDefault,
-                    quantumDisabled: true,
-                    boostDisabled: true,
-                    queuesDisabled: true,
-                    running: false,
-                    playIcon: "play_circle",
-                    arrivalDisabled: false,
-                    executionDisabled: false,
-                    colorDeleteIcon: "#dc3545",
-                    colorAddIcon: "#28a745",
-                    colorClearIcon: "#dec8c8"
+                this.setState((state, props) => ({
+                    general: setGeneral,
+                    specific: setSpecific
                 }));
             }
         }
     }
     
     clearState = () => {
+        let clear_general = {...general};
+        let clear_specific = {...specific_MLFQ};
+        let clear_paste = {...paste_MLFQ};
+
         this.setState(state => ({
-            procs: [],
-            numQueues: "",
-            queues: [],
-            count: 0,
-            running: false,
-            playIcon: "play_circle",
-            timer: 0,
-            currentProcessIdx: 0,
-            currentQueueIdx: 0,
-            arrivalTime: "",
-            executionTime: "",
-            totalExecutionTime: 0,
-            avgTurnaround: 0,
-            avgResponse: 0,
-            quantum: "",
-            quantumTicks: 0,
-            boost: "",
-            boostTicks: 0,
-            quantumDisabled: false,
-            boostDisabled: false,
-            queuesDisabled: false,
-            arrivalDisabled: false,
-            executionDisabled: false,
-            textarea: "",
-            pasteSetup: "",
-            colorDeleteIcon: "#dc3545",
-            colorAddIcon: "#28a745",
-            colorClearIcon: "#dec8c8",
-            clear: {
-                "quantum": "",
-                "boost": "",
-                "numQueues": ""
-            },
-            sessionComplete: false,
-            showDescription: false
+           general: clear_general,
+           specific: clear_specific,
+           paste: clear_paste
         }));
     }
 
@@ -291,18 +218,42 @@ export default class MLFQ extends React.Component{
             - queues
             When switching to RR only boost and queues settings will be removed.
         */
-        if (event.target.name === "numQueues"){
-            let initialize_queues = [];
-            for (let i = 0; i < parseInt(event.target.value); i++){
-                initialize_queues[i] = [];
-            }
+
+        if (event.target.name in this.state.general){
+
             this.setState((state) => ({
-                [event.target.name]: event.target.value,
-                queues: initialize_queues
+                general: {...state.general,
+                    [event.target.name]: event.target.value
+                }
             }));
+
+        }else if(event.target.name in this.state.specific){
+
+            if (event.target.name === "numQueues"){
+                let initialize_queues = [];
+                for (let i = 0; i < parseInt(event.target.value); i++){
+                    initialize_queues[i] = [];
+                }
+
+                this.setState((state) => ({
+                    specific: {...state.specific,
+                        [event.target.name]: event.target.value,
+                        queues: initialize_queues
+                    }
+                }));
+            }else{
+                this.setState((state) => ({
+                    specific: {...state.specific,
+                        [event.target.name]: event.target.value
+                    }
+                }));
+            }
         }else{
+
             this.setState((state) => ({
-                [event.target.name]: event.target.value
+                paste: {...state.paste,
+                    [event.target.name]: event.target.value
+                }
             }));
         }
     }
@@ -313,7 +264,6 @@ export default class MLFQ extends React.Component{
         Add the process on the starting queue(0).
     */
     handleSubmit = (event) => {
-
         event.preventDefault();
 
         let addProc;
@@ -321,10 +271,20 @@ export default class MLFQ extends React.Component{
         let totalExecution;
         let addToQueue;
 
-        if (this.state.arrivalTime && this.state.executionTime){
+        const procArrival = this.state.general.arrivalTime;
+        const procExecute = this.state.general.executionTime;
+        const avgT = this.state.general.avgTurnaround;
+        const old_procs = this.state.general.procs.slice();
+        const old_count = this.state.general.count;
+        const old_totalExecute = this.state.general.totalExecutionTime;
+        const numQueues = parseInt(this.state.specific.numQueues);
+        let queues = this.state.specific.queues.slice();
+
+
+        if (procArrival && procExecute){
             this.props.updateSubtitle();
 
-            if (this.state.avgTurnaround !== 0){
+            if (avgT !== 0){
                 addProc = [];
                 count = 0;
                 totalExecution = 0;
@@ -333,21 +293,21 @@ export default class MLFQ extends React.Component{
                 /*
                     initalize all queues with an empty array
                  */
-                for (let i = 0; i < parseInt(this.state.numQueues); i++){
+                for (let i = 0; i < numQueues; i++){
                     addToQueue[i] = [];
                 }
 
             }else{
-                addProc = this.state.procs.slice();
-                count = this.state.count;
-                totalExecution = this.state.totalExecutionTime;
-                addToQueue = this.state.queues.slice();
+                addProc = old_procs;
+                count = old_count;
+                totalExecution = old_totalExecute;
+                addToQueue = queues;
             }
 
             const createProc = {
-                id: this.state.count,
-                arrivalTime: parseInt(this.state.arrivalTime),
-                executionTime: parseInt(this.state.executionTime),
+                id: old_count,
+                arrivalTime: parseInt(procArrival),
+                executionTime: parseInt(procExecute),
                 turnaround: "",
                 response: "",
                 color: colors[Math.floor(Math.random() * 31)],
@@ -355,7 +315,7 @@ export default class MLFQ extends React.Component{
                 executedPercentage: 0,
                 percentage: 0,
                 startRunning: 0,
-                timeLeft: parseInt(this.state.executionTime),
+                timeLeft: parseInt(procExecute),
                 queueIdx: 0
             }
 
@@ -370,18 +330,23 @@ export default class MLFQ extends React.Component{
             addToQueue[0].push(createProc);
 
             this.setState((state) => ({
-                procs: addProc,
-                count: count + 1,
-                queues: addToQueue,
-                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
-                avgTurnaround: 0,
-                avgResponse: 0,
-                arrivalTime: "",
-                executionTime: "",
-                quantumDisabled: true,
-                boostDisabled: true,
-                queuesDisabled: true
-            }));
+                general: {...state.general,
+                    procs: addProc,
+                    count: count + 1,
+                    totalExecutionTime: state.general.totalExecutionTime + parseInt(procExecute),
+                    avgTurnaround: 0,
+                    avgResponse: 0,
+                    arrivalTime: "",
+                    executionTime: "",
+                    sessionComplete: false
+                },
+                specific: {...state.specific,
+                    quantumDisabled: true,
+                    boostDisabled: true,
+                    queuesDisabled: true,
+                    queues: addToQueue
+                }
+            }))
         }
     }
 
@@ -395,12 +360,17 @@ export default class MLFQ extends React.Component{
             - numQueues, quantum, boost
             - update the queues
         */
-        if(!this.state.running && this.state.timer === 0){
+        const running = this.state.general.running;
+        const timer = this.state.general.timer;
+        const procs = this.state.general.procs.slice();
+        let queues = this.state.specific.queues.slice();
+
+        if(!running && timer === 0){
             this.props.updateSubtitle();
 
-            const deleted = deleteEntry(this.state.procs.slice(), procId);
+            const deleted = deleteEntry(procs, procId);
             const updateQueue0 = [];
-            const addToQueue = this.state.queues.slice();
+            const addToQueue = queues;
             for (let i = 0; i < deleted.updateProcs.length; i++){
                 updateQueue0.push(deleted.updateProcs[i]);
             }
@@ -413,10 +383,15 @@ export default class MLFQ extends React.Component{
             if (deleted.updateProcs.length === 0){
                 this.clearState();
             }else{
+
                 this.setState(state => ({
-                    procs: deleted.updateProcs,
-                    totalExecutionTime: deleted.updateTotalExecTime,
-                    queues: addToQueue
+                    general: {...state.general,
+                        procs: deleted.updateProcs,
+                        totalExecutionTime: deleted.updateTotalExecTime
+                    },
+                    specific: {...state.specific,
+                        queues: addToQueue
+                    }
                 }));
             }
         }
@@ -431,33 +406,52 @@ export default class MLFQ extends React.Component{
         Execution Time for all process.
     */
     handleClickStart = () => {
-        if (this.state.procs.length !== 0){
-            if (!this.state.running && this.state.totalExecutionTime !== 0){
+
+        let procs = this.state.general.procs.slice();
+        const numProcs = this.state.general.procs.length;
+        const running = this.state.general.running;
+        const totalExecute = this.state.general.totalExecutionTime;
+        let firstQueue = this.state.specific.queues.slice();
+
+        if (numProcs !== 0){
+
+            if (!running && totalExecute !== 0){
+
+                let sortProcList = sortProcs(procs, 1, {"1": "arrivalTime"});
+                procs.splice(0, numProcs, ...sortProcList);
+
+                let sortQueue0 = sortProcs(firstQueue[0], 1, {"1": "arrivalTime"});
+                firstQueue[0].splice(0, firstQueue[0].length, ...sortQueue0);
+
                 this.setState(state => ({
-                    running: true,
-                    playIcon: "pause_circle",
-                    arrivalDisabled: true,
-                    executionDisabled: true,
-                    colorDeleteIcon: "#6c757d",
-                    colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d"
+                   general: {...state.general,
+                        procs: procs,
+                        running: true,
+                        playIcon: "pause_circle",
+                        arrivalDisabled: true,
+                        executionDisabled: true,
+                        colorDeleteIcon: "#6c757d",
+                        colorAddIcon: "#6c757d",
+                        colorClearIcon: "#6c757d"
+                   },
+                   specific: {...state.specific,
+                        queues: firstQueue
+                   }
                 }));
-
-                let sortProcList = sortProcs(this.state.procs, 1, {"1": "arrivalTime"});
-                this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
-
-                let sortQueue0 = sortProcs(this.state.queues[0], 1, {"1": "arrivalTime"});
-                this.state.queues[0].splice(0, this.state.queues[0].length, ...sortQueue0);
 
                 this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
             }else{
+
                 clearInterval(this.schedulerTimerId);
+
                 this.setState(state => ({
-                    running: false,
-                    playIcon: "play_circle",
-                    colorDeleteIcon: "#dc3545",
-                    colorAddIcon: "#28a745",
-                    colorClearIcon: "#dec8c8"
+                    general: {...state.general,
+                        running: false,
+                        playIcon: "play_circle",
+                        colorDeleteIcon: "#dc3545",
+                        colorAddIcon: "#28a745",
+                        colorClearIcon: "#dec8c8"
+                    }
                 }));
             }
         }
@@ -474,31 +468,33 @@ export default class MLFQ extends React.Component{
         - call runProcess function to run the process and update its progress within state 
     */
     runSchedulerTimeSlice = () => {
-        const quantumSlice = parseInt(this.state.quantum);
-        const boost = parseInt(this.state.boost);
-        const numQueues = parseInt(this.state.numQueues);
+        const quantumSlice = parseInt(this.state.specific.quantum);
+        const boost = parseInt(this.state.specific.boost);
+        const numQueues = parseInt(this.state.specific.numQueues);
+
         let boostReached = false;
         let quantumReached = false;
 
         /* 
             check timer 
         */
-        if(this.state.timer < this.state.totalExecutionTime){
+        
+        if(this.state.general.timer < this.state.general.totalExecutionTime){
 
             /*
                 Check arrival of new process
                 -----------------------------
                 Check if a new process from queue 0 is supposed to run now
              */
-            let copyProcsOnQueue0 = this.state.queues[0].slice();
+            let copyProcsOnQueue0 = this.state.specific.queues[0].slice();
 
-            let newArrivalProcIdx = this.state.currentProcessIdx;
+            let newArrivalProcIdx = this.state.general.currentProcessIdx;
 
             for (let i = 0; i < copyProcsOnQueue0.length; i++){
                 /*
                     if the process already ran, skip it
                  */
-                if (copyProcsOnQueue0[i].arrivalTime < this.state.timer && copyProcsOnQueue0[i].executed !== 0){
+                if (copyProcsOnQueue0[i].arrivalTime < this.state.general.timer && copyProcsOnQueue0[i].executed !== 0){
                     continue;
                 }
 
@@ -506,7 +502,7 @@ export default class MLFQ extends React.Component{
                     if the process comes later than the current value of the timer,
                     skip it
                  */
-                if(copyProcsOnQueue0[i].arrivalTime > this.state.timer){
+                if(copyProcsOnQueue0[i].arrivalTime > this.state.general.timer){
                     continue;
                 }
 
@@ -524,12 +520,16 @@ export default class MLFQ extends React.Component{
                 -------------------------------------
                 Schedule the proc to run
              */
-            if (newArrivalProcIdx !== this.state.currentProcessIdx){
+            if (newArrivalProcIdx !== this.state.general.currentProcessIdx){
 
                 this.setState(state => ({
-                    currentProcessIdx: newArrivalProcIdx,
-                    currentQueueIdx: 0,
-                    quantumTicks: 0
+                    general: {...state.general,
+                        currentProcessIdx: newArrivalProcIdx
+                    },
+                    specific: { ...state.specific,
+                        currentQueueIdx: 0,
+                        quantumTicks: 0
+                    }
                 }));
             }
 
@@ -538,8 +538,8 @@ export default class MLFQ extends React.Component{
                 -------------------
                 if it is time to boost all procs to queue 0
             */
-            if (this.state.boostTicks === boost){
-                let get_procs = this.state.procs.slice();
+            if (this.state.specific.boostTicks === boost){
+                let get_procs = this.state.general.procs.slice();
                 
                 /*
                     If a process still has time left, update it's queueIdx to 
@@ -564,13 +564,16 @@ export default class MLFQ extends React.Component{
                 boostReached  = true;
 
                 this.setState(state => ({
-                    procs: get_procs,
-                    queues: build_queues,
-                    boostTicks: 0,
-                    quantumTicks: 0,  //added new instead of 0
-                    currentQueueIdx: 0
+                    general: {...state.general,
+                        procs: get_procs
+                    },
+                    specific: {...state.specific,
+                        queues: build_queues,
+                        boostTicks: 0,
+                        quantumTicks: 0,
+                        currentQueueIdx: 0
+                    }
                 }));
-
             }
 
             /*
@@ -581,10 +584,10 @@ export default class MLFQ extends React.Component{
                 a lower priority (e.g from 0 - 1, 1-2). If it is on the last queue,
                 it remains there until the next boost happens
             */
-            if(this.state.quantumTicks === quantumSlice){
-                let currentProcIdx = this.state.currentProcessIdx;
+            if(this.state.specific.quantumTicks === quantumSlice){
+                let currentProcIdx = this.state.general.currentProcessIdx;
                 let findProc;
-                let procs = this.state.procs.slice();
+                let procs = this.state.general.procs.slice();
                 /*
                     Find the current running process
                  */
@@ -605,9 +608,13 @@ export default class MLFQ extends React.Component{
                 quantumReached = true;
 
                 this.setState(state => ({
-                    procs: procs,
-                    queues: updateQueue,
-                    quantumTicks: 0
+                    general: {...state.general,
+                        procs: procs
+                    },
+                    specific: {...state.specific,
+                        queues: updateQueue,
+                        quantumTicks: 0
+                    }
                 }));
             }
                 
@@ -617,7 +624,7 @@ export default class MLFQ extends React.Component{
                 get the first process available to run from that queue
             */
             if(boostReached || quantumReached){
-                let sortProcList = sortProcs(this.state.procs, 2, {"1": "queueIdx", "2": "arrivalTime"});
+                let sortProcList = sortProcs(this.state.general.procs.slice(), 2, {"1": "queueIdx", "2": "arrivalTime"});
                 let procs = [];
 
                 procs.splice(0, procs.length, ...sortProcList);
@@ -629,7 +636,7 @@ export default class MLFQ extends React.Component{
                     if(procs[i].executed === procs[i].executionTime){
                         continue;
                     }
-                    if(procs[i].arrivalTime > this.state.timer){
+                    if(procs[i].arrivalTime > this.state.general.timer){
                         continue;
                     }
                     chooseProcId = procs[i].id;
@@ -643,9 +650,13 @@ export default class MLFQ extends React.Component{
                     Update state to move to the new queue and start running the new process
                 */
                 this.setState(state => ({
-                    currentProcessIdx: chooseProcId,
-                    currentQueueIdx: newQueue,
-                    queues: updateQueue
+                    general: {...state.general,
+                        currentProcessIdx: chooseProcId
+                    },
+                    specific: {...state.specific,
+                        currentQueueIdx: newQueue,
+                        queues: updateQueue
+                    }
                 }));
             }
 
@@ -654,24 +665,27 @@ export default class MLFQ extends React.Component{
                 Run the selected process and update its internal state
             */
             let newProcIdForScheduler;
-            for (let i = 0; i < this.state.procs.length; i++){
-                if (this.state.procs[i].id === this.state.currentProcessIdx){
+            for (let i = 0; i < this.state.general.procs.length; i++){
+                if (this.state.general.procs[i].id === this.state.general.currentProcessIdx){
                     newProcIdForScheduler = i;
                 }
             }
-
-            const schedule = runProcess(this.state.timer, this.state.procs, newProcIdForScheduler);
             
-            if(schedule){
+            const scheduler = runProcess(this.state.general.timer, this.state.general.procs.slice(), newProcIdForScheduler);
+            
+            if(scheduler){
 
                 /*
-                    If the timer is lower than the proc's arrival time in the system, 
+                    If the timer is lower than the proc's arrival time in the system,
                     don't run it
                 */
-                if (schedule.noProcToRun){
+                if (scheduler.noProcToRun){
+
                     this.setState(state => ({
-                        totalExecutionTime: state.totalExecutionTime + 1,
-                        timer: state.timer + 1
+                        general: {...state.general,
+                            totalExecutionTime: state.totalExecutionTime + 1,
+                            timer: state.general.timer + 1
+                        }
                     }));
                 }else {
                     /*
@@ -680,28 +694,38 @@ export default class MLFQ extends React.Component{
                         by setting quantumTicks to quantumSlice
                     */
 
-                    let updateQueue = updateQueues(schedule.updateProcs, numQueues);
+                    let updateQueue = updateQueues(scheduler.updateProcs, numQueues);
 
-                    if(schedule.procDone){
+                    if(scheduler.procDone){
+
                         this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            queues: updateQueue,
-                            timer: state.timer + 1,
-                            boostTicks: state.boostTicks + 1,
-                            quantumTicks: quantumSlice
+                            general: {...state.general,
+                                timer: state.general.timer + 1,
+                                procs: scheduler.updateProcs
+                            },
+                            specific: {...state.specific,
+                                queues: updateQueue,
+                                boostTicks: state.specific.boostTicks + 1,
+                                quantumTicks: quantumSlice
+                            }
                         }));
+
                     }else{
                         this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            queues: updateQueue,
-                            timer: state.timer + 1,
-                            boostTicks: state.boostTicks + 1,
-                            quantumTicks: state.quantumTicks + 1
+                            general: {...state.general,
+                                procs: scheduler.updateProcs,
+                                timer: state.general.timer + 1
+                            },
+                            specific: {...state.specific,
+                                queues: updateQueue,
+                                boostTicks: state.specific.boostTicks + 1,
+                                quantumTicks: state.specific.quantumTicks + 1
+                            }
                         }));
                     }
                 }
             }
-        }else if(this.state.timer === this.state.totalExecutionTime){
+        }else if(this.state.general.timer === this.state.general.totalExecutionTime){
             /* 
                 if timer reached the end (all the procs ran to completion)
                 compute the results for the session (avgTurnaround, avgResponse)
@@ -709,40 +733,36 @@ export default class MLFQ extends React.Component{
             */
             clearInterval(this.schedulerTimerId);
 
-            let avgT = getAverage(this.state.procs, "turnaround");
-            let avgR = getAverage(this.state.procs, "response");
+            let avgT = getAverage(this.state.general.procs, "turnaround");
+            let avgR = getAverage(this.state.general.procs, "response");
 
             /* 
                 reset the component's state
             */
+
+            let procs = this.state.general.procs.slice();
+            let queues = this.state.specific.queues.slice();
+
+            this.copyCurrentConf();
+
+            let textareaProcs = this.state.general.textarea;
+
+            let updateSpecific = {...specific_MLFQ};
+            
+            updateSpecific.clear.quantum = this.state.specific.quantum;
+            updateSpecific.clear.boost = this.state.specific.boost;
+            updateSpecific.clear.numQueues = this.state.specific.numQueues;
+            updateSpecific.queues = queues;
+
             this.setState(state => ({
-                running: false,
-                playIcon: "play_circle",
-                timer: 0,
-                avgTurnaround: avgT,
-                avgResponse: avgR,
-                quantumTicks: 0,
-                boostTicks: 0,
-                numQueues: "",
-                quantum: "",
-                boost: "",
-                quantumDisabled: false,
-                boostDisabled: false,
-                queuesDisabled: false,
-                arrivalDisabled: false,
-                executionDisabled: false,
-                count: 0,
-                currentProcessIdx: 0,
-                totalExecutionTime: 0,
-                colorDeleteIcon: "#dc3545",
-                colorAddIcon: "#28a745",
-                colorClearIcon: "#dec8c8",
-                clear: {
-                    "quantum": state.quantum,
-                    "boost": state.boost,
-                    "numQueues": state.numQueues
+                general: {...general,
+                    procs: procs,
+                    avgTurnaround: avgT,
+                    avgResponse: avgR,
+                    sessionComplete: true,
+                    textarea: textareaProcs
                 },
-                sessionComplete: true
+                specific: updateSpecific
             }));
         }
     }
@@ -753,15 +773,26 @@ export default class MLFQ extends React.Component{
     */
     copyCurrentConf = () => {
 
+        let slice;
+        if (this.state.specific.quantum){
+            slice =  this.state.specific.quantum;
+
+        }else if (this.state.specific.clear.quantum){
+            slice = this.state.specific.clear.quantum;
+        }
+
         const general_settings = {
-            "Slice": this.state.quantum, 
-            "Boost": this.state.boost, 
-            "Queues": this.state.numQueues
+            "Slice": slice,
+            "Boost": this.state.specific.boost, 
+            "Queues": this.state.specific.numQueues
         };
-        const configuration = copyConfiguration(this.state.procs, general_settings)
-        
+
+        const configuration = copyConfiguration(this.state.general.procs.slice(), general_settings);
+
         this.setState(state => ({
-            textarea: configuration
+            general: {...state.general,
+                textarea: configuration
+            }
         }));
     }
 
@@ -778,20 +809,27 @@ export default class MLFQ extends React.Component{
         this.copyCurrentConf();
         let errorMsg = `{"Oops":"No processes available to copy. Start by adding at least one."}`;
 
-        if(this.state.textarea && this.state.textarea !== errorMsg){
+        if(this.state.general.textarea && this.state.general.textarea !== errorMsg){
+
             this.setState((state) => ({
-                pasteSetup: event.target.value
+                paste: {...state.paste,
+                    pasteSetup: event.target.value
+                }
             }));
         }
     }
 
+    /*
+        Switch with the current setup from MLFQ to other scheduler
+        and start running a new session.
+    */
     handleGo = () => {
 
-        const name = this.state.pasteSetup;
-        const slice = this.state.pasteSlice;
-        const boost = this.state.pasteBoost;
-        const queues = this.state.pasteQueues;
-        const setup = this.state.textarea;
+        const name = this.state.paste.pasteSetup;
+        const slice = this.state.specific.clear.quantum;
+        const boost = this.state.specific.clear.boost;
+        const queues = this.state.specific.clear.numQueues;
+        const setup = this.state.general.textarea;
         const currentName = "MLFQ";
 
        if (name === "FIFO" || name === "SJF" || name === "STCF" || name === "RR"){
@@ -805,12 +843,12 @@ export default class MLFQ extends React.Component{
         The progress made by each proc returns to 0.
     */
     handleClear = () => {
-        const session = this.state.sessionComplete;
-        const active = this.state.running;
-        const procs = this.state.procs.slice();
-        const quantum = this.state.clear.quantum;
-        const queues = this.state.clear.numQueues;
-        const boost = this.state.clear.boost;
+        const session = this.state.general.sessionComplete;
+        const active = this.state.general.running;
+        const procs = this.state.general.procs.slice();
+        const quantum = this.state.specific.clear.quantum;
+        const queues = this.state.specific.clear.numQueues;
+        const boost = this.state.specific.clear.boost;
         const clearProcs = [];
 
         if(!active && session){
@@ -834,23 +872,26 @@ export default class MLFQ extends React.Component{
     
 
     render(){
-        const processes = this.state.procs.slice();
+        const state_general = {...this.state.general};
+        const state_specific = {...this.state.specific};
+        const paste = {...this.state.paste};
+
         return(
             <React.Fragment>
             <div class="scheduler-wrapper">
                 <div className="container-fluid">
                     {/* Render the form through which the user will submit parameters for each process*/}
                     <div className="controlBtns">
-                        <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: this.state.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
+                        <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: state_general.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
                         <form onSubmit={this.handleSubmit}>
                             <p id="add-proc-desc">Add a new process: </p>
                             <Input title={arrival}
                                     label="Arrival time: "
                                     name="arrivalTime"
-                                    id={this.state.count}
+                                    id={state_general.count}
                                     handleChange={this.handleChange}
-                                    value={this.state.arrivalTime}
-                                    disabled={this.state.arrivalDisabled}
+                                    value={state_general.arrivalTime}
+                                    disabled={state_general.arrivalDisabled}
                                     min="0"
                                     max="200"
                             />
@@ -859,8 +900,8 @@ export default class MLFQ extends React.Component{
                                     name="executionTime"
                                     id="inputExecutionTime"
                                     handleChange={this.handleChange}
-                                    value={this.state.executionTime}
-                                    disabled={this.state.executionDisabled}
+                                    value={state_general.executionTime}
+                                    disabled={state_general.executionDisabled}
                                     min="1"
                                     max="200"
                             />
@@ -869,8 +910,8 @@ export default class MLFQ extends React.Component{
                                     name="quantum"
                                     id="quantum"
                                     handleChange={this.handleChange}
-                                    value={this.state.quantum}
-                                    disabled={this.state.quantumDisabled}
+                                    value={state_specific.quantum}
+                                    disabled={state_specific.quantumDisabled}
                                     min="1"
                                     max="50"
                             />
@@ -879,8 +920,8 @@ export default class MLFQ extends React.Component{
                                     name="boost"
                                     id="boost"
                                     handleChange={this.handleChange}
-                                    value={this.state.boost}
-                                    disabled={this.state.boostDisabled}
+                                    value={state_specific.boost}
+                                    disabled={state_specific.boostDisabled}
                                     min="1"
                                     max="100"
                             />
@@ -889,41 +930,41 @@ export default class MLFQ extends React.Component{
                                     name="numQueues"
                                     id="numQueues"
                                     handleChange={this.handleChange}
-                                    value={this.state.numQueues}
-                                    disabled={this.state.queuesDisabled}
+                                    value={state_specific.numQueues}
+                                    disabled={state_specific.queuesDisabled}
                                     min="1"
                                     max="10"
                             />
-                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
+                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: state_general.colorAddIcon}}>add_circle</span></button>
 
                         </form>
-                        <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{this.state.playIcon}</span></button>
+                        <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{state_general.playIcon}</span></button>
 
                         <TimeTooltip />
                     </div>
                     {/* Render the progress bars for each process*/}
                     <RenderProgressBarsMLFQ
-                        procs={processes.sort((a, b) => a.id - b.id)}
-                        queues={this.state.queues}
+                        procs={state_general.procs.slice().sort((a, b) => a.id - b.id)}
+                        queues={state_specific.queues}
                         deleteBar={this.deleteProc}
-                        avgTurnaround={this.state.avgTurnaround}
-                        avgResponse={this.state.avgResponse}
+                        avgTurnaround={state_general.avgTurnaround}
+                        avgResponse={state_general.avgResponse}
                         alertColor={this.props.alertColor}
                         name="MLFQ"
                         prefilledType={this.props.prefilledType}
-                        showDescription={this.state.showDescription}
-                        colorDeleteIcon={this.state.colorDeleteIcon}
-                        sessionComplete={this.state.sessionComplete}
+                        showDescription={state_general.showDescription}
+                        colorDeleteIcon={state_general.colorDeleteIcon}
+                        sessionComplete={state_general.sessionComplete}
                     />
                 </div>
                 <div className="wrapper-copy">
                     <div id="paste-wrapper">
-                        <label id="label-simulate" data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                        <label id="label-simulate" data-toggle="tooltip" data-html="true" data-placement="top" title={switchScheduler}>
                             Simulate setup with a different scheduler: 
                             <br />
                         </label>
-                        <select id="paste-setup" className="paste-setup-MLFQ"value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
-                            <option defaultValue disabled></option> 
+                        <select id="paste-setup" className="paste-setup-MLFQ form-control form-control-sm" value={paste.pasteSetup} onChange={this.pasteCurrentConf}>
+                            <option defaultValue>Select</option> 
                             <option name="FIFO">FIFO</option>
                             <option name="SJF">SJF</option>
                             <option name="STCF">STCF</option>

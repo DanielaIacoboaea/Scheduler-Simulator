@@ -158,6 +158,15 @@ body{
 
 #paste-setup{
     width: 10%;
+    cursor: pointer;
+}
+
+#paste-setup option:hover{
+    background-color: #dec8c8;
+}
+
+#paste-setup option{
+    text-align: center;
 }
 
 #paste-wrapper{

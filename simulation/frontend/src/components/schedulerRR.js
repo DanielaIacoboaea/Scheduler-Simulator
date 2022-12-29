@@ -8,7 +8,9 @@ import getAverage from "./computeAverage";
 import sortProcs from "./sortListOfProcs";
 import Input from "./inputNumber";
 import TimeTooltip from "./timeTooltip";
-import {arrival, execute, slice, boost, queues} from "./inputTooltips";
+import {arrival, execute, slice, boost, queues, switchScheduler} from "./inputTooltips";
+import {general, specific_RR, paste_RR} from "./generalStateSettings";
+import chooseProc from "./chooseNextProcRR";
 
 
 /*
@@ -25,39 +27,11 @@ export default class RR extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            procs: [],
-            count: 0,
-            running: false,
-            playIcon: "play_circle",
-            timer: 0,
-            currentProcessIdx: 0,
-            arrivalTime: "",
-            executionTime: "",
-            arrivalDisabled: false,
-            executionDisabled: false,
-            totalExecutionTime: 0,
-            avgTurnaround: 0,
-            avgResponse: 0,
-            quantum: "",
-            quantumTicks: 0,
-            disabled: false,
-            textarea: "",
-            pasteSetup: "",
-            pasteBoost: "",
-            pasteBoostDisabled: true,
-            pasteQueues: "",
-            pasteQueuesDisabled: true,
-            colorDeleteIcon: "#dc3545",
-            colorAddIcon: "#28a745",
-            colorClearIcon: "#dec8c8",
-            clear: {
-                "quantum": ""
-            },
-            sessionComplete: false,
-            showDescription: false
+            general: general,
+            specific: specific_RR,
+            paste: paste_RR
         };
     }
-    
 
     /* 
         When the component is mounted, check if we have prefilled settings to 
@@ -70,7 +44,6 @@ export default class RR extends React.Component{
         /*
             Check if we received default processes and settings 
         */
-
         //set up the tooltips for input labels 
         this.props.activateTooltip();
 
@@ -145,82 +118,51 @@ export default class RR extends React.Component{
                 Update state with all default settings 
                 and start sunning the scheduler with these settings
             */
+
+            let setGeneral = {...general};
+            let setSpecific = {...specific_RR};
+
+            setGeneral.procs = addProc;
+            setGeneral.count = count;
+            setGeneral.totalExecutionTime = totalExecution;
+
+            setSpecific.quantum = parseInt(procs_list[0].quantum);
+            setSpecific.disabled = true;
+
             if(start){
-                this.setState((state) => ({
-                    procs: addProc,
-                    count: count,
-                    totalExecutionTime: totalExecution,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    arrivalTime: "",
-                    executionTime: "",
-                    running: true,
-                    playIcon: "pause_circle",
-                    quantum: parseInt(procs_list[0].quantum),
-                    disabled: true,
-                    arrivalDisabled: true,
-                    executionDisabled: true,
-                    colorDeleteIcon: "#6c757d",
-                    colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d",
-                    showDescription: true
+
+                setGeneral.running = true;
+                setGeneral.playIcon = "pause_circle";
+                setGeneral.arrivalDisabled = true;
+                setGeneral.executionDisabled = true;
+                setGeneral.colorDeleteIcon = "#6c757d";
+                setGeneral.colorAddIcon = "#6c757d";
+                setGeneral.colorClearIcon = "#6c757d";
+                setGeneral.showDescription = true;
+
+                this.setState((state, props) => ({
+                    general: setGeneral,
+                    specific: setSpecific
+
                 }), () => this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000));
             }else{
-                this.setState((state) => ({
-                    procs: addProc,
-                    count: count,
-                    totalExecutionTime: totalExecution,
-                    avgTurnaround: 0,
-                    avgResponse: 0,
-                    arrivalTime: "",
-                    executionTime: "",
-                    running: false,
-                    playIcon: "play_circle",
-                    quantum: parseInt(procs_list[0].quantum),
-                    disabled: true,
-                    arrivalDisabled: false,
-                    executionDisabled: false,
-                    colorDeleteIcon: "#dc3545",
-                    colorAddIcon: "#28a745",
-                    colorClearIcon: "#dec8c8"
+                this.setState((state, props) => ({
+                    general: setGeneral,
+                    specific: setSpecific
                 }));
             }
-
         }
     }
         
     clearState = () => {
+        let clear_general = {...general};
+        let clear_specific = {...specific_RR};
+        let clear_paste = {...paste_RR};
+
         this.setState(state => ({
-            procs: [],
-            count: 0,
-            running: false,
-            playIcon: "play_circle",
-            timer: 0,
-            currentProcessIdx: 0,
-            arrivalTime: "",
-            executionTime: "",
-            arrivalDisabled: false,
-            executionDisabled: false,
-            totalExecutionTime: 0,
-            avgTurnaround: 0,
-            avgResponse: 0,
-            quantum: "",
-            quantumTicks: 0,
-            disabled: false,
-            textarea: "",
-            pasteSetup: "",
-            pasteBoost: "",
-            pasteBoostDisabled: true,
-            pasteQueues: "",
-            pasteQueuesDisabled: true,
-            colorDeleteIcon: "#dc3545",
-            colorAddIcon: "#28a745",
-            colorClearIcon: "#dec8c8",
-            clear: {
-                "quantum": ""
-            },
-            sessionComplete: false,
-            showDescription: false
+           general: clear_general,
+           specific: clear_specific,
+           paste: clear_paste
         }));
     }
     
@@ -230,9 +172,30 @@ export default class RR extends React.Component{
      */
     handleChange = (event) => {
 
-        this.setState((state) => ({
-            [event.target.name]: event.target.value
-        }));
+        if (event.target.name in this.state.general){
+
+            this.setState((state) => ({
+                general: {...state.general,
+                    [event.target.name]: event.target.value
+                }
+            }));
+
+        }else if(event.target.name in this.state.specific){
+
+            this.setState((state) => ({
+                specific: {...state.specific,
+                    [event.target.name]: event.target.value
+                }
+            }));
+
+        }else{
+
+            this.setState((state) => ({
+               paste: {...state.paste,
+                    [event.target.name]: event.target.value
+                }
+            }));
+        }
     }
 
     /*
@@ -251,32 +214,45 @@ export default class RR extends React.Component{
         let addProc;
         let count;
         let totalExecution;
-        if (this.state.arrivalTime && this.state.executionTime){
+
+        const procArrival = this.state.general.arrivalTime;
+        const procExecute = this.state.general.executionTime;
+        const avgT = this.state.general.avgTurnaround;
+        const old_procs = this.state.general.procs.slice();
+        const old_count = this.state.general.count;
+        const old_totalExecute = this.state.general.totalExecutionTime;
+
+        if (procArrival && procExecute){
             this.props.updateSubtitle();
 
-            if (this.state.avgTurnaround !== 0){
+            if (avgT !== 0){
                 addProc = [];
                 count = 0;
                 totalExecution = 0;
                 this.clearState();
             }else{
-                addProc = this.state.procs.slice();
-                count = this.state.count;
-                totalExecution = this.state.totalExecutionTime;
+                addProc = old_procs;
+                count = old_count;
+                totalExecution = old_totalExecute;
             }
 
-            let newAddproc = addProcess(addProc, count, this.state.arrivalTime, this.state.executionTime);
+            let newAddproc = addProcess(addProc, count, procArrival, procExecute);
             addProc.splice(0, addProc.length, ...newAddproc);
 
             this.setState((state) => ({
-                procs: addProc,
-                count: count + 1,
-                totalExecutionTime: totalExecution + parseInt(this.state.executionTime),
-                avgTurnaround: 0,
-                avgResponse: 0,
-                arrivalTime: "",
-                executionTime: "",
-                disabled: true
+                general: {...state.general,
+                    procs: addProc,
+                    count: count + 1,
+                    totalExecutionTime: totalExecution + parseInt(procExecute),
+                    avgTurnaround: 0,
+                    avgResponse: 0,
+                    arrivalTime: "",
+                    executionTime: "",
+                    sessionComplete: false
+                },
+                specific: {...state.specific,
+                    disabled: true
+                }
             }));
         }
     }
@@ -285,7 +261,11 @@ export default class RR extends React.Component{
         delete a process from the scheduler
     */
     deleteProc = (procId) => {
-        if(!this.state.running && this.state.timer === 0){
+        const running = this.state.general.running;
+        const timer = this.state.general.timer;
+        const procs = this.state.general.procs.slice();
+
+        if(!running && timer === 0){
             /* 
                 if the list of procs is empty, reset:
                  - the count to 0
@@ -295,13 +275,16 @@ export default class RR extends React.Component{
             */
             this.props.updateSubtitle();
 
-            const deleted = deleteEntry(this.state.procs.slice(), procId);
+            const deleted = deleteEntry(procs, procId);
             if (deleted.updateProcs.length === 0){
                 this.clearState();
             }else{
+
                 this.setState(state => ({
-                    procs: deleted.updateProcs,
-                    totalExecutionTime: deleted.updateTotalExecTime
+                    general: {...state.general,
+                        procs: deleted.updateProcs,
+                        totalExecutionTime: deleted.updateTotalExecTime
+                    }
                 }));
             }
         }
@@ -315,31 +298,43 @@ export default class RR extends React.Component{
         Execution Time for all process.
     */
     handleClickStart = () => {
-        if (this.state.procs.length !== 0){
+        let procs = this.state.general.procs.slice();
+        const numProcs = this.state.general.procs.length;
+        const running = this.state.general.running;
+        const totalExecute = this.state.general.totalExecutionTime;
 
-            if (!this.state.running && this.state.totalExecutionTime !== 0){
+        if (numProcs !== 0){
+
+            if (!running && totalExecute !== 0){
+                
+                let sortProcList = sortProcs(procs, 1, {"1": "arrivalTime"});
+                procs.splice(0, numProcs, ...sortProcList);
+
                 this.setState(state => ({
-                    running: true,
-                    playIcon: "pause_circle",
-                    arrivalDisabled: true,
-                    executionDisabled: true,
-                    colorDeleteIcon: "#6c757d",
-                    colorAddIcon: "#6c757d",
-                    colorClearIcon: "#6c757d"
+                   general: {...state.general,
+                        procs: procs,
+                        running: true,
+                        playIcon: "pause_circle",
+                        arrivalDisabled: true,
+                        executionDisabled: true,
+                        colorDeleteIcon: "#6c757d",
+                        colorAddIcon: "#6c757d",
+                        colorClearIcon: "#6c757d"
+                   }
                 }));
-
-                let sortProcList = sortProcs(this.state.procs, 1, {"1": "arrivalTime"});
-                this.state.procs.splice(0, this.state.procs.length, ...sortProcList);
 
                 this.schedulerTimerId = setInterval(() => this.runSchedulerTimeSlice(), 1000);
             }else{
+
                 clearInterval(this.schedulerTimerId);
                 this.setState(state => ({
-                    running: false,
-                    playIcon: "play_circle",
-                    colorDeleteIcon: "#dc3545",
-                    colorAddIcon: "#28a745",
-                    colorClearIcon: "#dec8c8"
+                    general: {...state.general,
+                        running: false,
+                        playIcon: "play_circle",
+                        colorDeleteIcon: "#dc3545",
+                        colorAddIcon: "#28a745",
+                        colorClearIcon: "#dec8c8"
+                    }
                 }));
             }
         }
@@ -354,123 +349,115 @@ export default class RR extends React.Component{
     */
     runSchedulerTimeSlice = () => {
         
-        const quantumSlice = parseInt(this.state.quantum);
-       
+        const quantumSlice = parseInt(this.state.specific.quantum);
+        let quantumTicks = this.state.specific.quantumTicks;
+        const timer = this.state.general.timer;
+        const totalExecute = this.state.general.totalExecutionTime;
+        const procs = this.state.general.procs.slice();
+        const numProcs = this.state.general.procs.length;
+        let running_proc_idx = this.state.general.currentProcessIdx;
+        
         /* 
             check timer 
         */
-        if(this.state.timer < this.state.totalExecutionTime){
+        if(timer < totalExecute){
             /*
                 Check if the current running proc used its time slice
-             */
-            if(this.state.quantumTicks === quantumSlice){
-                let newIdx;
-                /*
-                    Select the next proc from the list
-                 */
-                for (let i = this.state.currentProcessIdx + 1; i < this.state.procs.length; i++){
-                    if(this.state.procs[i].executed < this.state.procs[i].executionTime){
-                        newIdx = i;
-                        break;
-                    }
-                }
-
-                /*
-                    If no proc after the current one has time left from execution 
-                    Start searching a new proc from the beginning of the list
-                 */
-                if(newIdx === undefined){
-                    newIdx = 0;
-                    while(this.state.procs[newIdx].executed === this.state.procs[newIdx].executionTime){
-                        newIdx++;
-                    }
-                }
-                /*
-                    Switch to the new found proc
-                 */
-                if (this.state.currentProcessIdx !== newIdx){
-                    this.setState(state => ({
-                        currentProcessIdx: newIdx,
-                        quantumTicks: 0
-                    }));
-                }else{
-                    this.setState(state => ({
-                        quantumTicks: 0
-                    }));
-                }
-            }
-
-            /*
                 Run the selected process and update its internal state
-             */
-            const schedule = runProcess(this.state.timer, this.state.procs, this.state.currentProcessIdx);
-            
-            if(schedule){
+            */
+            const scheduler = runProcess(timer, procs, running_proc_idx);
+            if(scheduler){
                 /*
                     If the timer is lower than the proc's arrival time in the system, 
                     don't run it and increase the total execution Time 
-                 */
-                if (schedule.noProcToRun){
+                */
+
+                if (scheduler.noProcToRun){
+
                     this.setState(state => ({
-                        totalExecutionTime: state.totalExecutionTime + 1,
-                        timer: state.timer + 1
+                        general: {...state.general,
+                            timer: state.general.timer + 1,
+                            totalExecutionTime: state.general.totalExecutionTime + 1
+                        }
                     }));
                 }else {
                     /*
                         Otherwise, update the process's internal state
                         If the process is complete, select the next process from the list
                      */
-                    if(schedule.procDone){
+                    if(scheduler.procDone){
+
+                        let idx = chooseProc(running_proc_idx, scheduler.updateProcs, numProcs);
+
                         this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            timer: state.timer + 1,
-                            quantumTicks: quantumSlice
+                            general: {...state.general,
+                                procs: scheduler.updateProcs,
+                                currentProcessIdx: idx,
+                                timer: state.general.timer + 1
+                            },
+                            specific: {...state.specific,
+                                quantumTicks: 0
+                            }
                         }));
+
                     }else{
-                        this.setState(state => ({
-                            procs: schedule.updateProcs,
-                            timer: state.timer + 1,
-                            quantumTicks: state.quantumTicks + 1
-                        }));
+                        let ticks;
+                        let idx;
+
+                        if (this.state.specific.quantumTicks + 1 === quantumSlice){
+                            ticks = 0;
+                            idx = chooseProc(running_proc_idx, scheduler.updateProcs, numProcs);
+                        }else{
+                            ticks = this.state.specific.quantumTicks + 1;
+                            idx = running_proc_idx;
                         }
+
+                        this.setState(state => ({
+                            general: {...state.general,
+                                timer: state.general.timer + 1,
+                                procs: scheduler.updateProcs,
+                                currentProcessIdx: idx
+                            },
+                            specific: {...state.specific,
+                                quantumTicks: ticks
+                            }
+                        }));
                     }
                 }
-
-        }else if(this.state.timer === this.state.totalExecutionTime){
-             /* 
+            }
+        }else if(timer === totalExecute){
+            /* 
                 if timer reached the end (all the procs ran to completion)
                 compute the results for the session (avgTurnaround, avgResponse)
                 and reset the parameters related to timer.
             */
             clearInterval(this.schedulerTimerId);
 
-            let avgT = getAverage(this.state.procs, "turnaround");
-            let avgR = getAverage(this.state.procs, "response");
+            let avgT = getAverage(this.state.general.procs, "turnaround");
+            let avgR = getAverage(this.state.general.procs, "response");
 
             /*
                 Initialize the scheduler's state
-             */
+            */
+
+            let procs = this.state.general.procs.slice();
+            this.copyCurrentConf();
+
+            let textareaProcs = this.state.general.textarea;
+
+            let updateSpecific = {...specific_RR};
+
+            updateSpecific.clear.quantum = this.state.specific.quantum;
+
             this.setState(state => ({
-                running: false,
-                playIcon: "play_circle",
-                timer: 0,
-                avgTurnaround: avgT,
-                avgResponse: avgR,
-                quantumTicks: 0,
-                quantum: "",
-                arrivalDisabled: false,
-                executionDisabled: false,
-                disabled: false,
-                count: 0,
-                currentProcessIdx: 0,
-                totalExecutionTime: 0,
-                colorDeleteIcon: "#dc3545",
-                colorAddIcon: "#28a745",
-                colorClearIcon: "#dec8c8",
-                clear: {
-                    "quantum": state.quantum
+                general: {...general,
+                    procs: procs,
+                    avgTurnaround: avgT,
+                    avgResponse: avgR,
+                    sessionComplete: true,
+                    textarea: textareaProcs
                 },
-                sessionComplete: true
+                specific: updateSpecific
             }));
         }
     }
@@ -481,11 +468,20 @@ export default class RR extends React.Component{
     */
     copyCurrentConf = () => {
 
-        const general_settings = {"Slice": this.state.quantum};
-        const configuration = copyConfiguration(this.state.procs, general_settings)
+        let general_settings;
+        if (this.state.specific.quantum){
+            general_settings = {"Slice": this.state.specific.quantum};
+
+        }else if (this.state.specific.clear.quantum){
+            general_settings = {"Slice": this.state.specific.clear.quantum};
+        }
+
+        const configuration = copyConfiguration(this.state.general.procs, general_settings);
 
         this.setState(state => ({
-            textarea: configuration
+            general: {...state.general,
+                textarea: configuration
+            }
         }));
     }
 
@@ -504,33 +500,45 @@ export default class RR extends React.Component{
 
         let errorMsg = `{"Oops":"No processes available to copy. Start by adding at least one."}`;
 
-        if(this.state.textarea && this.state.textarea !== errorMsg){
+        const textarea = this.state.general.textarea;
+
+        if(textarea && textarea !== errorMsg){
             /*
                 If the new scheduler will be MLFQ, enable extra inputs for 
                 their general settings that the current scheduler does not have.
             */
+
             if(event.target.value === "MLFQ"){
 
                 this.setState((state) => ({
-                    pasteSetup: event.target.value,
-                    pasteBoostDisabled: false,
-                    pasteQueuesDisabled: false
+                    paste: {...state.paste,
+                        pasteSetup: event.target.value,
+                        pasteBoostDisabled: false,
+                        pasteQueuesDisabled: false
+                    }
                 }));
+                
             }else{
                 this.setState((state) => ({
-                    pasteSetup: event.target.value
+                    paste: {...state.paste,
+                        pasteSetup: event.target.value
+                    }
                 }));
             }
         }
     }
 
+     /*
+        Switch with the current setup from RR to other scheduler
+        and start running a new session.
+    */
     handleGo = () => {
 
-        const name = this.state.pasteSetup;
-        const slice = this.state.pasteSlice;
-        const boost = this.state.pasteBoost;
-        const queues = this.state.pasteQueues;
-        const setup = this.state.textarea;
+        const name = this.state.paste.pasteSetup;
+        const slice = this.state.specific.clear.quantum;
+        const boost = this.state.paste.pasteBoost;
+        const queues = this.state.paste.pasteQueues;
+        const setup = this.state.general.textarea;
         const currentName = "RR";
 
         if (name === "MLFQ" && boost !== "" && queues !== ""){
@@ -548,10 +556,10 @@ export default class RR extends React.Component{
         The progress made by each proc returns to 0.
     */
     handleClear = () => {
-        const session = this.state.sessionComplete;
-        const active = this.state.running;
-        const procs = this.state.procs.slice();
-        const quantum = this.state.clear.quantum;
+        const session = this.state.general.sessionComplete;
+        const active = this.state.general.running;
+        const procs = this.state.general.procs.slice();
+        const quantum = this.state.specific.clear.quantum;
         const clearProcs = [];
 
         if(!active && session){
@@ -574,23 +582,26 @@ export default class RR extends React.Component{
     }
 
     render(){
-        const processes = this.state.procs.slice();
+        const state_general = {...this.state.general};
+        const state_specific = {...this.state.specific};
+        const paste = {...this.state.paste};
+
         return(
             <React.Fragment>
             <div class="scheduler-wrapper">
                 <div className="container-fluid">
                     {/* Render the form through which the user will submit parameters for each process*/}
                     <div className="controlBtns">
-                        <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: this.state.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
+                        <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: state_general.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
                         <form onSubmit={this.handleSubmit}>
                             <p id="add-proc-desc">Add a new process: </p>
                             <Input title={arrival}
                                     label="Arrival time: "
                                     name="arrivalTime"
-                                    id={this.state.count}
+                                    id={state_general.count}
                                     handleChange={this.handleChange}
-                                    value={this.state.arrivalTime}
-                                    disabled={this.state.arrivalDisabled}
+                                    value={state_general.arrivalTime}
+                                    disabled={state_general.arrivalDisabled}
                                     min="0"
                                     max="200"
                             />
@@ -599,8 +610,8 @@ export default class RR extends React.Component{
                                     name="executionTime"
                                     id="inputExecutionTime"
                                     handleChange={this.handleChange}
-                                    value={this.state.executionTime}
-                                    disabled={this.state.executionDisabled}
+                                    value={state_general.executionTime}
+                                    disabled={state_general.executionDisabled}
                                     min="1"
                                     max="200"
                             />
@@ -609,38 +620,38 @@ export default class RR extends React.Component{
                                     name="quantum"
                                     id="quantum"
                                     handleChange={this.handleChange}
-                                    value={this.state.quantum}
-                                    disabled={this.state.disabled}
+                                    value={state_specific.quantum}
+                                    disabled={state_specific.disabled}
                                     min="1"
                                     max="50"
                             />
-                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: this.state.colorAddIcon}}>add_circle</span></button>
+                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: state_general.colorAddIcon}}>add_circle</span></button>
                         </form>
-                        <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{this.state.playIcon}</span></button>
+                        <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{state_general.playIcon}</span></button>
                         <TimeTooltip />
                     </div>
                     {/* Render the progress bars for each process*/}
                     <RenderProgressBars 
-                        procs={processes.sort((a, b) => a.id - b.id)}
+                        procs={state_general.procs.sort((a, b) => a.id - b.id)}
                         deleteBar={this.deleteProc}
-                        avgTurnaround={this.state.avgTurnaround}
-                        avgResponse={this.state.avgResponse}
+                        avgTurnaround={state_general.avgTurnaround}
+                        avgResponse={state_general.avgResponse}
                         alertColor={this.props.alertColor}
                         name="RR"
                         prefilledType={this.props.prefilledType}
-                        showDescription={this.state.showDescription}
-                        colorDeleteIcon={this.state.colorDeleteIcon}
-                        sessionComplete={this.state.sessionComplete}
+                        showDescription={state_general.showDescription}
+                        colorDeleteIcon={state_general.colorDeleteIcon}
+                        sessionComplete={state_general.sessionComplete}
                     />
                 </div>
                 <div className="wrapper-copy">
                     <div id="paste-wrapper">
-                        <label id="label-simulate" data-toggle="tooltip" data-placement="top" title="When switching to other scheduler, general settings from this one, that don't apply, will be removed. Additional settings may be required.">
+                        <label id="label-simulate" data-toggle="tooltip" data-html="true" data-placement="top" title={switchScheduler}>
                             Simulate setup with a different scheduler: 
                             <br />
                         </label>
-                        <select id="paste-setup" value={this.state.pasteSetup} onChange={this.pasteCurrentConf}>
-                            <option defaultValue disabled></option> 
+                        <select className="form-control form-control-sm" id="paste-setup" value={paste.pasteSetup} onChange={this.pasteCurrentConf}>
+                            <option defaultValue>Select</option> 
                             <option name="FIFO">FIFO</option>
                             <option name="SJF">SJF</option>
                             <option name="STCF">STCF</option>
@@ -653,8 +664,8 @@ export default class RR extends React.Component{
                                     name="pasteBoost"
                                     id="pasteBoost"
                                     handleChange={this.handleChange}
-                                    value={this.state.pasteBoost}
-                                    disabled={this.state.pasteBoostDisabled}
+                                    value={paste.pasteBoost}
+                                    disabled={paste.pasteBoostDisabled}
                                     min="1"
                                     max="100"
                             />
@@ -665,8 +676,8 @@ export default class RR extends React.Component{
                                     name="pasteQueues"
                                     id="pasteQueues"
                                     handleChange={this.handleChange}
-                                    value={this.state.pasteQueues}
-                                    disabled={this.state.pasteQueuesDisabled}
+                                    value={paste.pasteQueues}
+                                    disabled={paste.pasteQueuesDisabled}
                                     min="1"
                                     max="10"
                             />
