@@ -115,8 +115,8 @@ body{
 }
 
 .wrapper-copy{
-    margin-right: 1.5rem;
-    margin-top: 1.5rem;
+    width: 100%;
+    padding: 1rem;
 }
 
 #copy{
@@ -141,21 +141,6 @@ body{
     scale: 0.9;
 }
 
-#paste-textarea{
-    overflow-y: scroll;
-    height: 40vh;
-    outline: none;
-    resize: none;
-    border: none;
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border: 0.3rem;
-    letter-spacing: 0.1rem;
-    line-height: 150%;
-    font-family: 'Poppins', sans-serif;
-    width: 100%;
-}
-
 #paste-setup{
     width: 10%;
     cursor: pointer;
@@ -175,7 +160,7 @@ body{
     align-items: center;
     border-style: inset;
     border-width: 1.7px;
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: 0.3rem;
     border-width: 1.7px;
 }
@@ -342,6 +327,14 @@ label,
     cursor: pointer;
 }
 
+.navigation-sched-btns #FIFO,
+.navigation-sched-btns #SJF,
+.navigation-sched-btns #STCF,
+.navigation-sched-btns #RR,
+.navigation-sched-btns #MLFQ{
+    width: 100%;
+}
+
 
 [type=button]:not(:disabled), 
 [type=reset]:not(:disabled), 
@@ -370,6 +363,7 @@ input[type="number"]{
 .wrapper-btns-default{
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: space-around;
     margin-top: 1rem;
     margin-bottom: 2rem;
@@ -419,7 +413,23 @@ input[type="number"]{
 #RRBad,
 #MLFQGood,
 #MLFQBad{
-    width: 70%;
+    width: 100%;
+    font-size: 0.9rem;
+    margin: 0.2rem auto;
+}
+
+.btns-default #FIFOGood,
+.btns-default #FIFOBad,
+.btns-default #SJFGood,
+.btns-default #SJFBad,
+.btns-default #STCFGood,
+.btns-default #STCFBad,
+.btns-default #RRGood,
+.btns-default #RRBad,
+.btns-default #MLFQGood,
+.btns-default #MLFQBad{
+    margin: 0.3rem;
+    width: 90%;
 }
 
 .wrapper-btns-info{
@@ -452,7 +462,7 @@ input[type="number"]{
 .scheduler-info{
     white-space: pre-line;
     font-family: 'Poppins', sans-serif;
-
+    font-size: 0.8rem;
 }
 
 .container-fluid{
@@ -463,18 +473,48 @@ input[type="number"]{
     display: flex;
     flex-direction: column;
     max-height: 100%;
-    gap: 0.4rem;
+    width: 100%;
+}
+
+.navigation-sched-btns{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.2rem;
 }
 
 .navigation-sched-page button{
     font-size: 1rem;
-    margin: 0.2rem;
+    margin: 0;
 }
 
 .prefilled-sched-btns{
     display: flex;
     justify-content: space-around;
+    gap: 0.3rem;
 }
+
+.prefilled-sched-btns button{
+    font-size: 0.5rem;
+}
+
+.cases button{
+    margin: 0.3rem;
+}
+
+.mlfq-inputs{
+    display: flex;
+    align-items: center;
+}
+
+.mlfq-inputs label{
+    font-size: 1rem;
+}
+
+.mlfq-inputs input{
+    font-size: 0.9rem;
+}
+
 
 /*
     Footer with credits
@@ -502,10 +542,19 @@ input[type="number"]{
 
     .btns-default{
         display: flex;
+        width: 100%;
+    }
+    .info-cases{
+        flex-direction: column;
+        justify-content: space-evenly;
+        width: 100%;
+    }
+    .info{
+        width: 100%;
     }
 
     .wrapper-btns-single{
-       padding: 0.5rem;
+       padding: 0.2rem;
     }
 
     #FIFO{
@@ -533,7 +582,8 @@ input[type="number"]{
         grid-column: 1 /span 4;
     }
     #infoGroup{
-        margin-bottom: 4rem;
+        margin-top: 0.2rem;
+        margin-bottom: 0.6rem;
         padding: 0.2rem;
     }
     #description{
@@ -555,12 +605,14 @@ input[type="number"]{
     #SJFInfo,
     #STCFInfo,
     #RRInfo{
-        font-size: 0.9rem;
+        font-size: 0.5rem;
         padding: .55rem 1rem;
+        width: 100%;
     }
 
     #MLFQInfo{
-        font-size: 0.8rem;
+        font-size: 0.5rem;
+        width: 100%;
     }
 
     #FIFOGood,
@@ -574,6 +626,55 @@ input[type="number"]{
     #MLFQGood,
     #MLFQBad{
         padding: .4rem 0.8rem;
+        margin: 0.3rem;
+    }
+    .cases{
+        display: flex;
+        flex-direction: row;
+    }
+
+    .good-and-bad{
+        flex-direction: column;
+    }
+
+    .guide-header{
+        font-size: 1.2rem !important;
+    }
+
+    .navigation-sched-btns{
+        flex-direction: row;
+        width: 100%;
+        margin: 0 auto;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navigation-sched-btns #FIFO,
+    .navigation-sched-btns #SJF,
+    .navigation-sched-btns #STCF,
+    .navigation-sched-btns #RR,
+    .navigation-sched-btns #MLFQ{
+        width: 100%;
+    }
+    #label-simulate{
+        font-size: 1.1rem;
+    }
+
+    #paste-wrapper label{
+        font-size: 1rem;
+    }
+
+    #paste-wrapper{
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    #paste-wrapper > *{
+        width: 100%;
+    }
+
+    #paste-wrapper #go-paste{
+        width: auto;
     }
 }
 
@@ -593,7 +694,7 @@ input[type="number"]{
     #SJFInfo,
     #STCFInfo,
     #RRInfo{
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         padding: .55rem 1rem;
     }
 
@@ -612,6 +713,7 @@ input[type="number"]{
     #MLFQGood,
     #MLFQBad{
         padding: .4rem 0.8rem;
+        margin: 0.3rem;
     }
 }
 
@@ -629,24 +731,33 @@ input[type="number"]{
     }
 
     .wrapper-btns{
-        flex-direction: row;
+        flex-direction: column;
+        width: 100%;
     }
     .wrapper-btns:first-child{
         display: block;
         margin: 0 auto;
     }
 
+    .scheduler-wrapper{
+        width: 100%;
+    }
+
     .controlBtns{
         flex-direction: column;
+        width: 100%;
+    }
+
+    #add-proc-form{
+        width: 100%;
+    }
+
+    #add-proc-desc{
+        display: none;
     }
 
     .results-desc{
         display: none;
-    }
-
-    .wrapper-copy{
-        margin: 0;
-        padding: 2rem;
     }
 
     #copy{
@@ -668,16 +779,34 @@ input[type="number"]{
     }
     form label{
         font-size: 1.1rem;
+        margin-left: 0.1rem;
     }
+    .form-mlfq{
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+    .form-mlfq input{
+        font-size: 1.2rem;
+    }
+    .form-mlfq label{
+        margin: 0.5rem;
+    }
+
+    .mlfq-inputs{
+        flex-wrap: wrap;
+    }
+
     #page-title{
-        font-size: 3.5rem;
-        margin-bottom: 1rem;
+        font-size: 2.8rem;
+        margin-bottom: 0.3rem;
         padding: 1rem;
         margin-top: 1rem;
     }
 
     #page-subtitle{
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.5rem;
     }
     .results p{
         width: 7rem;
@@ -693,7 +822,11 @@ input[type="number"]{
         width: auto;
     }
     .guide-header{
-        font-size: 1.4rem;
+        font-size: 1rem;
+    }
+
+    .material-symbols-outlined {
+        font-size: 2.7rem !important;
     }
 }
 

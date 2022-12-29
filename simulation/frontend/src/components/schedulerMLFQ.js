@@ -883,59 +883,63 @@ export default class MLFQ extends React.Component{
                     {/* Render the form through which the user will submit parameters for each process*/}
                     <div className="controlBtns">
                         <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: state_general.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
-                        <form onSubmit={this.handleSubmit}>
+                        <form id="add-proc-form" className="form-mlfq" onSubmit={this.handleSubmit}>
                             <p id="add-proc-desc">Add a new process: </p>
-                            <Input title={arrival}
-                                    label="Arrival time: "
-                                    name="arrivalTime"
-                                    id={state_general.count}
-                                    handleChange={this.handleChange}
-                                    value={state_general.arrivalTime}
-                                    disabled={state_general.arrivalDisabled}
-                                    min="0"
-                                    max="200"
-                            />
-                            <Input title={execute}
-                                    label="Execute time: "
-                                    name="executionTime"
-                                    id="inputExecutionTime"
-                                    handleChange={this.handleChange}
-                                    value={state_general.executionTime}
-                                    disabled={state_general.executionDisabled}
-                                    min="1"
-                                    max="200"
-                            />
-                            <Input title={slice}
-                                    label="Time slice: "
-                                    name="quantum"
-                                    id="quantum"
-                                    handleChange={this.handleChange}
-                                    value={state_specific.quantum}
-                                    disabled={state_specific.quantumDisabled}
-                                    min="1"
-                                    max="50"
-                            />
-                            <Input title={boost}
-                                    label="Priority Boost: "
-                                    name="boost"
-                                    id="boost"
-                                    handleChange={this.handleChange}
-                                    value={state_specific.boost}
-                                    disabled={state_specific.boostDisabled}
-                                    min="1"
-                                    max="100"
-                            />
-                            <Input title={queues}
-                                    label="Queues: "
-                                    name="numQueues"
-                                    id="numQueues"
-                                    handleChange={this.handleChange}
-                                    value={state_specific.numQueues}
-                                    disabled={state_specific.queuesDisabled}
-                                    min="1"
-                                    max="10"
-                            />
-                            <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: state_general.colorAddIcon}}>add_circle</span></button>
+                            <div className="mlfq-inputs">
+                                <Input title={arrival}
+                                        label="Arrival time: "
+                                        name="arrivalTime"
+                                        id={state_general.count}
+                                        handleChange={this.handleChange}
+                                        value={state_general.arrivalTime}
+                                        disabled={state_general.arrivalDisabled}
+                                        min="0"
+                                        max="200"
+                                />
+                                <Input title={execute}
+                                        label="Execute time: "
+                                        name="executionTime"
+                                        id="inputExecutionTime"
+                                        handleChange={this.handleChange}
+                                        value={state_general.executionTime}
+                                        disabled={state_general.executionDisabled}
+                                        min="1"
+                                        max="200"
+                                />
+                                <Input title={slice}
+                                        label="Time slice: "
+                                        name="quantum"
+                                        id="quantum"
+                                        handleChange={this.handleChange}
+                                        value={state_specific.quantum}
+                                        disabled={state_specific.quantumDisabled}
+                                        min="1"
+                                        max="50"
+                                />
+                                <Input title={boost}
+                                        label="Priority Boost: "
+                                        name="boost"
+                                        id="boost"
+                                        handleChange={this.handleChange}
+                                        value={state_specific.boost}
+                                        disabled={state_specific.boostDisabled}
+                                        min="1"
+                                        max="100"
+                                />
+                                <Input title={queues}
+                                        label="Queues: "
+                                        name="numQueues"
+                                        id="numQueues"
+                                        handleChange={this.handleChange}
+                                        value={state_specific.numQueues}
+                                        disabled={state_specific.queuesDisabled}
+                                        min="1"
+                                        max="10"
+                                />
+                            </div>
+                            <div>
+                                <button type="submit" value="submit" id="submit-btn"><span class="material-symbols-outlined icon-add" style={{color: state_general.colorAddIcon}}>add_circle</span></button>
+                            </div>
 
                         </form>
                         <button type="buton" id="button-play"><span class="material-symbols-outlined icon-play" id="play" onClick={this.handleClickStart}>{state_general.playIcon}</span></button>

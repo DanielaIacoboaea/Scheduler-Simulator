@@ -589,7 +589,7 @@ export default class STCF extends React.Component{
                     {/* Render the form through which the user will submit parameters for each process*/}
                     <div className="controlBtns">
                         <button type="buton" id="button-clear"><span class="material-symbols-outlined icon-clear" id="clear" style={{color: state.colorClearIcon}} onClick={this.handleClear} >backspace</span></button>
-                        <form onSubmit={this.handleSubmit}>
+                        <form id="add-proc-form" onSubmit={this.handleSubmit}>
                             <p id="add-proc-desc">Add a new process: </p>
                             <Input title={arrival}
                                     label="Arrival time: "

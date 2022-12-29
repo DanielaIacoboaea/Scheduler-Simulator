@@ -93,28 +93,30 @@ export default class Buttons extends React.Component{
                         </a>
                         {btnsClass.map((btnClass) => 
                             <React.Fragment>
-                                <button
-                                    type="button" 
-                                    className={btnClass.class} 
-                                    id={btnClass.name} 
-                                    onClick={this.startScheduler}>
-                                    {btnClass.name}
-                                </button>
-                                <div className="prefilled-sched-btns">
-                                    <button 
-                                    type="button" 
-                                    className={btnsClassGood[btnClass.name]} 
-                                    id={`${btnClass.name}Good`} 
-                                    onClick={this.startDefaultScheduler}>
-                                        Best 
-                                    </button>
+                                <div className="navigation-sched-btns">
                                     <button
                                         type="button" 
-                                        className={btnsClassBad[btnClass.name]} 
-                                        id={`${btnClass.name}Bad`} 
-                                        onClick={this.startDefaultScheduler}>
-                                            Worst 
+                                        className={btnClass.class} 
+                                        id={btnClass.name} 
+                                        onClick={this.startScheduler}>
+                                        {btnClass.name}
                                     </button>
+                                    <div className="prefilled-sched-btns">
+                                        <button 
+                                        type="button" 
+                                        className={btnsClassGood[btnClass.name]} 
+                                        id={`${btnClass.name}Good`} 
+                                        onClick={this.startDefaultScheduler}>
+                                            Best 
+                                        </button>
+                                        <button
+                                            type="button" 
+                                            className={btnsClassBad[btnClass.name]} 
+                                            id={`${btnClass.name}Bad`} 
+                                            onClick={this.startDefaultScheduler}>
+                                                Worst 
+                                        </button>
+                                    </div>
                                 </div>
                             </React.Fragment>
                         )}

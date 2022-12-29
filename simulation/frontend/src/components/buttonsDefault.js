@@ -89,9 +89,9 @@ export default class ButtonsDefault extends React.Component{
                             <h4 className="guide-header">
                                 Learn how each scheduler works. <br /> 
                             </h4>
-                            <div className="btns-default-info">
+                            <div className="btns-default-info info-cases">
                                 {descriptions.map((description) => 
-                                    <div className="btns-default">
+                                    <div className="btns-default info">
                                         <button 
                                             className={`${description.classInfo} btn-lg`}
                                             id={`${description.name}Info`} 
@@ -100,31 +100,6 @@ export default class ButtonsDefault extends React.Component{
                                             aria-expanded="false" 
                                             aria-controls={`info${description.name}card`}>
                                                 {description.name} ?
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        <div className="wrapper-btns-info">
-                            <h4 className="guide-header">
-                                Practice exemples with pre-filled settings for best and worst case scenarios to see them in action: 
-                            </h4>
-                            <div className="btns-default-info">
-                                {descriptions.map((description) => 
-                                    <div className="btns-default">
-                                        <button 
-                                            type="button" 
-                                            className={description.class} 
-                                            id={`${description.name}Good`} 
-                                            onClick={this.startDefaultScheduler}>
-                                                Best Case
-                                        </button>
-                                        <button 
-                                            type="button" 
-                                            className={description.class} 
-                                            id={`${description.name}Bad`} 
-                                            onClick={this.startDefaultScheduler}>
-                                                Worst Case
                                         </button>
                                     </div>
                                 )}
@@ -141,6 +116,31 @@ export default class ButtonsDefault extends React.Component{
                         </article>
                     )}
                 </section>
+                <div className="wrapper-btns-info">
+                    <h4 className="guide-header">
+                        Practice exemples with pre-filled settings for best and worst case scenarios to see them in action: 
+                    </h4>
+                    <div className="btns-default-info good-and-bad">
+                        {descriptions.map((description) => 
+                            <div className="btns-default cases">
+                                <button 
+                                    type="button" 
+                                    className={description.class} 
+                                    id={`${description.name}Good`} 
+                                    onClick={this.startDefaultScheduler}>
+                                        Best Case
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className={description.class} 
+                                    id={`${description.name}Bad`} 
+                                    onClick={this.startDefaultScheduler}>
+                                        Worst Case
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                 </div>
             </section>
         );
     }
