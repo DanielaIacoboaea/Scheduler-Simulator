@@ -105,7 +105,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         let addProc = [];
         let count = 0;
         let totalExecution = 0;
-
+        let sortAddProc;
         /*
             Add each default proc to the array of procs
             Can't use a for loop to update state in React at each iteration 
@@ -130,42 +130,43 @@ export default class SchedulerFIFOandSJF extends React.Component{
         */
         if (this.props.sortBy === "FIFO"){
 
-            let sortAddProc = sortProcs(addProc, 1, {"1": "arrivalTime"});
+            sortAddProc = sortProcs(addProc.slice(), 1, {"1": "arrivalTime"});
             addProc.splice(0, addProc.length, ...sortAddProc);
 
         }else if (this.props.sortBy === "SJF"){
 
-            let sortAddProc = sortProcs(addProc, 2, {"1": "arrivalTime", "2": "executionTime"});
+            sortAddProc = sortProcs(addProc.slice(), 2, {"1": "arrivalTime", "2": "executionTime"});
             addProc.splice(0, addProc.length, ...sortAddProc);
-
         }
 
         /* 
             Update state with all default settings 
             and start running the scheduler with these settings
         */
-        let setGeneral = {...general};
-        setGeneral.procs = addProc;
-        setGeneral.count = count;
-        setGeneral.totalExecutionTime = totalExecution;
 
         if (start){
-            setGeneral.running = true;
-            setGeneral.playIcon = "pause_circle";
-            setGeneral.arrivalDisabled = true;
-            setGeneral.executionDisabled = true;
-            setGeneral.colorDeleteIcon = "#6c757d";
-            setGeneral.colorAddIcon = "#6c757d";
-            setGeneral.colorClearIcon = "#6c757d";
-            setGeneral.showDescription = true;
-
-            this.setState((state, props) => ({
-                general: setGeneral
+            this.setState((state) => ({
+                general: {...state.general,
+                    procs: addProc,
+                    count: count,
+                    totalExecutionTime: totalExecution,
+                    running: true,
+                    playIcon: "pause_circle",
+                    arrivalDisabled: true,
+                    executionDisabled: true,
+                    colorDeleteIcon: "#6c757d",
+                    colorAddIcon: "#6c757d",
+                    colorClearIcon: "#6c757d",
+                    showDescription: true
+                }
             }), () => this.schedulerTimerId = setInterval(() => this.runScheduler(), 1000));
         }else{
-
-            this.setState((state, props) => ({
-                general: setGeneral
+            this.setState((state) => ({
+                general: {...state.general,
+                    procs: addProc,
+                    count: count,
+                    totalExecutionTime: totalExecution
+                }
             }));
         }
     }
@@ -227,7 +228,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
         const procArrival = this.state.general.arrivalTime;
         const procExecute = this.state.general.executionTime;
         const avgT = this.state.general.avgTurnaround;
-        const old_procs = this.state.general.procs.slice();
+        let old_procs = this.state.general.procs.slice();
         const old_count = this.state.general.count;
         const old_totalExecute = this.state.general.totalExecutionTime;
         
@@ -313,21 +314,21 @@ export default class SchedulerFIFOandSJF extends React.Component{
         const totalExecute = this.state.general.totalExecutionTime;
 
         if (numProcs !== 0){
+            let sortProcList;
 
             if (!running && totalExecute !== 0){
                 
                 if (this.props.sortBy === "FIFO"){
 
-                    let sortProcList = sortProcs(procs, 1, {"1": "arrivalTime"});
+                    sortProcList = sortProcs(procs, 1, {"1": "arrivalTime"});
                     procs.splice(0, numProcs, ...sortProcList);
     
                 }else if (this.props.sortBy === "SJF"){
     
-                    let sortProcList = sortProcs(procs, 2, {"1": "arrivalTime", "2": "executionTime"});
+                    sortProcList = sortProcs(procs, 2, {"1": "arrivalTime", "2": "executionTime"});
                     procs.splice(0, numProcs, ...sortProcList);
     
                 }
-
                 this.setState(state => ({
                     general: {...state.general,
                         procs: procs,
@@ -370,7 +371,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
        
         const timer = this.state.general.timer;
         const totalExecute = this.state.general.totalExecutionTime;
-        const procs = this.state.general.procs;
+        let procs = this.state.general.procs.slice();
         const running_proc_idx = this.state.general.currentProcessIdx;
 
         /* 
@@ -611,7 +612,7 @@ export default class SchedulerFIFOandSJF extends React.Component{
                     </div>
                     {/* Render the progress bars for each process*/}
                     <RenderProgressBars 
-                        procs={state.procs.sort((a, b) => a.id - b.id)}
+                        procs={state.procs}
                         deleteBar={this.deleteProc}
                         avgTurnaround={state.avgTurnaround}
                         avgResponse={state.avgResponse}

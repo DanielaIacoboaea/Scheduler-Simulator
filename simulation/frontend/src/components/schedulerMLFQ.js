@@ -683,8 +683,7 @@ export default class MLFQ extends React.Component{
 
                     this.setState(state => ({
                         general: {...state.general,
-                            totalExecutionTime: state.totalExecutionTime + 1,
-                            timer: state.general.timer + 1
+                            totalExecutionTime: state.totalExecutionTime + 1
                         }
                     }));
                 }else {
@@ -948,7 +947,7 @@ export default class MLFQ extends React.Component{
                     </div>
                     {/* Render the progress bars for each process*/}
                     <RenderProgressBarsMLFQ
-                        procs={state_general.procs.slice().sort((a, b) => a.id - b.id)}
+                        procs={state_general.procs}
                         queues={state_specific.queues}
                         deleteBar={this.deleteProc}
                         avgTurnaround={state_general.avgTurnaround}

@@ -36,7 +36,7 @@ const general = {
 
 const specific_RR = {
     quantum: "",
-    quantumTicks: 0,
+    quantumTicks: 1,
     disabled: false,
     clear: {
         "quantum": ""

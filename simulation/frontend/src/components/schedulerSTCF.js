@@ -114,7 +114,7 @@ export default class STCF extends React.Component{
                 Sort the array of procs based on the type of scheduler
             */
 
-            let sortAddProc = sortProcs(addProc, 2, {"1": "arrivalTime", "2": "executionTime"});
+            let sortAddProc = sortProcs(addProc.slice(), 2, {"1": "arrivalTime", "2": "executionTime"});
             addProc.splice(0, addProc.length, ...sortAddProc);
 
             /* 
@@ -123,7 +123,8 @@ export default class STCF extends React.Component{
             */
 
             let setGeneral = {...general};
-            setGeneral.procs = addProc;
+
+            setGeneral.procs = sortAddProc.slice();
             setGeneral.count = count;
             setGeneral.totalExecutionTime = totalExecution;
 
@@ -619,7 +620,7 @@ export default class STCF extends React.Component{
                     </div>
                     {/* Render the progress bars for each process*/}
                     <RenderProgressBars 
-                        procs={state.procs.sort((a, b) => a.id - b.id)}
+                        procs={state.procs}
                         deleteBar={this.deleteProc}
                         avgTurnaround={state.avgTurnaround}
                         avgResponse={state.avgResponse}

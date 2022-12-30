@@ -112,6 +112,7 @@ export default class RR extends React.Component{
             */
 
             let sortAddProc = sortProcs(addProc, 1, {"1": "arrivalTime"});
+
             addProc.splice(0, addProc.length, ...sortAddProc);
 
             /* 
@@ -350,7 +351,6 @@ export default class RR extends React.Component{
     runSchedulerTimeSlice = () => {
         
         const quantumSlice = parseInt(this.state.specific.quantum);
-        let quantumTicks = this.state.specific.quantumTicks;
         const timer = this.state.general.timer;
         const totalExecute = this.state.general.totalExecutionTime;
         const procs = this.state.general.procs.slice();
@@ -360,12 +360,28 @@ export default class RR extends React.Component{
         /* 
             check timer 
         */
+       
         if(timer < totalExecute){
             /*
                 Check if the current running proc used its time slice
                 Run the selected process and update its internal state
             */
+
+            if(this.state.specific.quantumTicks === quantumSlice){
+                let idx = chooseProc(running_proc_idx, this.state.general.procs.slice(), numProcs);
+                this.setState(state => ({
+                    general: {...state.general,
+                        currentProcessIdx: idx
+                    },
+                    specific: {...state.specific,
+                        quantumTicks: 0
+                    }
+                }));
+            }
+            running_proc_idx = this.state.general.currentProcessIdx;
+
             const scheduler = runProcess(timer, procs, running_proc_idx);
+            
             if(scheduler){
                 /*
                     If the timer is lower than the proc's arrival time in the system, 
@@ -387,39 +403,23 @@ export default class RR extends React.Component{
                      */
                     if(scheduler.procDone){
 
-                        let idx = chooseProc(running_proc_idx, scheduler.updateProcs, numProcs);
-
                         this.setState(state => ({
                             general: {...state.general,
                                 procs: scheduler.updateProcs,
-                                currentProcessIdx: idx,
                                 timer: state.general.timer + 1
                             },
                             specific: {...state.specific,
-                                quantumTicks: 0
+                                quantumTicks: quantumSlice
                             }
                         }));
-
                     }else{
-                        let ticks;
-                        let idx;
-
-                        if (this.state.specific.quantumTicks + 1 === quantumSlice){
-                            ticks = 0;
-                            idx = chooseProc(running_proc_idx, scheduler.updateProcs, numProcs);
-                        }else{
-                            ticks = this.state.specific.quantumTicks + 1;
-                            idx = running_proc_idx;
-                        }
-
                         this.setState(state => ({
                             general: {...state.general,
                                 timer: state.general.timer + 1,
                                 procs: scheduler.updateProcs,
-                                currentProcessIdx: idx
                             },
                             specific: {...state.specific,
-                                quantumTicks: ticks
+                                quantumTicks: state.specific.quantumTicks + 1
                             }
                         }));
                     }
@@ -632,7 +632,7 @@ export default class RR extends React.Component{
                     </div>
                     {/* Render the progress bars for each process*/}
                     <RenderProgressBars 
-                        procs={state_general.procs.sort((a, b) => a.id - b.id)}
+                        procs={state_general.procs}
                         deleteBar={this.deleteProc}
                         avgTurnaround={state_general.avgTurnaround}
                         avgResponse={state_general.avgResponse}

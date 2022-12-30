@@ -11,7 +11,7 @@ function runProcess(timer, allProcs, idx){
     const executed = proc.executed;
     let procDone = false;
     let noProcToRun = false;
-
+   
     /*
         If the process is not in the system yet,
         signal to the scheduler that it can't be run
@@ -28,7 +28,8 @@ function runProcess(timer, allProcs, idx){
     /*
         If it's the first time that the process is scheduled to run, 
         update its starting parameters
-     */
+    */
+
     if(executed === 0){
         proc.startRunning = timer;
         const percentInc = 100 / proc.executionTime;
@@ -36,9 +37,7 @@ function runProcess(timer, allProcs, idx){
         proc.executedPercentage = proc.percentage;
         proc.executed += 1;
         proc.timeLeft = proc.executionTime;
-        /*
-            If it's already done running, signal to the scheduler
-        */
+       
         if (proc.executed === proc.executionTime){
             proc.turnaround = timer - proc.arrivalTime;
             proc.response = proc.startRunning - proc.arrivalTime;

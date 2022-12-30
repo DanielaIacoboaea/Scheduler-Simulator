@@ -20,7 +20,7 @@ function sortProcs(procs, numParams, params){
             return a[param1] - b[param1];
         });
     }
-    return procs;
+    return procs.slice();
 }
 
 export default sortProcs;

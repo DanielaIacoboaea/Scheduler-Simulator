@@ -24,7 +24,7 @@ function addProcess(procs, id, arrivalTime, executeTime){
         }
     );
 
-    return addProc;
+    return [...addProc];
 }
 
 export default addProcess;
