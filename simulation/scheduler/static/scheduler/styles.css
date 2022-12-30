@@ -480,7 +480,8 @@ input[type="number"]{
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: 0.2rem;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .navigation-sched-page button{
@@ -515,6 +516,9 @@ input[type="number"]{
     font-size: 0.9rem;
 }
 
+.good-and-bad{
+    margin-bottom: 1rem;
+}
 
 /*
     Footer with credits
