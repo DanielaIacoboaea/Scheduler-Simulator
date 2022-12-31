@@ -20,7 +20,7 @@ The purpose of this project is to design and implement a web application of your
 ### How to run the application
 
 The app uses **Django**, the **Python**-based web framework, and **Django**'s **ORM** for interacting with the database.  
-For frontend, the app is built with **React**(using **npm package manager**, **Babel**, **Webpack**), **HTML**, **CSS**, **JavaScript** and **Bootstrap**. 
+For frontend, the app is built with **React**, **HTML**, **CSS**, **JavaScript** and **Bootstrap**. 
 
 
 #### Useful commands:
@@ -40,9 +40,18 @@ Inside the project directory (**Scheduler-Simulator/**) run the following comman
 
 Inside the app directory (**Scheduler-Simulator/simulation**) run the following commands:  
 
-`python3 manage.py makemigrations scheduler` to make migrations for the scheduler app  
+`python3 manage.py makemigrations backend` to make migrations for the simulation app  
 `python3 manage.py migrate` to apply migrations to your database  
 `python3 manage.py loaddata data.json` to load default data into the database 
+
+
+* **Run** the app:
+
+Inside the app directory (**Scheduler-Simulator/simulation**) run the following command:
+
+`python3 manage.py runserver`
+
+---
 
 * **Building the UI**:   
 
@@ -56,11 +65,10 @@ To build the project after making UI changes, from **Scheduler-Simulator/simulat
 `cd frontend/ && npm run build`  
 `cd ../ && python3 manage.py runserver`
 
-* **Run** the app:
+* **Run tests**
 
-Inside the app directory (**Scheduler-Simulator/simulation**) run the following command:
-
-`python3 manage.py runserver`
+From the **Scheduler-Simulator/simulation** directory run the commands:   
+`cd frontend/ && npm run test`  
 
 --- 
 
@@ -176,34 +184,34 @@ After the prefilled settings are fetched from the database, the scheduler starts
 The *Django* project is called *simulation* and has one app called *scheduler*.    
 
 The frontend and backend are build independently of each other.  
-The *scheduler* app uses the frontend build separately with **React** and bundled into `main.js` file in the *scheduler's* static folder.
+The *simulation* app uses the frontend build separately with **React** and bundled into `main.js` file in the *scheduler's* static folder.
 
 ```
 ├── README.md     
 ├── requirements.txt    
 └── simulation    
-    ├── frontend    
-    ├── manage.py    
-    ├── scheduler    
-    └── simulation   
+    ├── frontend       
+    ├── backend   
+    ├── simulation   
+    └── manage.py 
 ```
 
 
 ## Backend 
 
-##### Scheduler-Simulator/simulation/scheduler/views.py 
+##### Scheduler-Simulator/simulation/backend/views.py 
 
 Here are defined the routes for:
 * the home page, rendering the index.html template from the view
 * the endpoint API, that returns the prefilled settings from the database to the requester. 
 
-##### Scheduler-Simulator/simulation/scheduler/models.py
+##### Scheduler-Simulator/simulation/backend/models.py
 
 *  models for the database
 *  the database has prefilled workloads examples (best performing and worst performing) for each scheduler 
 
 
-##### Scheduler-Simulator/simulation/scheduler/templates/scheduler/index.html
+##### Scheduler-Simulator/simulation/backend/templates/scheduler/index.html
 
 The index.html template is rendered when the default route is reached.  
 
@@ -211,7 +219,7 @@ The index.html template is rendered when the default route is reached.
 * the main *React* component called **App** is rendered to the DOM. 
 
 
-##### Scheduler-Simulator/simulation/scheduler/static/scheduler/
+##### Scheduler-Simulator/simulation/backend/static/scheduler/
 
 Has the following files and folders: 
 
@@ -261,6 +269,4 @@ The course had a brief introduction to **React** and I thought that it would be 
 Eventually, I used what I've learned in the final project.  
 
 Also, at the same time, I was working on an OS Course (*Introduction to Operating Systems, Three Easy Pieces by Remzi Arpaci Dusseau*) and the idea of the project came by combining the two.
-
-
 

@@ -1,41 +1,41 @@
 [
     {
-        "model": "scheduler.scheduler", 
+        "model": "backend.scheduler", 
         "pk": 1, 
         "fields": {
             "name": "FIFO"
             }
     }, 
     {
-        "model": "scheduler.scheduler", 
+        "model": "backend.scheduler", 
         "pk": 2, 
         "fields": {
             "name": "SJF"
         }
     }, 
     {
-        "model": "scheduler.scheduler", 
+        "model": "backend.scheduler", 
         "pk": 3, 
         "fields": {
             "name": "STCF"
         }
     }, 
     {
-        "model": "scheduler.scheduler", 
+        "model": "backend.scheduler", 
         "pk": 4, 
         "fields": {
             "name": "RR"
         }
     }, 
     {
-        "model": "scheduler.scheduler", 
+        "model": "backend.scheduler", 
         "pk": 5, 
         "fields": {
             "name": "MLFQ"
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 1, 
         "fields": {
             "scheduler": 1, 
@@ -49,7 +49,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 2, 
         "fields": {
             "scheduler": 1, 
@@ -63,7 +63,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 3, 
         "fields": {
             "scheduler": 1, 
@@ -77,7 +77,7 @@
             }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 4, 
         "fields": {
             "scheduler": 1, 
@@ -91,7 +91,7 @@
             }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 5, 
         "fields": {
             "scheduler": 1, 
@@ -105,7 +105,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 6, 
         "fields": {
             "scheduler": 1, 
@@ -119,7 +119,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 7, 
         "fields": {
             "scheduler": 1, 
@@ -133,7 +133,7 @@
             }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 8, 
         "fields": {
             "scheduler": 2, 
@@ -147,7 +147,7 @@
             }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 9, 
         "fields": {
             "scheduler": 2, 
@@ -161,7 +161,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 10, 
         "fields": {
             "scheduler": 2, 
@@ -175,7 +175,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 11, 
         "fields": {
             "scheduler": 2, 
@@ -189,7 +189,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 12, 
         "fields": {
             "scheduler": 2, 
@@ -203,7 +203,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 13, 
         "fields": {
             "scheduler": 2, 
@@ -217,7 +217,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 14, 
         "fields": {
             "scheduler": 2, 
@@ -231,7 +231,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 15, 
         "fields": {
             "scheduler": 3, 
@@ -245,7 +245,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 16, 
         "fields": {
             "scheduler": 3, 
@@ -259,7 +259,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 17, 
         "fields": {
             "scheduler": 3, 
@@ -273,7 +273,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 18, 
         "fields": {
             "scheduler": 3, 
@@ -287,7 +287,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 19, 
         "fields": {
             "scheduler": 3, 
@@ -301,7 +301,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 20, 
         "fields": {
             "scheduler": 3, 
@@ -315,7 +315,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 21, 
         "fields": {
             "scheduler": 3, 
@@ -329,7 +329,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 22, 
         "fields": {
             "scheduler": 3, 
@@ -343,7 +343,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 23, 
         "fields": {
             "scheduler": 4, 
@@ -357,7 +357,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 24, 
         "fields": {
             "scheduler": 4, 
@@ -371,7 +371,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 25, 
         "fields": {
             "scheduler": 4, 
@@ -385,7 +385,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 26, 
         "fields": {
             "scheduler": 4, 
@@ -399,7 +399,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 29, 
         "fields": {
             "scheduler": 4, 
@@ -413,7 +413,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 30, 
         "fields": {
             "scheduler": 4, 
@@ -427,7 +427,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 31, 
         "fields": {
             "scheduler": 4, 
@@ -441,7 +441,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 32, 
         "fields": {
             "scheduler": 5, 
@@ -455,7 +455,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 33, 
         "fields": {
             "scheduler": 5, 
@@ -469,7 +469,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 34, 
         "fields": {
             "scheduler": 5, 
@@ -483,7 +483,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 35, 
         "fields": {
             "scheduler": 5, 
@@ -497,7 +497,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 36, 
         "fields": {
             "scheduler": 5, 
@@ -511,7 +511,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 37, 
         "fields": {
             "scheduler": 5, 
@@ -525,7 +525,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 38, 
         "fields": {
             "scheduler": 5, 
@@ -539,7 +539,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 39, 
         "fields": {
             "scheduler": 5, 
@@ -553,7 +553,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 40, 
         "fields": {
             "scheduler": 5, 
@@ -567,7 +567,7 @@
         }
     }, 
     {
-        "model": "scheduler.defaults", 
+        "model": "backend.defaults", 
         "pk": 41, 
         "fields": {
             "scheduler": 5, 
