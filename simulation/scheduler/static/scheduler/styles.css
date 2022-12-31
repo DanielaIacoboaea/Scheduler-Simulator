@@ -508,14 +508,6 @@ input[type="number"]{
     align-items: center;
 }
 
-.mlfq-inputs label{
-    font-size: 1rem;
-}
-
-.mlfq-inputs input{
-    font-size: 0.9rem;
-}
-
 .good-and-bad{
     margin-bottom: 1rem;
 }
@@ -662,24 +654,6 @@ input[type="number"]{
     #label-simulate{
         font-size: 1.1rem;
     }
-
-    #paste-wrapper label{
-        font-size: 1rem;
-    }
-
-    #paste-wrapper{
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    #paste-wrapper > *{
-        width: 100%;
-    }
-
-    #paste-wrapper #go-paste{
-        width: auto;
-    }
 }
 
 @media(max-width: 1000px){
@@ -720,6 +694,33 @@ input[type="number"]{
         margin: 0.3rem;
     }
 }
+
+@media(max-width: 1200px){
+
+    #paste-wrapper label{
+        font-size: 1rem;
+    }
+
+    #paste-wrapper{
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    #paste-wrapper > *{
+        width: 100%;
+    }
+
+    #paste-wrapper #go-paste{
+        width: auto;
+    }
+
+    .paste-setup-MLFQ{
+        width: 100% !important;
+    }
+
+}
+
 
 @media(max-width: 450px){
     .guide-header{
