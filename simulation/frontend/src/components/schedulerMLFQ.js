@@ -162,7 +162,7 @@ export default class MLFQ extends React.Component{
             setSpecific.numQueues = numQueuesDefault;
             setSpecific.queuesDisabled = true;
             setSpecific.queues = addToQueue;
-
+           
             /* 
                 Update state with all default settings 
                 and start sunning the scheduler with these settings
@@ -672,7 +672,7 @@ export default class MLFQ extends React.Component{
             }
             
             const scheduler = runProcess(this.state.general.timer, this.state.general.procs.slice(), newProcIdForScheduler);
-            
+           
             if(scheduler){
 
                 /*
@@ -683,7 +683,8 @@ export default class MLFQ extends React.Component{
 
                     this.setState(state => ({
                         general: {...state.general,
-                            totalExecutionTime: state.totalExecutionTime + 1
+                            totalExecutionTime: state.general.totalExecutionTime + 1,
+                            timer: state.general.timer + 1
                         }
                     }));
                 }else {
