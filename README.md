@@ -4,14 +4,20 @@
 The purpose of this project is to design and implement a web application of your own with **Python** and **JavaScript**, distinct from the other projects in this course.
 
 
+>   **Click below for YouTube Demo**:  
+    
+>   [![Watch the video](https://img.youtube.com/vi/saApdS8g4f4/maxresdefault.jpg)](https://youtu.be/saApdS8g4f4)
+
+
 #### What does the app do? 
 
-**Scheduler Simulator** has five main **functionalities**:
+**Scheduler Simulator** has six main **functionalities**:
 
 * Provide a bit of ***background information*** to the user to understand how each scheduler works 
 * Provide ***prefilled settings*** for each scheduler for best and worst case scenarios
 * Provide a playground in which the user can ***simulate*** a workload with ***custom settings*** for any scheduler and start a new ***scheduling session***
 * ***play-stop*** option for an ongoing scheduling session 
+* ***clear*** option for a terminated scheduling session 
 * Provide a ***copy*** and ***paste*** setup option so that the user can:
     * paste(load) the copied workload and general settings as input for other scheduler 
     * create a **prefilled** like option for **custom workloads** added by the user 
@@ -65,9 +71,10 @@ To build the project after making UI changes, from **Scheduler-Simulator/simulat
 `cd frontend/ && npm run build`  
 `cd ../ && python3 manage.py runserver`
 
-* **Run tests**
+* **Run tests**  
+Support for testing the frontend using **Jest** is added.  
 
-From the **Scheduler-Simulator/simulation** directory run the commands:   
+    From the **Scheduler-Simulator/simulation** directory run the commands:   
 `cd frontend/ && npm run test`  
 
 --- 
@@ -106,8 +113,10 @@ The **Distinctiveness and Complexity** of this project can be split into five ar
 - [Understand the theory](#understand-the-theory)
 - [Develop a responsive design for the UI elements](#develop-a-responsive-design-for-the-ui-elements)
 - [Develop the algorithms for each scheduler](#develop-the-algorithms-for-each-scheduler)
-- [Add the copy-paste functionality](#add-the-copy-paste-functionality) 
+- [Add the paste functionality to simulate the current workload with a different scheduler](#add-the-paste-functionality) 
 - [Add prefilled settings functionality](#add-prefilled-settings-functionality) 
+- [Add clear scheduling session functionality](#add-clear-scheduling-session-functionality) 
+
 
 
 
@@ -132,15 +141,16 @@ From the *home page*, the UI elements allow a user to:
 
 * access a brief info section about each scheduler 
 * navigate between schedulers
-* get pre-filled settings for each scheduler
+* get prefilled settings for each scheduler
 
 
 After a *scheduler* component is rendered, the UI elements allow a user to:
 
 * create workloads for the rendered scheduler
-* copy-paste current configuration and use it for other scheduler
+* paste current configuration and use it for other scheduler
 * run scheduling sessions and obtain performance results for each session: average *Turnaround* and *Response* Time 
 * play-pause an ongoing scheduling session
+* clear a scheduling session
 * visualize how the progress made by a process changes over time until completion and the dynamic between them 
 
 
@@ -154,37 +164,42 @@ Here, **React** is used to create/update state/remove components and render them
 
 An exciting part of the project was:
 * figure out how the state of each scheduler should look like
-* writte the decision making algorithm for each scheduler
+* write the decision making algorithm for each scheduler
 * find solutions to interesting problems (e.g: can't trigger multiple state updates in *React* in a for loop)
 * figure out how different elements should interact with each other and treat edge cases like don't delete/add a process while the scheduler is running 
 
 
-### Add the copy-paste functionality
+### Add the paste functionality
 
 Create an **interface** for the user to **configure workloads** and **load** them as **prefilled settings** for other scheduler: 
 
 * If the new scheduler has **more general settings** than the current one, enable and require additional input from the user (for e.g switch from FIFO to RR, require time slice)
 * If the new scheduler has **fewer general settings** than the current one, the additional settings will be removed (for e.g switch from MLFQ to STCF: time slice, queues and boost will be dropped)
 
-This interface was used to **create the workloads** for **prefilled configuration**, export them and save them in **Django admin**. 
+This interface was used to **create the workloads** for **prefilled configuration**, export them and save them in the database. 
 
 ### Add prefilled settings functionality
 
 
-Using the already implemented **copy-paste** function for a workload, the **prefilled configurations** were saved to the database. 
+Using the already implemented **paste** function for a workload, the **prefilled configurations** were saved to the database. 
 
 The prefilled settings show best and worst case scenarios for each scheduler, serving as **guidelines** for each scheduler's **performance**.
 
 After the prefilled settings are fetched from the database, the scheduler starts running a new session.
 
+
+### Add clear scheduling session functionality
+
+Once a scheduling session ends, the **clear** feature removes the progress made by each process and allows the user to *modify* the existing *workload* and start a new session. 
+
 ---
 
 ### The Structure of the Project 
 
-The *Django* project is called *simulation* and has one app called *scheduler*.    
+The *Django* project is called *simulation* and has one app called *backend*.    
 
 The frontend and backend are build independently of each other.  
-The *simulation* app uses the frontend build separately with **React** and bundled into `main.js` file in the *scheduler's* static folder.
+The *simulation* app uses the frontend build separately with **React** and bundled into `main.js` file in the *backend's* static folder.
 
 ```
 ├── README.md     
@@ -253,7 +268,7 @@ The **components** folder has all the **modules** needed for the app:
 * components for each scheduler (except FIFO and SJF that share the same component with small differences)
 * each scheduler component allows the user to: 
     * **create** workload as input
-    * **start/pause** a scheduling session for the input workload
+    * **start/pause/clear** a scheduling session for the input workload
     * keeps a list with all the processes settings, **decides** which process should run next and calls `runProcess()` function that runs one process 
     * maintains the state of the **progress** made on workload and **visually** represents it
     * shows **statistics** at the end of the session
@@ -265,8 +280,7 @@ The **components** folder has all the **modules** needed for the app:
 
 ### Final thoughts
 
-The course had a brief introduction to **React** and I thought that it would be nice to start from there and learn **React** on my own and.   
+The course had a brief introduction to **React** and I thought that it would be nice to start from there and learn **React** on my own.   
 Eventually, I used what I've learned in the final project.  
 
-Also, at the same time, I was working on an OS Course (*Introduction to Operating Systems, Three Easy Pieces by Remzi Arpaci Dusseau*) and the idea of the project came by combining the two.
-
+Also, at the same time, I was working on an **OS Course** (*Introduction to Operating Systems, Three Easy Pieces by Remzi Arpaci Dusseau*) and the idea of the project came by combining the two learning resources.
